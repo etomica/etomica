@@ -4,17 +4,19 @@
 
 package etomica.modules.mu;
 
-import etomica.data.*;
+import etomica.atom.IAtomKinetic;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorHard.CollisionListener;
-import etomica.potential.P1HardBoundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Pressure2D;
 
-public class DataSourceWallPressureMu implements IDataSource, CollisionListener {
+public class DataSourceWallPressureMu implements IDataSource, IntegratorHard.CollisionListener {
     public DataSourceWallPressureMu(Space space) {
         this.space = space;
         data = new DataDoubleArray(2);
@@ -27,15 +29,14 @@ public class DataSourceWallPressureMu implements IDataSource, CollisionListener 
      * Implementation of CollisionListener interface
      * Adds collision virial (from potential) to accumulator
      */
-    public void collisionAction(IntegratorHard.Agent agent) {
-        if (agent.collisionPotential instanceof P1HardBoundary) {
-            Vector p = agent.atom.getPosition();
-            if (p.getX(0) < 0) {
-                virialSumIG -= ((P1HardBoundary)agent.collisionPotential).lastWallVirial();
-            }
-            else {
-                virialSumSQW += ((P1HardBoundary)agent.collisionPotential).lastWallVirial();
-            }
+    @Override
+    public void fieldCollision(IAtomKinetic atom, Vector r, Vector deltaP, double tCollision) {
+        double x = r.getX(0);
+        if (Math.abs(x) < 1) return;
+        if (x < 0) {
+            virialSumIG -= deltaP.getX(0);
+        } else {
+            virialSumSQW += deltaP.getX(0);
         }
     }
 
@@ -63,12 +64,12 @@ public class DataSourceWallPressureMu implements IDataSource, CollisionListener 
      * a DataSourceTimer to keep track of elapsed time of integrator.
      */
     public void setIntegrator(IntegratorHard newIntegrator) {
-        if(newIntegrator == integratorHard) return;
-        if(integratorHard != null) {
+        if (newIntegrator == integratorHard) return;
+        if (integratorHard != null) {
             integratorHard.removeCollisionListener(this);
         }
         integratorHard = newIntegrator;
-        if(newIntegrator != null) {
+        if (newIntegrator != null) {
             integratorHard.addCollisionListener(this);
             lastTime = integratorHard.getCurrentTime();
         }
@@ -87,4 +88,10 @@ public class DataSourceWallPressureMu implements IDataSource, CollisionListener 
     protected final DataDoubleArray data;
     protected final DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
+
+    @Override
+    public void pairCollision(IAtomKinetic atom1, IAtomKinetic atom2, Vector rij, Vector dv, double virial, double tCollision) {
+
+    }
+
 }

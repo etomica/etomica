@@ -20,7 +20,7 @@ public class ReactionManagerCO implements IntegratorListener {
     public ReactionManagerCO(Catalysis sim) {
         this.sim = sim;
     }
-    
+
     public void integratorInitialized(IntegratorEvent e) {
     }
 
@@ -31,27 +31,26 @@ public class ReactionManagerCO implements IntegratorListener {
         AtomLeafAgentManager agentManager = sim.interactionTracker.getAgentManager();
 
         IMoleculeList listC = box.getMoleculeList(sim.speciesC);
-        for (int i = 0; i<listC.size(); i++) {
+        for (int i = 0; i < listC.size(); i++) {
             IMolecule molecule = listC.get(i);
             IAtom atom = molecule.getChildList().get(0);
-            CatalysisAgent agent = (CatalysisAgent)agentManager.getAgent(atom);
+            CatalysisAgent agent = (CatalysisAgent) agentManager.getAgent(atom);
             if (agent.bondedAtom1.getType() == atom.getType()) {
                 throw new RuntimeException("oops");
             }
             if (agent.isRadical) {
                 // consider deradicalization
-                if (random.nextDouble() < sim.integrator.getTimeStep()*Math.exp(-uReactCORev/temperature)) {
+                if (random.nextDouble() < sim.integrator.getTimeStep() * Math.exp(-uReactCORev / temperature)) {
                     agent.isRadical = false;
                 }
-            }
-            else if (agent.nSurfaceBonds >= nReactCO && agent.bondedAtom2 == null) {
+            } else if (agent.nSurfaceBonds >= nReactCO && agent.bondedAtom2 == null) {
                 // CO on the surface, consider becoming a radical
-                if (random.nextDouble() < sim.integrator.getTimeStep()*Math.exp(-uReactCO/temperature)) {
+                if (random.nextDouble() < sim.integrator.getTimeStep() * Math.exp(-uReactCO / temperature)) {
                     agent.isRadical = true;
                 }
             }
         }
-   }
+    }
 
     public void integratorStepStarted(IntegratorEvent e) {
     }

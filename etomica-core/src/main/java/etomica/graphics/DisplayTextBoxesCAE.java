@@ -4,13 +4,13 @@
 
 package etomica.graphics;
 
-import etomica.data.*;
-import etomica.data.meter.MeterPressureHard;
+import etomica.data.AccumulatorAverage;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSink;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.graphics.DisplayTextBox.LabelType;
-import etomica.integrator.IntegratorListenerAction;
-import etomica.simulation.prototypes.HSMD2D;
 import etomica.units.Unit;
 import etomica.units.dimensions.Null;
 import etomica.units.systems.UnitSystem;
@@ -32,9 +32,9 @@ import java.awt.*;
 public class DisplayTextBoxesCAE extends Display implements IDataSink {
 
 	public AccumulatorAverage accumulatorAverage;
-	public DisplayTextBox currentBox, averageBox, errorBox;
+    public DisplayTextBox currentBox, averageBox, errorBox, corBox;
 	public JPanel panelParentGroup;
-	protected boolean doShowCurrent = true;
+    protected boolean doShowCurrent = true, doShowCorrelation = false;
 	
     protected Constants.CompassDirection labelPosition = Constants.CompassDirection.NORTH;
     protected LabelType labelType;
@@ -44,11 +44,16 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
     public DisplayTextBoxesCAE() {
 		super();
 		currentBox = new DisplayTextBox();
+        currentBox.setShowUnit(false);
 		currentBox.setLabel("Current");
 		averageBox = new DisplayTextBox();
+        averageBox.setShowUnit(false);
 		averageBox.setLabel("Average");
 		errorBox = new DisplayTextBox();
+        errorBox.setShowUnit(false);
 		errorBox.setLabel("Error");
+        corBox = new DisplayTextBox();
+        corBox.setLabel("Correlation");
 		jLabelPanelParentGroup = new JLabel();
         panelParentGroup = new JPanel(new java.awt.BorderLayout());
         panelParentGroup.add(currentBox.graphic(), java.awt.BorderLayout.WEST);
@@ -60,6 +65,7 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
 	}
 
     public void setDoShowCurrent(boolean newDoShowCurrent) {
+        if (newDoShowCurrent) setDoShowCorrelation(false);
         if (newDoShowCurrent == doShowCurrent) return;
         doShowCurrent = newDoShowCurrent;
         if (doShowCurrent) {
@@ -74,8 +80,28 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
         return doShowCurrent;
     }
 
+    public void setDoShowCorrelation(boolean newDoShowCorrelation) {
+        if (newDoShowCorrelation) setDoShowCurrent(false);
+        if (newDoShowCorrelation == doShowCorrelation) return;
+        doShowCorrelation = newDoShowCorrelation;
+        if (doShowCorrelation) {
+            panelParentGroup.remove(averageBox.graphic());
+            panelParentGroup.remove(errorBox.graphic());
+            panelParentGroup.add(averageBox.graphic(), BorderLayout.WEST);
+            panelParentGroup.add(errorBox.graphic(), BorderLayout.CENTER);
+            panelParentGroup.add(corBox.graphic(), BorderLayout.EAST);
+        } else {
+            panelParentGroup.remove(averageBox.graphic());
+            panelParentGroup.remove(errorBox.graphic());
+            panelParentGroup.remove(corBox.graphic());
+            panelParentGroup.add(averageBox.graphic(), java.awt.BorderLayout.CENTER);
+            panelParentGroup.add(errorBox.graphic(), java.awt.BorderLayout.EAST);
+        }
+    }
+
     public void putDataInfo(IDataInfo dataInfo) {
         if(!(dataInfo instanceof DataInfoGroup)) {
+            // we need a data group so we can unpack it and send the pieces on to the actual DisplayTextBoxes
             throw new IllegalArgumentException("DisplayBoxesCAE strangely is being given something other than a DataGroup");
         }
         if(getLabel().equals("")) {
@@ -98,7 +124,7 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
         this.accumulatorAverage = accumulatorAverage;
         if (accumulatorAverage != null) {
             accumulatorAverage.addDataSink(this,new AccumulatorAverage.StatType[] {
-                    accumulatorAverage.MOST_RECENT, accumulatorAverage.AVERAGE, accumulatorAverage.ERROR});
+                    accumulatorAverage.MOST_RECENT, accumulatorAverage.AVERAGE, accumulatorAverage.ERROR, accumulatorAverage.BLOCK_CORRELATION});
         }
     }
 
@@ -109,9 +135,9 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
         return accumulatorAverage;
     }
 
-	public Component graphic(Object obj){
+    public Component graphic() {
         return panelParentGroup;
-	}
+    }
 
     /**
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.
@@ -127,6 +153,7 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
         currentBox.setPrecision(n);
         averageBox.setPrecision(n);
         errorBox.setPrecision(n > 2 ? 2 : n);
+        corBox.setPrecision(3);
     }
 
     public void setLabel(String s) {
@@ -160,11 +187,19 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
     }
 
     public void putData(IData data) {
-        currentBox.putData(((DataGroup)data).getData(0));
-        averageBox.putData(((DataGroup)data).getData(1));
-        errorBox.putData(((DataGroup)data).getData(2));
+        DataGroup dg = (DataGroup) data;
+        currentBox.putData(dg.getData(0));
+        averageBox.putData(dg.getData(1));
+        errorBox.putData(dg.getData(2));
+        if (dg.getNData() > 3) {
+            corBox.putData(((DataGroup) data).getData(3));
+        }
     }
 
+    /**
+     * Sets the units for the displayed quantities.
+     * Does not change the units label for the display.
+     */
     public void setUnit(Unit unit) {
         currentBox.setUnit(unit);
         averageBox.setUnit(unit);
@@ -173,25 +208,5 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
 
     public Unit getUnit() {
         return currentBox.getUnit();
-    }
-
-    public static void main(String[] args) {
-    	final String APP_NAME = "Display Boxes CAE";
-
-    	etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
-        final HSMD2D sim = new HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, APP_NAME);
-        sim.integrator.setIsothermal(true);
-        MeterPressureHard pressureMeter = new MeterPressureHard(sim.integrator);
-        AccumulatorAverageCollapsing accumulator = new AccumulatorAverageCollapsing();
-        DataPump dataPump = new DataPump(pressureMeter, accumulator);
-        sim.integrator.getEventManager().addListener(new IntegratorListenerAction(dataPump));
-        graphic.getController().getDataStreamPumps().add(dataPump);
-        DisplayTextBoxesCAE boxes = new DisplayTextBoxesCAE();
-        boxes.setAccumulator(accumulator);
-        graphic.add(boxes);
-        graphic.getController().getReinitButton().setPostAction(graphic.getPaintAction(sim.box));
-
-        graphic.makeAndDisplayFrame(APP_NAME);
     }
 }

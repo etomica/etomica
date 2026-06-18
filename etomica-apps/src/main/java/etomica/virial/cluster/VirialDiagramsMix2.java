@@ -4,58 +4,22 @@
 
 package etomica.virial.cluster;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import etomica.graph.model.BitmapFactory;
-import etomica.graph.model.Edge;
-import etomica.graph.model.Graph;
-import etomica.graph.model.GraphFactory;
-import etomica.graph.model.GraphList;
-import etomica.graph.model.Metadata;
-import etomica.graph.model.Node;
-import etomica.graph.model.comparators.ComparatorBiConnected;
-import etomica.graph.model.comparators.ComparatorChain;
-import etomica.graph.model.comparators.ComparatorNodeColors;
-import etomica.graph.model.comparators.ComparatorNumEdges;
-import etomica.graph.model.comparators.ComparatorNumFieldNodes;
-import etomica.graph.model.comparators.ComparatorNumNodes;
+import etomica.graph.model.*;
+import etomica.graph.model.comparators.*;
 import etomica.graph.model.impl.CoefficientImpl;
 import etomica.graph.model.impl.MetadataImpl;
-import etomica.graph.operations.Decorate;
+import etomica.graph.operations.*;
 import etomica.graph.operations.Decorate.DecorateParameters;
-import etomica.graph.operations.DeleteEdge;
-import etomica.graph.operations.DeleteEdgeParameters;
-import etomica.graph.operations.DifByNode;
-import etomica.graph.operations.DifParameters;
-import etomica.graph.operations.Factor;
-import etomica.graph.operations.FactorOnce;
-import etomica.graph.operations.SplitGraph;
 import etomica.graph.operations.FactorOnce.FactorOnceParameters;
-import etomica.graph.operations.GraphOpMaxRoot;
-import etomica.graph.operations.IsoFree;
-import etomica.graph.operations.MaxIsomorph;
 import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
-import etomica.graph.operations.MulFlexible;
 import etomica.graph.operations.MulFlexible.MulFlexibleParameters;
-import etomica.graph.operations.MulScalar;
-import etomica.graph.operations.MulScalarParameters;
-import etomica.graph.operations.Split;
-import etomica.graph.operations.SplitParameters;
 import etomica.graph.property.HasSimpleArticulationPoint;
 import etomica.graph.property.Property;
 import etomica.graph.viewer.ClusterViewer;
 import etomica.math.SpecialFunctions;
-import etomica.virial.ClusterBonds;
-import etomica.virial.ClusterSum;
-import etomica.virial.ClusterSumShell;
 import etomica.virial.MayerFunction;
+
+import java.util.*;
 
 public class VirialDiagramsMix2 {
 

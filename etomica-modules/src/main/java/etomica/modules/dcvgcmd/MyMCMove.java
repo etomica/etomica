@@ -5,7 +5,6 @@
 package etomica.modules.dcvgcmd;
 
 import etomica.action.AtomActionRandomizeVelocity;
-import etomica.box.Box;
 import etomica.integrator.IntegratorBox;
 import etomica.integrator.mcmove.MCMoveInsertDelete;
 import etomica.molecule.IMolecule;
@@ -18,7 +17,7 @@ import etomica.util.random.IRandom;
 
 /**
  * @author kofke
- *
+ * <p>
  * Extends insert/delete mcmove class by permitting insertion/deletion in a
  * subregion defined by a range of values of the z coordinate.
  */
@@ -26,123 +25,116 @@ public class MyMCMove extends MCMoveInsertDelete {
 
 	public MyMCMove(IntegratorBox integrator, IRandom random,
                     Space space, double zFraction) {
-		super(integrator.getPotentialMaster(), random, space);
+		super(integrator.getPotentialCompute(), random, space);
 		position = space.makeVector();
 		setZFraction(zFraction);
-        this.integrator = integrator;
-        randomizer = new AtomActionRandomizeVelocity(0, random);
-        activeAtoms = new MoleculeArrayList();
+		this.integrator = integrator;
+		randomizer = new AtomActionRandomizeVelocity(0, random);
+		activeMolecules = new MoleculeArrayList();
 	}
 
-    public void setBox(Box p) {
-        super.setBox(p);
-        energyMeter.setBox(p);
-    }
-    
 	/**
 	 * Chooses and performs with equal probability an elementary molecule insertion
 	 * or deletion.
 	 */
 	public boolean doTrial() {
 		insert = (random.nextInt(2) == 0);
-		if(insert) {
+		if (insert) {
 			uOld = 0.0;
-			if(!reservoir.isEmpty()) {
-			    testMolecule = reservoir.remove(reservoir.size()-1);
+			if (!reservoir.isEmpty()) {
+				testMolecule = reservoir.remove(reservoir.size() - 1);
+			} else {
+				testMolecule = species.makeMolecule();
 			}
-			else {
-			    testMolecule = species.makeMolecule();
-			}
-            box.addMolecule(testMolecule);
+
 			position.E(positionSource.randomPosition());
 			double z = position.getX(2);
-            double zBoundary = box.getBoundary().getBoxSize().getX(2);
-            z += 0.5*zBoundary;
-            z *= zFraction;
-			if(leftSide) {
-                z = -0.5*zBoundary + z;
+			double zBoundary = box.getBoundary().getBoxSize().getX(2);
+			z += 0.5 * zBoundary;
+			z *= zFraction;
+			if (leftSide) {
+				z = -0.5 * zBoundary + z;
 			} else {
-			    z = 0.5*zBoundary - z;
+				z = 0.5 * zBoundary - z;
 			}
-			position.setX(2,z); //multiply z-coordinate by zFraction
+			position.setX(2, z); //multiply z-coordinate by zFraction
 			atomTranslator.setDestination(position);
 			atomTranslator.actionPerformed(testMolecule);
+
+			box.addMolecule(testMolecule);
 		} else {//delete
-			if(activeAtoms.size() == 0) {
-				testMolecule = null;//added this line 09/19/02
+			if (activeMolecules.size() == 0) {
+				testMolecule = null;
 				return false;
 			}
-            testMoleculeIndex = random.nextInt(activeAtoms.size());
-			testMolecule = activeAtoms.get(testMoleculeIndex);
-			energyMeter.setTarget(testMolecule);
-			uOld = energyMeter.getDataAsScalar();
-		} 
+			testMoleculeIndex = random.nextInt(activeMolecules.size());
+			testMolecule = activeMolecules.get(testMoleculeIndex);
+			uOld = potentialMaster.computeOneOldMolecule(testMolecule);
+		}
 		uNew = Double.NaN;
 		return true;
 	}//end of doTrial
 
-    public double getChi(double temperature) {//note that moleculeCount() gives the number of molecules after the trial is attempted
-        if (insert) {
-            energyMeter.setTarget(testMolecule);
-            uNew = energyMeter.getDataAsScalar();
-        }
-        else {
-            uNew = 0;
-        }
-        double b = uOld - uNew;
-        if (insert) b += mu;
-        else b -= mu;
+	public double getChi(double temperature) {//note that moleculeCount() gives the number of molecules after the trial is attempted
+		if (insert) {
+			uNew = potentialMaster.computeOneMolecule(testMolecule);
+		} else {
+			uNew = 0;
+		}
+		double b = uOld - uNew;
+		if (insert) b += mu;
+		else b -= mu;
 
-        double a = insert ? zFraction * box.getBoundary().volume() / (activeAtoms.size() + 1)
-                : activeAtoms.size() / zFraction / box.getBoundary().volume();
-        return a * Math.exp(b / temperature);
-    }
+		double a = insert ? zFraction * box.getBoundary().volume() / (activeMolecules.size() + 1)
+				: activeMolecules.size() / zFraction / box.getBoundary().volume();
+		return a * Math.exp(b / temperature);
+	}
 
 	public void acceptNotify() {
-        super.acceptNotify();
-		if(!insert) {
-			activeAtoms.remove(testMoleculeIndex);
+		super.acceptNotify();
+		if (!insert) {
+			activeMolecules.remove(testMoleculeIndex);
 			deltaN--;
 		} else {
-			activeAtoms.add(testMolecule);
-            randomizer.setTemperature(integrator.getTemperature());
+			activeMolecules.add(testMolecule);
+			randomizer.setTemperature(integrator.getTemperature());
 			randomizer.actionPerformed(testMolecule.getChildList().get(0));
 			deltaN++;
 		}
 	}
-    
-    public void setupActiveAtoms() {
-    	activeAtoms.clear();
-    	double zBoundary = box.getBoundary().getBoxSize().getX(2);
-    	double zmin = leftSide ? -0.5*zBoundary : (0.5-zFraction)*zBoundary;
-    	double zmax = zmin + zFraction*zBoundary;
-        int nMolecules = moleculeList.size();
-        for (int i=0; i<nMolecules; i++) {
-            IMolecule molecule = moleculeList.get(i);
 
-    		double z = molecule.getChildList().get(0).getPosition().getX(2);
-    		if(z < zmin || z > zmax) continue;
-    		activeAtoms.add(molecule);
-    	}
-    }
-    
-    public int getDeltaN() {
-    	return deltaN;
-    }
+	public void setupActiveAtoms() {
+		activeMolecules.clear();
+		double zBoundary = box.getBoundary().getBoxSize().getX(2);
+		double zmin = leftSide ? -0.5 * zBoundary : (0.5 - zFraction) * zBoundary;
+		double zmax = zmin + zFraction * zBoundary;
+		int nMolecules = moleculeList.size();
+		for (int i = 0; i < nMolecules; i++) {
+			IMolecule molecule = moleculeList.get(i);
 
-    private static final long serialVersionUID = 1L;
+			double z = molecule.getChildList().get(0).getPosition().getX(2);
+			if (z < zmin || z > zmax) continue;
+			activeMolecules.add(molecule);
+		}
+	}
+
+	public int getDeltaN() {
+		return deltaN;
+	}
+
 	private double zFraction;
 	private int deltaN = 0;
 	private Vector position;
 	private boolean leftSide;
-	private final MoleculeArrayList activeAtoms;
-    private IMoleculeList moleculeList;
+	private final MoleculeArrayList activeMolecules;
+	private IMoleculeList moleculeList;
 	private final AtomActionRandomizeVelocity randomizer;
-    private final IntegratorBox integrator;
-    protected int testMoleculeIndex;
-	
+	private final IntegratorBox integrator;
+	protected int testMoleculeIndex;
+
 	/**
 	 * Returns the zFraction.
+	 *
 	 * @return double
 	 */
 	public double getZFraction() {
@@ -159,7 +151,7 @@ public class MyMCMove extends MCMoveInsertDelete {
 	public void setZFraction(double zFraction) {
 		this.zFraction = zFraction;
 		leftSide = zFraction < 0.0;
-		this.zFraction = Math.abs(zFraction);		
+		this.zFraction = Math.abs(zFraction);
 	}
 
 	public void setSpecies(ISpecies s) {

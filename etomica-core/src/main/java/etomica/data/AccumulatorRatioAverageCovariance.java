@@ -6,8 +6,8 @@ package etomica.data;
 
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroupFactory;
-import etomica.util.Arrays;
 import etomica.math.function.Function;
+import etomica.util.Arrays;
 
 /**
  * Accumulator for calculating ratio between sums.  The ratios calculated are
@@ -37,7 +37,7 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
     }
     
     public IData getData() {
-        if (sum == null) return null;
+        if (average == null) return null;
         if (count > 0) {
             super.getData();
 
@@ -48,15 +48,13 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
                 return dataGroup;
             }
 
-            ratio.E(sum);
-            ratio.TE(1/sum.getValue(0));
+            ratio.E(average);
+            ratio.TE(1 / average.getValue(0));
 
 
-            work.E(sum);
-            work.TE(1.0 / (count*blockSize));
             ratioError.E(error);
             if (count > 1) {
-                ratioError.DE(work);
+                ratioError.DE(average);
                 ratioError.TE(ratioError);
                 ratioError.PE(ratioError.getValue(0));
                 if (average.getValue(0)*average.getValue(1) > 0) {
@@ -69,20 +67,12 @@ public class AccumulatorRatioAverageCovariance extends AccumulatorAverageCovaria
                 ratioError.map(Function.Sqrt.INSTANCE);
             }
         }
-        long nTotalData = count*blockSize + (blockSize-blockCountDown);
-        if (nTotalData > 0 && !doStrictBlockData) {
-            if (count == 0) super.getData();
-            // now use *all* of the data
-            double average0 = average.getValue(0);
-            ratio.E(average);
-            ratio.TE(1/average0);
-        }
 
         return dataGroup;
     }
 
     public void reset() {
-        if (sum == null || ratio == null) {
+        if (average == null || ratio == null) {
             //no data has been added yet, so nothing to reset
             return;
         }

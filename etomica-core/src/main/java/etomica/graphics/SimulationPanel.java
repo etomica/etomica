@@ -49,7 +49,7 @@ public class SimulationPanel extends JPanel {
         toolbarPanel.setLayout(new GridLayout());
         controlPanel.setLayout(new GridBagLayout());
         footerPanel.setLayout(new GridBagLayout());
-        graphicsPanel.setLayout(new BorderLayout());
+        graphicsPanel.setLayout(new BorderLayout(5, 5));
         plotPanel.setLayout(new GridBagLayout());
     	metricPanel.setLayout(new GridBagLayout());
         setLayout(new BorderLayout(10, 10));

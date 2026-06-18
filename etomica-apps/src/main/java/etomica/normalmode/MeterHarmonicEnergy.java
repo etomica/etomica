@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.space.Vector;
@@ -14,7 +15,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space1d.Space1D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Energy;
 
 /**
@@ -111,7 +112,7 @@ public class MeterHarmonicEnergy extends DataSourceScalar {
         Space sp = Space1D.getInstance();
         Simulation sim = new Simulation(sp);
 
-        SpeciesSpheresMono species = new SpeciesSpheresMono(sim, sp);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(sp, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
 
         Box box = new Box(new BoundaryRectangularPeriodic(sim.getSpace(), L), sim.getSpace());

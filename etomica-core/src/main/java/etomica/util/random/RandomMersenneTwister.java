@@ -47,8 +47,6 @@ package etomica.util.random;
     email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 */
 
-import etomica.meta.annotations.IgnoreProperty;
-
 /**
  * Mersenne Twister RNG.  seed initialization and nextInt() methods written in
  * C by Takuji Nishimura and Makoto Matsumoto as described above, and
@@ -93,7 +91,6 @@ public class RandomMersenneTwister implements IRandom {
         setSeedArray(s);
     }
 
-    @IgnoreProperty
     public int getSeed() {
         if (savedSeedArray != null) throw new RuntimeException("it's a seed array");
         return savedSeed;
@@ -188,6 +185,7 @@ public class RandomMersenneTwister implements IRandom {
         y ^= (y << 7) & 0x9d2c5680;
         y ^= (y << 15) & 0xefc60000;
         y ^= (y >>> 18);
+//        System.out.println("random number "+y);
 
         return y;
     }
@@ -204,6 +202,8 @@ public class RandomMersenneTwister implements IRandom {
             throw new RuntimeException("max must be positive");
         }
 
+//        System.out.println("max "+max);
+
         // we take a random int s and return s%max.  But our s must be less
         // than the largest integer multiple of max
         // maxRand+1 is the largest integer value that is a multiple of max
@@ -212,6 +212,7 @@ public class RandomMersenneTwister implements IRandom {
         do {
             s = nextInt() & LOWER_MASK;
         } while (s > maxRand);
+//        System.out.println("random from max "+s%max);
         return s % max;
     }
 

@@ -10,7 +10,6 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.MoleculePair;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.List;
 public final class Debug {
 
     protected static AtomPair debugPair = null;
-    protected static MoleculePair debugMoleculePair = null;
+    protected static IMolecule[] debugMoleculePair = null;
     
     /**
      * true if any debugging should be done
@@ -177,12 +176,12 @@ public final class Debug {
     /**
      * determines if all of the atoms in the given array are set to be debugged
      * (via ATOMx_NUM and setAtoms(box)).
-     * @param atoms array of atoms to be checked for debugging status
+     * @param molecules array of atoms to be checked for debugging status
      * @return true if all of the atoms in the atoms array should be debugged
      */
-    public static boolean allAtoms(IMoleculeList atoms) {
-        for (int i = 0; i<atoms.size(); i++) {
-            IMolecule molecule = atoms.get(i);
+    public static boolean allAtoms(IMolecule... molecules) {
+        for (int i = 0; i<molecules.length; i++) {
+            IMolecule molecule = molecules[i];
             if ((molecule.getIndex() != MOLECULE1_INDEX ||
                  molecule.getType().getIndex() != SPECIES1_INDEX) ||
                 (molecule.getIndex() != MOLECULE2_INDEX ||
@@ -234,23 +233,23 @@ public final class Debug {
      * the AtomPair will be null if the box does not contain an Atom 
      * with the proper global index.
      */
-    public static MoleculePair getMolecules(Box box) {
+    public static IMolecule[] getMolecules(Box box) {
         if (debugMoleculePair == null) {
-            debugMoleculePair = new MoleculePair();
+            debugMoleculePair = new IMolecule[2];
         }
         if (MOLECULE1_INDEX > -1 && MOLECULE2_INDEX > -1) {
             IMoleculeList moleculeList = box.getMoleculeList();
             for (int i = 0; i<moleculeList.size(); i++) {
                 IMolecule molecule = moleculeList.get(i);
                 if (molecule.getIndex() == MOLECULE1_INDEX && molecule.getType().getIndex() == SPECIES1_INDEX) {
-                    debugMoleculePair.mol0 = molecule;
+                    debugMoleculePair[0] = molecule;
                 }
                 else if (molecule.getIndex() == MOLECULE2_INDEX && molecule.getType().getIndex() == SPECIES2_INDEX) {
-                    debugMoleculePair.mol1 = molecule;
+                    debugMoleculePair[1] = molecule;
                 }
             }
         }
-        if (debugMoleculePair.mol0 == null || debugMoleculePair.mol1 == null) return null;
+        if (debugMoleculePair[0] == null || debugMoleculePair[1] == null) return null;
         return debugMoleculePair;
     }
     

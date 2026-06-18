@@ -70,7 +70,14 @@ public interface Tensor extends Cloneable {
      * @param v the given vector
      */
     void diagE(Vector v);
-    
+
+    /**
+     * Makes this a diagonal tensor with elements set all equal to the given value. All
+     * other elements of this tensor are set to zero.
+     * @param a the given value
+     */
+    void diagE(double a);
+
     /**
      * Assigns the tensor elements column-wise to the given vectors. The number
      * of vectors must equal the dimension of the tensor, and the vector

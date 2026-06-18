@@ -4,30 +4,31 @@
 
 package etomica.potential;
 
-import etomica.space.Space;
-
 /**
  * Dreiding potential.
  * 
  * U(r) = alpha * (R - Re)^2
- * 
- *  
+ *
+ *
  * where alpha is the potential's energy parameter, which equals 0.5*Ke (Ke = force constant)
  * 		 Re is the equilibrium bond radius
- * 
+ *
  * @author Tai Tan
  *
  */
 
-public class P2Dreiding extends Potential2SoftSpherical {
+public class P2Dreiding implements IPotential2 {
 
-	private double Re, alpha;
-    
-    public P2Dreiding(Space space, double Re, double alpha) {
-        super(space);
+    public static IPotential2 makeTruncated(double Re, double alpha, TruncationFactory tf) {
+        return tf.make(new P2Dreiding(Re, alpha));
+    }
+
+    private double Re, alpha;
+
+    public P2Dreiding(double Re, double alpha) {
         setAlpha(alpha);
         setBondLength(Re);
-            }
+    }
  
 
     /**
@@ -55,14 +56,7 @@ public class P2Dreiding extends Potential2SoftSpherical {
     public double d2u(double r2) {
         return 2*alpha*r2;
     }
-            
-    /**
-     *  Integral used for corrections to potential truncation.
-     */
-    public double uInt(double rC) {
-        return 0.0;
-    }
-    
+
     public double getAlpha(){return alpha;}
     public final void setAlpha(double a) {alpha = a;}
     

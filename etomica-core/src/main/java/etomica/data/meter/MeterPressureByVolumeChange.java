@@ -5,14 +5,11 @@
 package etomica.data.meter;
 
 import etomica.action.BoxInflate;
-import etomica.action.BoxInflateDeformable;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.integrator.IntegratorBox;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationEnergySum;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
@@ -28,7 +25,7 @@ import etomica.units.dimensions.Volume;
  * and deltaV is the change in volume associated with that x value.  deltaV = s * V
  * where s is the scaling factor (available via getScalingDataSource)
  */
-public class MeterPressureByVolumeChange implements IDataSource, java.io.Serializable {
+public class MeterPressureByVolumeChange implements IDataSource {
     
     public MeterPressureByVolumeChange(Space space) {
         this(space, makeDefaultDimensions(space.D()));
@@ -43,27 +40,19 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
     }
     
     public MeterPressureByVolumeChange(Space space, boolean[] dimensions) {
-        this.space = space;
-        tag = new DataTag();
-        setX(-0.001, 0.001, 10);
-        inflateDimensions = new boolean[space.D()];
-        setInflateDimensions(dimensions);
-        iteratorDirective = new IteratorDirective();
-        inflater = new BoxInflate(space);
-        scale = space.makeVector();
+        this(space, dimensions, new BoxInflate(space));
     }
     
-    public MeterPressureByVolumeChange(Space space, BoxInflateDeformable pid){
+    public MeterPressureByVolumeChange(Space space, BoxInflate pid){
         this(space, makeDefaultDimensions(space.D()), pid);
     }
     
-    public MeterPressureByVolumeChange(Space space, boolean[] dimensions, BoxInflateDeformable pid){
+    public MeterPressureByVolumeChange(Space space, boolean[] dimensions, BoxInflate pid){
         this.space = space;
         tag = new DataTag();
         setX(-0.001, 0.001, 10);
         inflateDimensions = new boolean[space.D()];
         setInflateDimensions(dimensions);
-        iteratorDirective = new IteratorDirective();
         inflater = pid;
         scale = space.makeVector();
     }
@@ -136,9 +125,8 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
         if (integrator == null) throw new IllegalStateException("must call setIntegrator before using meter");
         Box box = integrator.getBox();
         inflater.setBox(box);
-        energy.zeroSum();
-        integrator.getPotentialMaster().calculate(box, iteratorDirective, energy);
-        double uOld = energy.getSum();
+
+        double uOld = integrator.getPotentialCompute().computeAll(false);
         final double[] x = ((DataDoubleArray)vDataSource.getData()).getData();
         double mult = 1.0/nDimension;
         for(int i=0; i<dataArray.length; i++) {
@@ -149,9 +137,7 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
 
             inflater.setVectorScale(scale);
             inflater.actionPerformed();
-            energy.zeroSum();
-            integrator.getPotentialMaster().calculate(box, iteratorDirective, energy);
-            double uNew = energy.getSum();
+            double uNew = integrator.getPotentialCompute().computeAll(false);
             dataArray[i] = Math.exp(-(uNew-uOld)/integrator.getTemperature()
                               + box.getMoleculeList().size()*(x[i]-1));
             inflater.undo();
@@ -160,7 +146,6 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
         return data;
     }
 
-    private static final long serialVersionUID = 1L;
     private DataDoubleArray data;
     private IDataInfo dataInfo;
     private final DataTag tag;
@@ -168,8 +153,6 @@ public class MeterPressureByVolumeChange implements IDataSource, java.io.Seriali
     private final BoxInflate inflater;
     private final Vector scale;
     private final boolean[] inflateDimensions;
-    private final IteratorDirective iteratorDirective;
-    private final PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
     private int nDimension;
     private final Space space;
     private DataSourceUniform xDataSource;

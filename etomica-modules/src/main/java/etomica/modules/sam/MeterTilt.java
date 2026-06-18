@@ -6,7 +6,10 @@ package etomica.modules.sam;
 
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.data.*;
+import etomica.data.DataTag;
+import etomica.data.IData;
+import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.types.DataDouble;
 import etomica.data.types.DataGroup;
 import etomica.molecule.IMolecule;
@@ -49,7 +52,8 @@ public class MeterTilt implements IDataSource {
             int leafCount = atomList.size();
             dr.E(atomList.get(leafCount-1).getPosition());
             dr.ME(atomList.get(1).getPosition());
-            thetaSum += Math.acos(dr.getX(1)/Math.sqrt(dr.squared()));
+            box.getBoundary().nearestImage(dr);
+            thetaSum += Math.acos(dr.getX(1) / Math.sqrt(dr.squared()));
             drSum.PE(dr);
         }
         ((DataDouble)data.getData(0)).x = Math.acos(drSum.getX(1)/Math.sqrt(drSum.squared()));

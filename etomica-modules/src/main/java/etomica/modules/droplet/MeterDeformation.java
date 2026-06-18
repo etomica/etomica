@@ -25,14 +25,12 @@ public class MeterDeformation implements IDataSource {
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
     protected final DataTag tag;
     protected final double[] f;
-    protected final Vector center;
-    protected final Vector dr;
-    protected final Vector rg;
-    protected final Tensor moment, workTensor;
     protected Box box;
     protected Predicate<IAtom> filter;
+    private final Space space;
 
     public MeterDeformation(Space space) {
+        this.space = space;
         data = new DataDoubleArray(2);
         dataInfo = new DataDoubleArray.DataInfoDoubleArray("deformation", Null.DIMENSION, new int[]{2});
         tag = new DataTag();
@@ -41,11 +39,6 @@ public class MeterDeformation implements IDataSource {
             f[i] = 1 + (i + 1) / 3.0;
         }
 
-        center = space.makeVector();
-        dr = space.makeVector();
-        rg = space.makeVector();
-        moment = space.makeTensor();
-        workTensor = space.makeTensor();
         setFilter(a -> true);
     }
 
@@ -66,6 +59,13 @@ public class MeterDeformation implements IDataSource {
     }
 
     public IData getData() {
+        Vector center = space.makeVector();
+        Vector dr = space.makeVector();
+        Vector rg = space.makeVector();
+        Tensor moment = space.makeTensor();
+        Tensor workTensor = space.makeTensor();
+
+
         IAtomList leafList = box.getLeafList();
         center.E(0);
         for (int i = 0; i < leafList.size(); i++) {
@@ -148,6 +148,7 @@ public class MeterDeformation implements IDataSource {
             iter++;
         }
 
+        DataDoubleArray data = new DataDoubleArray(2);
         double[] x = data.getData();
         x[0] = Math.pow(125 * b3, 1.0 / 6.0);
         if (e > 0.02) {

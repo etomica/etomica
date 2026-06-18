@@ -4,15 +4,15 @@
 
 package etomica.modules.droplet;
 
-import java.awt.Color;
-
+import etomica.atom.AtomTestCollective;
 import etomica.atom.IAtom;
-import etomica.atom.AtomFilterCollective;
 import etomica.graphics.ColorSchemeCollective;
 
+import java.awt.*;
+
 public class ColorSchemeLiquidVapor extends etomica.graphics.ColorScheme implements ColorSchemeCollective {
-    
-    public ColorSchemeLiquidVapor(AtomFilterCollective liquidFilter) {
+
+    public ColorSchemeLiquidVapor(AtomTestCollective liquidFilter) {
         this.liquidFilter = liquidFilter;
         setVaporColor(Color.BLUE);
         setLiquidColor(Color.RED);
@@ -40,7 +40,7 @@ public class ColorSchemeLiquidVapor extends etomica.graphics.ColorScheme impleme
 
     public void colorAllAtoms() {
 		if (doResetFilter) {
-		    liquidFilter.resetFilter();
+            liquidFilter.resetTest();
 		}
     }
     
@@ -49,6 +49,6 @@ public class ColorSchemeLiquidVapor extends etomica.graphics.ColorScheme impleme
     }
     
     protected Color vaporColor, liquidColor;
-    protected final AtomFilterCollective liquidFilter;
+    protected final AtomTestCollective liquidFilter;
     protected boolean doResetFilter;
 }

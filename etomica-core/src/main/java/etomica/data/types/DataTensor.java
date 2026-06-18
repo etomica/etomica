@@ -21,7 +21,7 @@ import etomica.units.dimensions.Dimension;
  *  
  */
 
-public class DataTensor implements IData, java.io.Serializable {
+public class DataTensor implements IData {
 
     /**
      * Constructs a new instance with the given DataInfo, wrapping a new Tensor
@@ -68,7 +68,12 @@ public class DataTensor implements IData, java.io.Serializable {
      * Times-equals (*=) operation. Performed element-by-element.
      */
     public void TE(IData y) {
-        x.TE(((DataTensor) y).x);
+        DataTensor yt = (DataTensor) y;
+        for (int i = 0; i < x.D(); i++) {
+            for (int j = 0; j < x.D(); j++) {
+                x.setComponent(i, j, x.component(i, j) * yt.x.component(i, j));
+            }
+        }
     }
 
     /**
@@ -150,7 +155,6 @@ public class DataTensor implements IData, java.io.Serializable {
         return x.toString();
     }
 
-    private static final long serialVersionUID = 1L;
     /**
      * The wrapped tensor data.
      */
@@ -179,7 +183,6 @@ public class DataTensor implements IData, java.io.Serializable {
             return new DataTensor(space);
         }
         
-        private static final long serialVersionUID = 1L;
         protected final Space space;
     }
     
@@ -210,7 +213,6 @@ public class DataTensor implements IData, java.io.Serializable {
             return space;
         }
         
-        private static final long serialVersionUID = 1L;
         protected Space space;
     }
 }

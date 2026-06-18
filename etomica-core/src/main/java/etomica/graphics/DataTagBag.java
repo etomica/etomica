@@ -9,6 +9,7 @@ package etomica.graphics;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import etomica.data.DataTag;
 
@@ -29,20 +30,18 @@ public class DataTagBag {
      * Returns the first DataTagBag from the given list that has no non-matching
      * tags with the given desiredTags
      */
-    public static DataTagBag getDataTagBag(LinkedList<DataTagBag> dataTagBags, DataTag[] desiredTags) {
-        Iterator<DataTagBag> iterator = dataTagBags.iterator();
+    public static DataTagBag getDataTagBag(List<DataTagBag> dataTagBags, DataTag[] desiredTags) {
         // match the first set of tags that has no non-matching tags
         DataTagBag bestBag = null;
         int bestNumMatches = 0;
-        while (iterator.hasNext()) {
+        for (DataTagBag tagUnit : dataTagBags) {
             int thisNumMatches = 0;
-            DataTagBag tagUnit = iterator.next();
             DataTag[] tags = tagUnit.tags;
             boolean found = true;
-            for (int j=0; j<tags.length; j++) {
+            for (DataTag tag : tags) {
                 found = false;
-                for (int k=0; k<desiredTags.length; k++) {
-                    if (desiredTags[k] == tags[j]) {
+                for (DataTag desiredTag : desiredTags) {
+                    if (desiredTag == tag) {
                         found = true;
                         thisNumMatches++;
                         break;

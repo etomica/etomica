@@ -8,8 +8,8 @@ import etomica.box.Box;
 import etomica.box.BoxEventListener;
 import etomica.box.BoxMoleculeEvent;
 import etomica.box.BoxMoleculeIndexEvent;
-import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 import etomica.util.collections.IndexMap;
 
 import java.util.HashMap;
@@ -27,24 +27,25 @@ import java.util.stream.Stream;
  * @author Andrew Schultz
  */
 public final class MoleculeAgentManager<E> implements BoxEventListener {
-    private static final BiConsumer<Object, IMolecule> NULL_RELEASER = (o, m) -> {};
+    private static final BiConsumer<Object, IMolecule> NULL_RELEASER = (o, m) -> {
+    };
 
     private final Box box;
-    private final Simulation sim;
+    private final SpeciesManager sm;
     private final Function<IMolecule, ? extends E> agentSource;
     private final BiConsumer<? super E, IMolecule> onRelease;
     private final Map<ISpecies, IndexMap<E>> agents;
 
-    public MoleculeAgentManager(Simulation sim, Box box, MoleculeAgentSource<E> source) {
-        this(sim, box, source::makeAgent, source::releaseAgent);
+    public MoleculeAgentManager(SpeciesManager sm, Box box, MoleculeAgentSource<E> source) {
+        this(sm, box, source::makeAgent, source::releaseAgent);
     }
 
-    public MoleculeAgentManager(Simulation sim, Box box, Function<IMolecule, ? extends E> agentSource) {
-        this(sim, box, agentSource, NULL_RELEASER);
+    public MoleculeAgentManager(SpeciesManager sm, Box box, Function<IMolecule, ? extends E> agentSource) {
+        this(sm, box, agentSource, NULL_RELEASER);
     }
 
-    public MoleculeAgentManager(Simulation sim, Box box, Function<IMolecule, ? extends E> agentSource, BiConsumer<? super E, IMolecule> onRelease) {
-        this.sim = sim;
+    public MoleculeAgentManager(SpeciesManager sm, Box box, Function<IMolecule, ? extends E> agentSource, BiConsumer<? super E, IMolecule> onRelease) {
+        this.sm = sm;
         this.box = box;
         this.agentSource = agentSource;
         this.onRelease = onRelease;
@@ -53,7 +54,7 @@ public final class MoleculeAgentManager<E> implements BoxEventListener {
         box.getEventManager().addListener(this);
 
         // Initialize each species with a map of molecule index to agent
-        sim.getSpeciesList().forEach(species -> agents.put(species, new IndexMap<>()));
+        sm.getSpeciesList().forEach(species -> agents.put(species, new IndexMap<>()));
 
         // fill in the map with agents from all the molecules
         IMoleculeList molecules = box.getMoleculeList();
@@ -109,7 +110,7 @@ public final class MoleculeAgentManager<E> implements BoxEventListener {
     public void dispose() {
         // remove ourselves as a listener to the box
         box.getEventManager().removeListener(this);
-        for (ISpecies species : sim.getSpeciesList()) {
+        for (ISpecies species : sm.getSpeciesList()) {
             IMoleculeList molecules = box.getMoleculeList(species);
             IndexMap<E> speciesAgents = this.agents.get(species);
 

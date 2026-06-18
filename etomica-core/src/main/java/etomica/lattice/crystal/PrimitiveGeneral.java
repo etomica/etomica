@@ -4,9 +4,9 @@
 
 package etomica.lattice.crystal;
 
-import etomica.space.Vector;
 import etomica.math.geometry.Polytope;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Primitive defined simply by its vectors.  Cannot be modified by setting
@@ -75,7 +75,7 @@ public class PrimitiveGeneral extends Primitive {
             aStar.TE(2.0*Math.PI/aStar.dot(latticeVectors[1]));
             bStar.setX(0, -latticeVectors[1].getX(1));
             bStar.setX(1, latticeVectors[1].getX(0));
-            bStar.TE(2.0*Math.PI/aStar.dot(latticeVectors[0]));
+            bStar.TE(2.0 * Math.PI / bStar.dot(latticeVectors[0]));
             return new PrimitiveGeneral(space, new Vector[]{aStar, bStar});
         }
         throw new RuntimeException("can't make a "+space.D()+"D reciprocal");

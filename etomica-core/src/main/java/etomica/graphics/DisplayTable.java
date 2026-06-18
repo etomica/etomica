@@ -4,26 +4,24 @@
 
 package etomica.graphics;
 
-import java.awt.Component;
+import etomica.data.*;
+import etomica.data.types.DataDoubleArray;
+import etomica.units.Unit;
+import etomica.units.systems.UnitSystem;
+import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Formatter;
 import java.util.LinkedList;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.AbstractTableModel;
-
-import etomica.data.*;
-import etomica.data.meter.MeterNMolecules;
-import etomica.data.meter.MeterPressureHard;
-import etomica.data.types.DataDoubleArray;
-import etomica.simulation.prototypes.HSMD2D;
-import etomica.units.Unit;
-import etomica.units.systems.UnitSystem;
+import java.util.StringJoiner;
 
 /**
  * Presents data in a tabular form.
@@ -51,13 +49,17 @@ public class DisplayTable extends Display implements DataTableListener {
         columnHeaderList = new LinkedList<DataTagBag>();
         tableSource = new MyTable(); //inner class, defined below
         table = new JTable(tableSource);
-        panel = new javax.swing.JPanel(new java.awt.FlowLayout());
+        panel = new javax.swing.JPanel(new MigLayout("flowy"));
 
         setLabel("Data");
         setPrecision(4);
         setTransposed(false);
         setShowingRowLabels(true);
         setShowingColumnHeaders(true);
+
+        JButton copyButton = new JButton("Copy Data");
+        panel.add(copyButton);
+
         panel.add(new JScrollPane(table));
         InputEventHandler listener = new InputEventHandler();
         panel.addKeyListener(listener);
@@ -65,6 +67,27 @@ public class DisplayTable extends Display implements DataTableListener {
         panel.setSize(100, 150);
         if (!fitToWindow)
             table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        copyButton.addActionListener(e -> {
+
+            StringBuilder sb = new StringBuilder();
+            StringJoiner headerJoiner = new StringJoiner("\t", "", "\n");
+            for (int i = 0; i < tableSource.getColumnCount(); i++) {
+                headerJoiner.add(tableSource.getColumnName(i));
+            }
+            sb.append(headerJoiner.toString());
+            for (int row = 0; row < tableSource.getRowCount(); row++) {
+                StringJoiner rowJoiner = new StringJoiner("\t", "", "\n");
+                for (int col = 0; col < tableSource.getColumnCount(); col++) {
+                    rowJoiner.add(tableSource.getValueAt(row, col).toString());
+                }
+                sb.append(rowJoiner.toString());
+            }
+
+            StringSelection selection = new StringSelection(sb.toString());
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(selection, null);
+        });
     }
 
     public DataSinkTable getDataTable() {
@@ -76,7 +99,7 @@ public class DisplayTable extends Display implements DataTableListener {
      */
     public void dataChanged(DataSet dummyTable) {
         tableSource.fireTableDataChanged();
-        repaint();
+        table.repaint();
     }
 
     /**
@@ -196,11 +219,7 @@ public class DisplayTable extends Display implements DataTableListener {
         maxFloat = Math.pow(10, nColumns);
     }
 
-    public void repaint() {
-        table.repaint();
-    }
-
-    public Component graphic(Object obj) {
+    public Component graphic() {
         return panel;
     }
 
@@ -513,35 +532,4 @@ public class DisplayTable extends Display implements DataTableListener {
             panel.transferFocus();
         }
     }
-
-    /**
-     * Demonstrates how this class is implemented.
-     */
-    public static void main(String[] args) {
-    	final String APP_NAME = "Display Table";
-
-    	etomica.space.Space sp = etomica.space2d.Space2D.getInstance();
-        final HSMD2D sim = new HSMD2D();
-        final SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, APP_NAME);
-        sim.integrator.setIsothermal(true);
-
-        MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
-        MeterNMolecules nMeter = new MeterNMolecules();
-        nMeter.setBox(sim.box);
-        DataTableAverages dataTable = new DataTableAverages(sim.integrator);
-        dataTable.addDataSource(pMeter);
-        dataTable.addDataSource(nMeter);
-        DisplayTable table = new DisplayTable(dataTable);
-
-        table.setRowLabels(new String[] { "Current", "Average", "Error" });
-        table.setTransposed(false);
-        table.setShowingRowLabels(true);
-//        table.setPrecision(7);
-
-        graphic.getController().getReinitButton().setPostAction(graphic.getPaintAction(sim.box));
-
-        graphic.add(table);
-        graphic.makeAndDisplayFrame(APP_NAME);
-    }//end of main
-
 }

@@ -5,34 +5,30 @@
 package etomica.virial;
 
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.*;
-
-import etomica.math.function.IFunction;
 import etomica.graph.iterators.StoredIterator;
 import etomica.graph.iterators.filters.PropertyFilter;
 import etomica.graph.model.Graph;
 import etomica.graph.model.GraphIterator;
 import etomica.graph.model.GraphList;
-import etomica.graph.model.comparators.ComparatorBiConnected;
-import etomica.graph.model.comparators.ComparatorChain;
-import etomica.graph.model.comparators.ComparatorNumEdges;
-import etomica.graph.model.comparators.ComparatorNumFieldNodes;
-import etomica.graph.model.comparators.ComparatorNumNodes;
+import etomica.graph.model.comparators.*;
 import etomica.graph.operations.GraphOp;
 import etomica.graph.operations.MaxIsomorph;
 import etomica.graph.operations.MaxIsomorph.MaxIsomorphParameters;
 import etomica.graph.property.FFTDecomposition;
 import etomica.graph.property.IsBiconnected;
 import etomica.math.SpecialFunctions;
+import etomica.math.function.IFunction;
+import etomica.math.numerical.SineTransform;
+import etomica.potential.IPotential2;
 import etomica.potential.P2LennardJones;
-import etomica.potential.Potential2Spherical;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
-import etomica.math.numerical.SineTransform;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * CalcFFT can calculate distribution functions using FFT.
@@ -58,7 +54,7 @@ public class CalcFFT {
     protected final HashMap<Object,double[]> rDistributionErrorHash;
     protected final HashMap<Object,double[]> kDistributionHash;
 
-    public static IFunction makeF(final Potential2Spherical p2, final double temperature) {
+    public static IFunction makeF(final IPotential2 p2, final double temperature) {
         IFunction f = new IFunction() {
             
             public double f(double r) {
@@ -320,7 +316,7 @@ public class CalcFFT {
 		double dr = 0.01;
 		
         Space space = Space3D.getInstance();
-        Potential2Spherical p2 = new P2LennardJones(space, 1, 1);
+        IPotential2 p2 = new P2LennardJones(1, 1);
 		CalcFFT calcFFT = new CalcFFT(makeF(p2, 1.0), dr, power);
 //		List myList = new ArrayList();
 //		List mySubList = new ArrayList();

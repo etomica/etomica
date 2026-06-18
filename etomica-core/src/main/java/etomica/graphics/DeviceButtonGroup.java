@@ -4,21 +4,16 @@
 
 package etomica.graphics;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import etomica.action.IAction;
+import etomica.action.controller.Controller;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.border.TitledBorder;
-
-import etomica.action.IAction;
-import etomica.action.activity.Controller;
 
 /**
  * Add etomica device for a group of radio buttons.  Each button is associated
@@ -119,8 +114,8 @@ public class DeviceButtonGroup extends Device {
             System.err.println(e+" "+e.getMessage());
         }
     }
-    
-    public Component graphic(Object obj) {
+
+    public Component graphic() {
         return buttonPanel;
     }
 

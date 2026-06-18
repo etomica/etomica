@@ -6,11 +6,8 @@ package etomica.data.meter;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.atom.iterator.AtomIteratorBoxDependent;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.data.DataSourceScalar;
 import etomica.math.geometry.Polytope;
-import etomica.space.Boundary;
 import etomica.units.dimensions.DimensionRatio;
 import etomica.units.dimensions.Quantity;
 import etomica.units.dimensions.Volume;
@@ -24,10 +21,7 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
     public MeterLocalDensity(Box _box) {
         super("Local Density",new DimensionRatio(Quantity.DIMENSION, Volume.DIMENSION));
         box = _box;
-        iterator = new AtomIteratorLeafAtoms(box);
-        if (box.getBoundary() instanceof Boundary) {
-            setShape(((Boundary)box.getBoundary()).getShape());
-        }
+        setShape(box.getBoundary().getShape());
     }
 
     public void setShape(Polytope shape) {
@@ -45,32 +39,15 @@ public abstract class MeterLocalDensity extends DataSourceScalar {
         if (shape == null) throw new IllegalStateException("must call setShape before using meter (or use a Boundary)");
         //compute local molar density
         int nSum = 0;
-        iterator.reset();
-        for (IAtom atom = iterator.nextAtom(); atom != null;
-             atom = iterator.nextAtom()) {
+        for (IAtom atom : box.getLeafList()) {
             if(shape.contains(atom.getPosition())) nSum++;
         }
         return nSum/shape.getVolume();
     }
 
-    /**
-     * @return Returns the iterator.
-     */
-    public AtomIteratorBoxDependent getIterator() {
-        return iterator;
-    }
-    /**
-     * @param iterator The iterator to set.
-     */
-    public void setIterator(AtomIteratorBoxDependent iterator) {
-        this.iterator = iterator;
-    }
-
-    private static final long serialVersionUID = 1L;
     private Box box;
     /**
      * Class variable used to specify that all species are included in number-density calculation
      */
-    private AtomIteratorBoxDependent iterator;
     private Polytope shape;
 }

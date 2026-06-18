@@ -4,6 +4,7 @@
 
 package etomica.modules.multiharmonic.overlap;
 
+
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
 import etomica.box.Box;
@@ -12,13 +13,12 @@ import etomica.integrator.IntegratorMC;
 import etomica.modules.multiharmonic.MCMoveMultiHarmonic;
 import etomica.overlap.IntegratorOverlap;
 import etomica.potential.P1Harmonic;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space1d.Space1D;
 import etomica.space1d.Vector1D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 
 /**
@@ -28,46 +28,43 @@ import etomica.species.SpeciesSpheresMono;
  */
 public class MultiharmonicMC extends Simulation {
 
-    private static final long serialVersionUID = 1L;
-    protected final SpeciesSpheresMono species;
+    protected final SpeciesGeneral species;
     protected final Box boxA, boxB;
-    protected final PotentialMaster potentialMasterA, potentialMasterB;
+    protected final PotentialComputeField potentialMasterA, potentialMasterB;
     protected final P1Harmonic potentialA, potentialB;
     protected final IntegratorMC integratorA, integratorB;
     protected final IntegratorOverlap integratorOS;
-    protected final ActivityIntegrate activityIntegrate;
+
     public MultiharmonicMC() {
         super(Space1D.getInstance());
-        species = new SpeciesSpheresMono(this, space);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
-        potentialMasterA = new PotentialMasterMonatomic(this);
-        potentialMasterB = new PotentialMasterMonatomic(this);
-
         boxA = this.makeBox(new BoundaryRectangularNonperiodic(space));
-        boxA.getBoundary().setBoxSize(new Vector1D(3.0));
+        boxA.getBoundary().setBoxSize(new Vector1D(6.0));
         boxA.setNMolecules(species, 10);
         boxB = this.makeBox(new BoundaryRectangularNonperiodic(space));
-        boxB.getBoundary().setBoxSize(new Vector1D(3.0));
+        boxB.getBoundary().setBoxSize(new Vector1D(6.0));
         boxB.setNMolecules(species, 10);
 
-        integratorA = new IntegratorMC(this, potentialMasterA, boxA);
-        integratorA.setTemperature(1.0);
-        potentialA = new P1Harmonic(space);
-        integratorA.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialA, random));
-        potentialMasterA.addPotential(potentialA, new AtomType[]{species.getLeafType()});
+        potentialMasterA = new PotentialComputeField(getSpeciesManager(), boxA);
+        potentialMasterB = new PotentialComputeField(getSpeciesManager(), boxB);
 
-        integratorB = new IntegratorMC(this, potentialMasterA, boxB);
+        integratorA = new IntegratorMC(potentialMasterA, random, 1.0, boxA);
+        potentialA = new P1Harmonic(space);
+        integratorA.getMoveManager().addMCMove(new MCMoveMultiHarmonic(integratorA, potentialA, random));
+        potentialMasterA.setFieldPotential(species.getLeafType(), potentialA);
+
+        integratorB = new IntegratorMC(potentialMasterB, this.getRandom(), 1.0, boxB);
         integratorB.setTemperature(1.0);
         potentialB = new P1Harmonic(space);
-        integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(potentialB, random));
-        potentialMasterB.addPotential(potentialB, new AtomType[]{species.getLeafType()});
+        integratorB.getMoveManager().addMCMove(new MCMoveMultiHarmonic(integratorB, potentialB, random));
+        potentialMasterB.setFieldPotential(species.getLeafType(), potentialB);
 
         integratorOS = new IntegratorOverlap(new Integrator[]{integratorA, integratorB});
 
         integratorOS.setAdjustStepFraction(false);
         integratorOS.setRefStepFraction(0.5);
 
-        activityIntegrate = new ActivityIntegrate(integratorOS, 1, false);
-        getController().addAction(activityIntegrate);
+        getController().addActivity(new ActivityIntegrate(integratorOS, true));
     }
 }

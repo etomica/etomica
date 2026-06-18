@@ -21,7 +21,6 @@ import etomica.units.dimensions.Quantity;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGenerator;
-import etomica.util.random.RandomNumberGeneratorUnix;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,7 +103,7 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
      *                 should be 2 (standard deviation) or 3 (stdev + skew).
      */
     public AccumulatorAverageBootstrap(int nMoments) {
-        this(new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray()), nMoments);
+        this(new RandomMersenneTwister(IRandom.getRandSeedArray()), nMoments);
         initialSeed = random.nextInt(1 << 30);
     }
 
@@ -799,6 +798,20 @@ public class AccumulatorAverageBootstrap extends DataAccumulator implements Data
         rawData3 = new double[1 << maxNumBlocks];
         rawDataBlockSize = 0;
         nRawData = 0;
+        if (histogramSinks != null) {
+            for (int i = 0; i < histogramSinks.size(); i++) {
+                initHistogram(i, histogramSinks.get(i));
+                if (histogramSinks.get(i) != null) {
+                    IData histogramData = histograms.get(i);
+                    histogramSinks.get(i).putData(histogramData);
+                }
+            }
+        }
+        if (histogramList != null) {
+            for (Histogram h : histogramList) {
+                h.reset();
+            }
+        }
     }
 
     public IDataInfo processDataInfo(IDataInfo incomingDataInfo) {

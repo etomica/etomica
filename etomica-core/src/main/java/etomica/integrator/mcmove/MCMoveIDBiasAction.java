@@ -29,7 +29,7 @@ public class MCMoveIDBiasAction implements IAction {
     protected double fixedDaDef = Double.NaN;
 
     public MCMoveIDBiasAction(IntegratorMC integratorMC, MCMoveInsertDeleteBiased mcMoveID, int maxVacancy, double bmu,
-            MCMoveOverlapListener mcMoveOverlapMeter, int numAtoms) {
+                              MCMoveOverlapListener mcMoveOverlapMeter, int numAtoms) {
         this.integratorMC = integratorMC;
         this.mcMoveID = mcMoveID;
         this.maxVacancy = maxVacancy;

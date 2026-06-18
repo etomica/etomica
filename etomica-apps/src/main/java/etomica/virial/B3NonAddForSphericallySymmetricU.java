@@ -4,14 +4,14 @@
 
 package etomica.virial;
 
-import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.potential.IPotential2;
+import etomica.potential.IPotential3;
 import etomica.potential.P2HePCKLJS;
 import etomica.potential.P3CPSNonAdditiveHe;
-import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialSoft;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
 
@@ -51,7 +51,7 @@ public static void main(String[] args) {
 	
 	double[] temps = new double[] { temperature }; // Kelvin
 	
-	P2HePCKLJS p2 = new P2HePCKLJS(space);
+	P2HePCKLJS p2 = new P2HePCKLJS();
 	
 	P3CPSNonAdditiveHe p3 = new P3CPSNonAdditiveHe(space);
 	
@@ -73,7 +73,7 @@ public static void main(String[] args) {
 
 	}
 
-	public static double computeB3NonAdd(Potential2SoftSpherical p2, PotentialSoft p3, Space space, double temp) {
+	public static double computeB3NonAdd(IPotential2 p2, IPotential3 p3, Space space, double temp) {
 
 		Atom atom1 = new Atom(space);
         Atom atom2 = new Atom(space);
@@ -134,6 +134,9 @@ public static void main(String[] args) {
 					Vector r1 = Vector.of(new double[]{-r02, 0, 0});
 			        Vector r2 = Vector.of(new double[]{r02, 0, 0});
 			        Vector r3 = Vector.of(new double[]{x13, y13, 0});
+					double r212 = 4*r02*r02;
+					double r213 = (x13+r02)*(x13+r02) + y13*y13;
+					double r223 = (x13-r02)*(x13-r02) + y13*y13;
 			        
 			        atom1.getPosition().E(r1);
 			        atom2.getPosition().E(r2);
@@ -143,10 +146,9 @@ public static void main(String[] args) {
 			        double r13 = Math.sqrt((r1.getX(0)-r3.getX(0))*(r1.getX(0)-r3.getX(0))+(r1.getX(1)-r3.getX(1))*(r1.getX(1)-r3.getX(1)));
 			        double r23 = Math.sqrt((r2.getX(0)-r3.getX(0))*(r2.getX(0)-r3.getX(0))+(r2.getX(1)-r3.getX(1))*(r2.getX(1)-r3.getX(1)));
 					double u123Add = p2.u(r12*r12) + p2.u(r13*r13) + p2.u(r23*r23); //Kelvin
-					double u123NonAdd = p3.energy(atoms); //Kelvin
+					double u123NonAdd = p3.u(r212, r213, r223);
 					double e123 = Math.exp(-(u123NonAdd+u123Add)/temp);
 					double e123Add = Math.exp(-u123Add/temp);			
-						
 
 					integrand = e123-e123Add;
 					

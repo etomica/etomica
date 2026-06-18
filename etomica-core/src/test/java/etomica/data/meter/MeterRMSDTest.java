@@ -4,13 +4,13 @@
 
 package etomica.data.meter;
 
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.Species;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ class MeterRMSDTest {
     public void setUp() throws Exception {
         Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        Species species = new SpeciesSpheresMono(sim, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
         box = sim.makeBox();
         Vector L = space.makeVector();

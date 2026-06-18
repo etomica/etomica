@@ -4,6 +4,7 @@
 
 package etomica.util.random;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -31,6 +32,10 @@ public class RandomNumberGeneratorUnix implements IRandom {
         this("/dev/urandom");
     }
 
+    public static boolean hasRandomFile() {
+        return new File("/dev/urandom").exists();
+    }
+
     /**
      * Create an RNG using the given file as a source of random bits.
      * <p>
@@ -43,35 +48,6 @@ public class RandomNumberGeneratorUnix implements IRandom {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * Convenience method that returns an array of integers, useful as seeds to
-     * another RNG.  If an instance of this class can be instantiated, it is
-     * used to return 4 integers.  Otherwise, System.nanotime is split into 2
-     * integers.
-     */
-    public static int[] getRandSeedArray() {
-        int[] rv;
-        RandomNumberGeneratorUnix rng = null;
-        try {
-            rng = new RandomNumberGeneratorUnix();
-        } catch (RuntimeException e) {
-        }
-        if (rng == null) {
-            // no real problem, probably just not on a unix box.
-            rv = new int[2];
-            long t = System.nanoTime();
-            rv[0] = (int) t; // lower 32 bits
-            rv[1] = (int) (t >> 32); // upper 32 bits
-        } else {
-            rv = new int[4];
-            for (int i = 0; i < rv.length; i++) {
-                rv[i] = rng.nextInt();
-            }
-            rng.dispose();
-        }
-        return rv;
     }
 
     public static void main(String[] args) {

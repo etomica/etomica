@@ -5,15 +5,11 @@
 package etomica.modules.sam;
 
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.box.Box;
-import etomica.potential.IPotential;
-import etomica.potential.PotentialSoft;
+import etomica.potential.IPotential1;
 import etomica.space.Space;
-import etomica.space.Tensor;
 import etomica.space.Vector;
 
-public class P1Sinusoidal implements IPotential, PotentialSoft {
+public class P1Sinusoidal implements IPotential1 {
 
     public P1Sinusoidal(Space space) {
         this.space = space;
@@ -21,9 +17,7 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         this.offset = space.makeVector();
         r = space.makeVector();
         waveVectors = new Vector[3];
-        setCellSize(1,1);
-        gradient = new Vector[1];
-        gradient[0] = space.makeVector();
+        setCellSize(1, 1);
     }
     
     public void setOffset(Vector newOffset) {
@@ -50,10 +44,10 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         waveVectors[1].TE(2.0*Math.PI);
         waveVectors[2].TE(2.0*Math.PI);
     }
-    
-    public double energy(IAtomList atoms) {
-        IAtom a = atoms.get(0);
-        r.Ev1Mv2(a.getPosition(), offset);
+
+    @Override
+    public double u(IAtom atom) {
+        r.Ev1Mv2(atom.getPosition(), offset);
         double sum = 0;
         for (int i=0; i<3; i++) {
             sum += Math.cos(r.dot(waveVectors[i]));
@@ -61,39 +55,20 @@ public class P1Sinusoidal implements IPotential, PotentialSoft {
         return b45 * (3.0 - sum);
     }
 
-    public Vector[] gradient(IAtomList atoms) {
-        IAtom a = atoms.get(0);
-        r.Ev1Mv2(a.getPosition(), offset);
-        gradient[0].E(0);
+    @Override
+    public double udu(IAtom atom, Vector f) {
+        r.Ev1Mv2(atom.getPosition(), offset);
+        double sum = 0;
         for (int i=0; i<3; i++) {
-            gradient[0].PEa1Tv1(Math.sin(r.dot(waveVectors[i])), waveVectors[i]);
+            sum += Math.cos(r.dot(waveVectors[i]));
+            f.PEa1Tv1(-b45*Math.sin(r.dot(waveVectors[i])), waveVectors[i]);
         }
-        gradient[0].TE(b45);
-        return gradient;
+        return b45 * (3.0 - sum);
     }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
-    }
-
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
-    public double getRange() {
-        return 0;
-    }
-
-    public int nBody() {
-        return 1;
-    }
-
-    public void setBox(Box box) {}
 
     protected final Space space;
     protected double b45;
     protected final Vector offset;
     protected final Vector r;
     protected final Vector[] waveVectors;
-    protected final Vector[] gradient;
 }

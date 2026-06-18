@@ -4,19 +4,19 @@
 
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 
+import etomica.action.controller.Controller;
 import etomica.modifier.ModifierBoolean;
 
+import javax.swing.*;
+
 /**
- * Button that toggles a boolean value using a pair of radio buttons.  
+ * Button that toggles a boolean value using a pair of radio buttons.
  * This device can connect to any object
- * capable of switching between two states.  The device operates through a 
+ * capable of switching between two states.  The device operates through a
  * ModifierBoolean instance that must be connected to the state of the
  * controlled object.
- * 
+ *
  * @author David Kofke
  */
 public class DeviceToggleRadioButtons extends Device {
@@ -24,24 +24,16 @@ public class DeviceToggleRadioButtons extends Device {
     private ModifierBoolean modifier;
     private JPanel panel;
     private JRadioButton trueButton, falseButton;
-    
-    /**
-     * Constructor with default labels of a blank title and "True" and "False" for
-     * the true/false labels.
-     */
-    public DeviceToggleRadioButtons(ModifierBoolean modifier) {
-        this(modifier, "", "True", "False");
-    }
-    
+
     /**
      * @param modifier the boolean modifier controlled by this device
      * @param title     a descriptive string.  If empty ("") provides plain border; if null, provides no border.
      * @param trueText  text associated with "true" state of modifier
      * @param falseText text associated with "false" state of modifier
      */
-    public DeviceToggleRadioButtons(final ModifierBoolean modifier, 
-                                String title, String trueText, String falseText) {
-
+    public DeviceToggleRadioButtons(Controller controller, final ModifierBoolean modifier,
+                                    String title, String trueText, String falseText) {
+        super(controller);
         java.awt.event.ActionListener al = new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 modifier.setBoolean(getState());
@@ -93,10 +85,10 @@ public class DeviceToggleRadioButtons extends Device {
     /**
      * Returns the GUI button element for display in the simulation.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return panel;
     }
-    
+
     public void setTitle(String text) {
         panel.setBorder(new javax.swing.border.TitledBorder(text));
     }

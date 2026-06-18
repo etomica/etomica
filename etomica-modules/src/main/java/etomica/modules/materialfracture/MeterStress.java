@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.modules.materialfracture;
+
 import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.data.DataSourceScalar;
+import etomica.space.Vector;
 import etomica.units.dimensions.Pressure2D;
 
 /**
@@ -14,10 +15,10 @@ import etomica.units.dimensions.Pressure2D;
  * @author Andrew Schultz
  */
 public class MeterStress extends DataSourceScalar {
-    
-    public MeterStress(PotentialCalculationForceStress pc) {
+
+    public MeterStress(MaterialFracture sim) {
         super("Stress", Pressure2D.DIMENSION);
-        this.pc = pc;
+        this.sim = sim;
     }
 
     public void setBox(Box newBox) {
@@ -28,16 +29,16 @@ public class MeterStress extends DataSourceScalar {
         return box;
     }
 
-    public double getDataAsScalar(){
+    public double getDataAsScalar() {
         double area = 1;
         Vector dim = box.getBoundary().getBoxSize();
-        for (int i=1; i<dim.getD(); i++) {
+        for (int i = 1; i < dim.getD(); i++) {
             area *= dim.getX(i);
         }
 
-        return pc.getLoad()/area / 2.0;
+        return sim.wallForce / area / 2.0;
     }
 
-    protected final PotentialCalculationForceStress pc;
+    protected final MaterialFracture sim;
     protected Box box;
 }

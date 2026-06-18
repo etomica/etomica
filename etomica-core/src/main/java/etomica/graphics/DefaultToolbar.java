@@ -17,7 +17,7 @@ public class DefaultToolbar {
 
 	private JMenuBar mBar;
 	private String[] DEFAULT_AUTHORS = {"Dr. David A. Kofke", "Dr. Andrew Schultz" };
-    private String[] DEFAULT_CONTRIB = { "Robert Rassler" };
+    private String[] DEFAULT_CONTRIB = { "Alex Kofke", "Robert Rassler" };
     private String[] authors = DEFAULT_AUTHORS;
     private String[] contributors = DEFAULT_CONTRIB;
 

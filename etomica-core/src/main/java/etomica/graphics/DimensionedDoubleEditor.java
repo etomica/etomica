@@ -3,18 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.beans.PropertyEditor;
-import java.beans.PropertyEditorSupport;
 
-import javax.swing.JComboBox;
-
-import etomica.units.dimensions.Dimension;
-import etomica.units.dimensions.Null;
 import etomica.units.Prefix;
 import etomica.units.PrefixedUnit;
 import etomica.units.SimpleUnit;
 import etomica.units.Unit;
+import etomica.units.dimensions.Dimension;
+import etomica.units.dimensions.Null;
 import etomica.units.systems.UnitSystem;
+
+import javax.swing.*;
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorSupport;
 
 /**
  * Editor to set the value of a double-type property having units associated with it.
@@ -76,8 +76,7 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
 	        try {
 	            base = (SimpleUnit)availableUnits[i].newInstance();
 	        }
-	        catch(InstantiationException e) {System.out.println(e.toString()); System.exit(1);}
-	        catch(IllegalAccessException e) {System.out.println(e.toString()); System.exit(1);}
+	        catch(InstantiationException | IllegalAccessException e) {System.out.println(e.toString()); System.exit(1);}
             if(base != null) {
                 availableUnitNames[i].replace(0,availableUnitNames[i].length(),
                                             new PrefixedUnit(prefix, base).toString());
@@ -99,9 +98,8 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
 	    try {
 	        baseUnit = (SimpleUnit)baseClass.newInstance();
 	    }
-	    catch(InstantiationException e) {System.out.println(e.toString()); System.exit(1);}
-	    catch(IllegalAccessException e) {System.out.println(e.toString()); System.exit(1);}
-	    unit = new PrefixedUnit(prefix, baseUnit);
+	    catch(InstantiationException | IllegalAccessException e) {System.out.println(e.toString()); System.exit(1);}
+         unit = new PrefixedUnit(prefix, baseUnit);
 	    setValue(value);
 	 }
 	 
@@ -156,9 +154,9 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
      * Returns the value in simulation units.
      */
     public Object getValue() {
-        double value = ((Double)valueEditor.getValue()).doubleValue();  //value in editor units
+        double value = (Double) valueEditor.getValue();  //value in editor units
         value = unit.toSim(value);  //convert to simulation units
-        return new Double(value);   //return value in simulation units
+        return value;   //return value in simulation units
     }
     
     /**
@@ -166,9 +164,9 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
      */
     public void setValue(Object obj) {
           //value in simulation units
-        double value = (obj!=null) ? ((Double)obj).doubleValue() : Double.NaN;
+        double value = (obj!=null) ? (Double) obj : Double.NaN;
         value = unit.fromSim(value);                 //convert to editor units
-        valueEditor.setValue(new Double(value));     //store in editor units
+        valueEditor.setValue(value);     //store in editor units
         firePropertyChange();
     }
     
@@ -181,7 +179,7 @@ public class DimensionedDoubleEditor extends PropertyEditorSupport
      * by user input.
      */
     public void setValue(double value) {
-        valueEditor.setValue(new Double(unit.fromSim(value)));
+        valueEditor.setValue(unit.fromSim(value));
     }
     
     /**

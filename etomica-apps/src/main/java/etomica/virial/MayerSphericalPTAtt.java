@@ -7,8 +7,7 @@ package etomica.virial;
 import etomica.box.Box;
 import etomica.math.SpecialFunctions;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotential;
-import etomica.potential.Potential2Spherical;
+import etomica.potential.IPotential2;
 
 /**
  * Mayer function class that returns temperature expansion bond of the desired
@@ -21,9 +20,9 @@ public class MayerSphericalPTAtt implements MayerFunction {
 	/**
 	 * Constructor takes reference potential, attractive component and order in temperature.
 	 */
-	public MayerSphericalPTAtt(Potential2Spherical potentialRef, Potential2Spherical potentialAtt, int order) {
+	public MayerSphericalPTAtt(IPotential2 potentialRef, IPotential2 potentialFull, int order) {
 		this.potentialRef = potentialRef;
-		this.potentialAtt = potentialAtt;
+		this.potentialFull = potentialFull;
 		this.order = order;
 		this.factOrder = SpecialFunctions.factorial(order);
 	}
@@ -36,17 +35,17 @@ public class MayerSphericalPTAtt implements MayerFunction {
 		// double dfdkT = Math.exp(-beta*uRef)*Math.pow(-potentialAtt.u(r2)*beta, order)/SpecialFunctions.factorial(order);
 		double dfdkT = Math.exp(-beta*uRef)/factOrder;
 		if (order > 0) {
-		    double betaUA = -potentialAtt.u(r2)*beta;
-		    switch (order) {
-		        case 1: 
-		            dfdkT *= betaUA;
-		            break;
-		        case 2: 
-		            dfdkT *= betaUA*betaUA;
-		            break;
-                case 3: 
-                    dfdkT *= betaUA*betaUA*betaUA;
-                    break;
+			double betaUA = -(potentialFull.u(r2) - uRef) * beta;
+			switch (order) {
+				case 1:
+					dfdkT *= betaUA;
+					break;
+				case 2:
+					dfdkT *= betaUA * betaUA;
+					break;
+				case 3:
+					dfdkT *= betaUA * betaUA * betaUA;
+					break;
                 case 4:
                     double betaUA2 = betaUA*betaUA;
                     dfdkT *= betaUA2*betaUA2;
@@ -83,17 +82,11 @@ public class MayerSphericalPTAtt implements MayerFunction {
 		}
 		return dfdkT;
 	}
-	
+
 	public void setBox(Box newBox) {
-	    potentialRef.setBox(newBox);
-	    potentialAtt.setBox(newBox);
 	}
 
-    public IPotential getPotential() {
-        return potentialRef;
-    }
-
-    protected final Potential2Spherical potentialRef, potentialAtt;
+    protected final IPotential2 potentialRef, potentialFull;
 	protected final int order;
 	protected final long factOrder;
 }

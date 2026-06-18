@@ -5,18 +5,18 @@
 package etomica.integrator;
 
 import etomica.box.Box;
-import etomica.meta.annotations.IgnoreProperty;
-import etomica.potential.PotentialMaster;
-import etomica.data.DataSourceScalar;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.exception.ConfigurationOverlapException;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialMaster;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Dimensioned;
 import etomica.units.dimensions.Temperature;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Objects;
 
 /**
@@ -25,38 +25,33 @@ import java.util.Objects;
  * @author David Kofke and Andrew Schultz
  */
 
-public abstract class IntegratorBox extends Integrator {
+public abstract class IntegratorBox extends Integrator implements Statefull {
 
-    protected final PotentialMaster potentialMaster;
+    protected final PotentialCompute potentialCompute;
     protected final Box box;
     protected final Space space;
     protected double temperature;
     protected boolean isothermal = false;
-    protected DataSourceScalar meterPE;
     protected double currentPotentialEnergy;
 
     /**
-     *
-     * @param potentialMaster PotentialMaster instance used to compute energy etc.
-     * @param temperature used by integration algorithm and/or to initialize velocities
+     * @param potentialCompute PotentialMaster instance used to compute energy etc.
+     * @param temperature     used by integration algorithm and/or to initialize velocities
      */
-    public IntegratorBox(PotentialMaster potentialMaster, double temperature, Box box) {
+    public IntegratorBox(PotentialCompute potentialCompute, double temperature, Box box) {
         super();
         this.box = Objects.requireNonNull(box);
         this.space = box.getSpace();
-        this.potentialMaster = potentialMaster;
-        if (potentialMaster != null) {
-            meterPE = new MeterPotentialEnergy(potentialMaster, box);
-        }
+        this.potentialCompute = potentialCompute;
+        if (potentialCompute != null) this.getEventManager().addListener(this.potentialCompute.makeIntegratorListener());
         setTemperature(temperature);
     }
 
     /**
      * @return the PotentialMaster instance used to compute energy etc.
      */
-    @IgnoreProperty
-    public PotentialMaster getPotentialMaster() {
-        return potentialMaster;
+    public PotentialCompute getPotentialCompute() {
+        return potentialCompute;
     }
 
     /**
@@ -66,15 +61,11 @@ public abstract class IntegratorBox extends Integrator {
      */
     public void reset() {
         super.reset();
-        if (meterPE != null) {
-            currentPotentialEnergy = meterPE.getDataAsScalar();
-            if (currentPotentialEnergy == Double.POSITIVE_INFINITY) {
-                System.err.println("overlap in configuration for " + box + " when resetting integrator");
-                PotentialCalculationEnergySum.debug = true;
-                meterPE.getDataAsScalar();
-                PotentialCalculationEnergySum.debug = false;
-                throw new ConfigurationOverlapException(box);
-            }
+        currentPotentialEnergy = potentialCompute.computeAll(false);
+        if (currentPotentialEnergy == Double.POSITIVE_INFINITY) {
+            System.err.println("overlap in configuration for " + box + " when resetting integrator");
+            potentialCompute.computeAll(false);
+            throw new ConfigurationOverlapException(box);
         }
     }
 
@@ -90,7 +81,7 @@ public abstract class IntegratorBox extends Integrator {
      * @param t the new temperature
      */
     public void setTemperature(double t) {
-        if(t < 0) {
+        if (t < 0) {
             throw new IllegalArgumentException("Temperature cannot be negative");
         }
         temperature = t;
@@ -111,7 +102,6 @@ public abstract class IntegratorBox extends Integrator {
     }
 
     /**
-     *
      * @return true if the Integrator samples according to a specified temperature
      */
     public boolean isIsothermal() {
@@ -119,7 +109,6 @@ public abstract class IntegratorBox extends Integrator {
     }
 
     /**
-     *
      * @param b specifies whether the Integrator should (if true) sample according to a specified temperature
      */
     public void setIsothermal(boolean b) {
@@ -127,32 +116,19 @@ public abstract class IntegratorBox extends Integrator {
     }
 
     /**
-     *
      * @return the Box instance on which this integrator acts
      */
     public Box getBox() {
         return box;
     }
 
-    /**
-     * @param box the Box to set
-     */
-    protected void setBox(Box box) {}
-
-    /**
-     *
-     * @return the meter used to compute the potential energy
-     */
-    public DataSourceScalar getMeterPotentialEnergy() {
-        return meterPE;
+    public void saveState(Writer fw) throws IOException {
+        super.saveState(fw);
+        fw.write(""+currentPotentialEnergy+"\n");
     }
 
-    /**
-     *
-     * @param mpe the new meter used to compute the potential energy
-     */
-    public void setMeterPotentialEnergy(DataSourceScalar mpe) {
-        meterPE = mpe;
+    public void restoreState(BufferedReader br) throws IOException {
+        super.restoreState(br);
+        currentPotentialEnergy = Double.parseDouble(br.readLine());
     }
-
 }

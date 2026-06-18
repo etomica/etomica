@@ -7,8 +7,8 @@ package etomica.modules.materialfracture;
 import etomica.action.IAction;
 import etomica.atom.DiameterHashByType;
 import etomica.data.*;
-import etomica.data.history.HistoryScrolling;
-import etomica.data.meter.MeterPressureTensorFromIntegrator;
+import etomica.data.history.HistoryCollapsingDiscard;
+import etomica.data.meter.MeterPressureTensor;
 import etomica.data.types.DataDouble;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
@@ -28,12 +28,12 @@ import java.awt.*;
 public class MaterialFractureGraphic extends SimulationGraphic {
 
     public MaterialFractureGraphic(final MaterialFracture sim) {
-        super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 1);
+        super(sim, SimulationGraphic.TABBED_PANE, "Material Fracture", 10);
 
         getDisplayBox(sim.box).setPixelUnit(new Pixel(6));
-        ((DiameterHashByType)getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), 3.0);
+        ((DiameterHashByType) getDisplayBox(sim.box).getDiameterHash()).setDiameter(sim.species.getLeafType(), 3.0);
 
-        final StrainColorScheme strainColor = new StrainColorScheme();    
+        final StrainColorScheme strainColor = new StrainColorScheme();
         getDisplayBox(sim.box).setColorScheme(strainColor);
         // 37 is the index of the first atom (on the left) to be colored red
         strainColor.setNumber(37);
@@ -41,9 +41,10 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         getController().getSimRestart().setConfiguration(sim.config);
 
         DeviceThermoSlider thermoSlider = new DeviceThermoSlider(sim.getController(), sim.integrator);
+        thermoSlider.setIsothermalButtonsVisibility(false);
         thermoSlider.setMaximum(600);
         add(thermoSlider);
-        
+
         final MeterStrain meterStrain = new MeterStrain();
         meterStrain.setBox(sim.box);
         meterStrain.setAtomNumber(37);
@@ -53,25 +54,25 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(strainPump));
         AccumulatorAverageCollapsing strainAverage = new AccumulatorAverageCollapsing();
         strainFork.addDataSink(strainAverage);
-    
-        final MeterStress meterStress = new MeterStress(sim.pc);
+
+        final MeterStress meterStress = new MeterStress(sim);
         meterStress.setBox(sim.box);
         DataFork stressFork = new DataFork();
         DataPump stressPump = new DataPump(meterStress, stressFork);
         getController().getDataStreamPumps().add(stressPump);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(stressPump));
-        AccumulatorHistory stressHistory = new AccumulatorHistory(new HistoryScrolling(1));
+        AccumulatorHistory stressHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(5000));
         stressHistory.setTimeDataSource(meterStrain);
         stressFork.addDataSink(stressHistory);
         AccumulatorAverageCollapsing stressAverage = new AccumulatorAverageCollapsing();
         stressAverage.setPushInterval(10);
         stressFork.addDataSink(stressAverage);
-    
-        final DisplayPlot stressHistoryPlot = new DisplayPlot();
+
+        final DisplayPlotXChart stressHistoryPlot = new DisplayPlotXChart();
         stressHistory.setDataSink(stressHistoryPlot.getDataSet().makeDataSink());
         stressHistoryPlot.setLabel("Stress");
-        stressHistoryPlot.setDoClear(false);
         stressHistoryPlot.setDoDrawLines(new DataTag[]{stressHistory.getTag()}, false);
+        stressHistoryPlot.getChart().getStyler().setMarkerSize(4);
 
         add(stressHistoryPlot);
 
@@ -82,18 +83,19 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         DisplayTextBoxesCAE strainDisplay = new DisplayTextBoxesCAE();
         strainDisplay.setAccumulator(strainAverage);
         add(strainDisplay);
-        
-        final MeterPressureTensorFromIntegrator meterPressure = new MeterPressureTensorFromIntegrator(space);
-        meterPressure.setIntegrator(sim.integrator);
-        DataProcessor pressureToStress = new DataProcessor(){
-            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) { return dataInfo; }
-        
+
+        final MeterPressureTensor meterPressure = new MeterPressureTensor(sim.integrator.getPotentialCompute(), sim.box);
+        DataProcessor pressureToStress = new DataProcessor() {
+            protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
+                return dataInfo;
+            }
+
             protected IData processData(IData inputData) {
                 // xx component is the first one
                 data.x = -inputData.getValue(0);
                 return data;
             }
-            
+
             protected final IDataInfo dataInfo = new DataDouble.DataInfoDouble("Stress", Pressure2D.DIMENSION);
             protected final DataDouble data = new DataDouble();
         };
@@ -104,7 +106,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
 
         DataFork internalStressFork = new DataFork();
         pressureToStress.setDataSink(internalStressFork);
-        AccumulatorHistory internalStressHistory = new AccumulatorHistory(new HistoryScrolling(1));
+        AccumulatorHistory internalStressHistory = new AccumulatorHistory(new HistoryCollapsingDiscard(5000));
         internalStressHistory.setTimeDataSource(meterStrain);
         internalStressFork.addDataSink(internalStressHistory);
         AccumulatorAverageCollapsing internalStressAverage = new AccumulatorAverageCollapsing();
@@ -134,10 +136,21 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         integratorPanel.add("Timestep (fs)", stepSlider.graphic());
 
         Modifier nuModifier = new Modifier() {
-            public void setValue(double newValue) {sim.integrator.setThermostatInterval((int)(1.0/newValue));}
-            public double getValue() {return 1.0/sim.integrator.getThermostatInterval();}
-            public String getLabel() {return "";}
-            public Dimension getDimension() {return Null.DIMENSION;}
+            public void setValue(double newValue) {
+                sim.integrator.setThermostatInterval((int) (1.0 / newValue));
+            }
+
+            public double getValue() {
+                return 1.0 / sim.integrator.getThermostatInterval();
+            }
+
+            public String getLabel() {
+                return "";
+            }
+
+            public Dimension getDimension() {
+                return Null.DIMENSION;
+            }
         };
         DeviceSlider nuSlider = new DeviceSlider(sim.getController(), nuModifier);
         nuSlider.setMaximum(1);
@@ -170,7 +183,7 @@ public class MaterialFractureGraphic extends SimulationGraphic {
         springConstantSlider.setNMajor(3);
         springConstantSlider.setShowValues(true);
         potentialPanel.add("Spring Constant (J/(mol A^2))", springConstantSlider.graphic());
-        
+
         ModifierGeneral cutoffModifier = new ModifierGeneral(sim.pt, "truncationRadius");
         DeviceSlider cutoffSlider = new DeviceSlider(sim.getController(), cutoffModifier);
         cutoffSlider.setMinimum(2);
@@ -184,24 +197,18 @@ public class MaterialFractureGraphic extends SimulationGraphic {
 
         getController().getResetAveragesButton().setPostAction(new IAction() {
             public void actionPerformed() {
-                stressHistoryPlot.getPlot().clear(false);
+                stressHistoryPlot.getPlot().clearData();
             }
         });
     }
-  
+
     /**
-    /* main method
+     * /* main method
      */
     public static void main(String[] args) {
         MaterialFracture sim = new MaterialFracture();
         MaterialFractureGraphic simGraphic = new MaterialFractureGraphic(sim);
 
         simGraphic.makeAndDisplayFrame();
-    }
-
-    public static class Applet extends javax.swing.JApplet{
-        public void init(){ 
-            getContentPane().add(new MaterialFractureGraphic(new MaterialFracture()).getPanel());
-        }
     }
 }

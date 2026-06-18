@@ -25,14 +25,17 @@ import etomica.util.Constants;
  */
 
 
-public final class P2ModifiedMorse extends Potential2SoftSpherical {
+public final class P2ModifiedMorse implements IPotential2 {
+
+    public static IPotential2 makeTruncated(double epsilon, double re, double a, double z1, double z2, double coulombicCutoff, TruncationFactory tf) {
+        return tf.make(new P2ModifiedMorse(epsilon, re, a, z1, z2, coulombicCutoff));
+    }
 
     public P2ModifiedMorse(Space space) {
-        this(space, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
+        this(1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
     }
-    
-    public P2ModifiedMorse(Space space, double epsilon, double re, double a, double z1, double z2, double coulombicCutoff) {
-        super(space);
+
+    public P2ModifiedMorse(double epsilon, double re, double a, double z1, double z2, double coulombicCutoff) {
         setEpsilon(epsilon);
         setRe(re);
         setA(a);
@@ -108,19 +111,19 @@ public final class P2ModifiedMorse extends Potential2SoftSpherical {
     }
             
     /**
-     *  Integral used for corrections to potential truncation.
+     * Integral used for corrections to potential truncation.
      */
-    public double uInt(double rC) {
-    	double alpha = a*re;
+    public double integral(Space space, double rC) {
+        double alpha = a * re;
         double A = space.sphereArea(1.0);  //multiplier for differential surface element
-        double rC2 = rC*rC;
-        double re2 = re*re;
-        double alpha2 = alpha*alpha;
-        double alpha3 = alpha*alpha*alpha;
-        double expTerm = Math.exp(-alpha*(-1+(rC/re)));
-        
+        double rC2 = rC * rC;
+        double re2 = re * re;
+        double alpha2 = alpha * alpha;
+        double alpha3 = alpha * alpha * alpha;
+        double expTerm = Math.exp(-alpha * (-1 + (rC / re)));
+
         System.out.println("Ahh!!!!  This has not been modified yet!!!");
-        return (-A/(4*alpha3))
+        return (-A / (4 * alpha3))
         		*(re*expTerm*epsilon*
         				(2*expTerm*alpha2*rC2 + 2*expTerm*alpha*re*rC	
         						+expTerm*re2 -8*alpha2*rC2 - 16*alpha*re*rC -16*re2));  
@@ -163,7 +166,6 @@ public final class P2ModifiedMorse extends Potential2SoftSpherical {
         z2 = dummy;
     }
     
-    private static final long serialVersionUID = 1L;
     private double re;
     private double epsilon;
     private double a;

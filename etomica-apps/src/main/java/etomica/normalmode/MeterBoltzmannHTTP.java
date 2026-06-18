@@ -9,16 +9,15 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.data.DataTag;
 import etomica.data.IData;
-import etomica.data.IDataSource;
 import etomica.data.IDataInfo;
+import etomica.data.IDataSource;
 import etomica.data.histogram.HistogramCollapsing;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.BondingInfo;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.species.ISpecies;
 import etomica.units.dimensions.Null;
@@ -33,28 +32,28 @@ import etomica.units.dimensions.Null;
  */
 public class MeterBoltzmannHTTP implements IDataSource {
 
-    protected final MeterPotentialEnergy meterPotential;
-    protected final PotentialMaster potentialMaster;
+    protected final PotentialMaster potentialMaster, potentialMasterPretend;
     protected double latticeEnergy;
     protected double temperature;
     protected double otherTemperature;
     protected DataDoubleArray data;
     protected DataInfoDoubleArray dataInfo;
-    
+
     protected DataTag tag;
-    
+
     protected final Box pretendBox;
     protected final CoordinateDefinition coordinateDefinition;
     protected final ISpecies species;
     protected P1ConstraintNbr p1;
     protected HistogramCollapsing[] histogram;
-    
-    public MeterBoltzmannHTTP(PotentialMaster potentialMaster, ISpecies species, Simulation sim, CoordinateDefinition coordinateDefinition) {
+
+    public MeterBoltzmannHTTP(PotentialMaster potentialMaster, ISpecies species, Simulation sim, CoordinateDefinition coordinateDefinition, double rc) {
         this.potentialMaster = potentialMaster;
-        meterPotential = new MeterPotentialEnergy(potentialMaster);
         this.coordinateDefinition = coordinateDefinition;
         this.species = species;
         pretendBox = sim.makeBox(coordinateDefinition.getBox().getBoundary());
+        potentialMasterPretend = new PotentialMasterList(sim.getSpeciesManager(),
+                pretendBox, 7, rc, BondingInfo.noBonding(), potentialMaster.getPairPotentials());
 
         data = new DataDoubleArray(5);
         dataInfo = new DataInfoDoubleArray("Reduced Energy", Null.DIMENSION, new int[]{5});
@@ -72,11 +71,7 @@ public class MeterBoltzmannHTTP implements IDataSource {
             Vector pos = pretendAtoms.get(j).getPosition();
             pos.E(coordinateDefinition.getLatticePosition(jRealAtom));
         }
-
-        if (potentialMaster instanceof PotentialMasterList) {
-            // find neighbors now.
-            ((PotentialMasterList)potentialMaster).getNeighborManager(pretendBox).reset();
-        }
+        potentialMasterPretend.init();
     }
     
     public IDataInfo getDataInfo() {
@@ -89,9 +84,7 @@ public class MeterBoltzmannHTTP implements IDataSource {
 
     public IData getData() {
         Box realBox = coordinateDefinition.getBox();
-        meterPotential.setBox(realBox);
-        double u = meterPotential.getDataAsScalar();
-        meterPotential.setBox(pretendBox);
+        double u = potentialMaster.computeAll(false);
 
         IAtomList atoms = realBox.getLeafList();
         IAtomList pretendAtoms = pretendBox.getLeafList();
@@ -119,7 +112,7 @@ public class MeterBoltzmannHTTP implements IDataSource {
             otherU = constraintEnergy(pretendBox);
         }
         if (otherU < Double.POSITIVE_INFINITY) {
-            otherU += meterPotential.getDataAsScalar();
+            otherU += potentialMasterPretend.computeAll(false);
         }
         double a1 = (otherU-latticeEnergy)/otherTemperature;
         
@@ -144,6 +137,8 @@ public class MeterBoltzmannHTTP implements IDataSource {
                 return Double.POSITIVE_INFINITY;
             }
         }
+        // ugly!!!
+        p1.setBox(coordinateDefinition.getBox());
         return 0;
     }
 

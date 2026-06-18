@@ -4,46 +4,28 @@
 
 package etomica.potential;
 
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.units.BohrRadius;
+import etomica.units.Hartree;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Date;
-
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
-import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
-import etomica.space.Space;
-import etomica.space.Tensor;
-import etomica.space3d.Space3D;
-import etomica.units.BohrRadius;
-import etomica.units.Hartree;
-import etomica.units.Kelvin;
 
 /**
  * Simplified version of ab initio, non-additive trimer potential for He developed by Cencek, Patkowski, and Szalewicz JCP 131 064105 2009.
  *  
  * @author Kate Shaul
  */
-public class P3CPSNonAdditiveHeSimplified extends Potential implements PotentialSoft, IPotentialAtomicMultibody {
+public class P3CPSNonAdditiveHeSimplified implements IPotential3 {
 
     public P3CPSNonAdditiveHeSimplified(Space space) {
-        super(3, space);
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();
-        gradient = new Vector[3];
-        gradient[0] = space.makeVector();
-        gradient[1] = space.makeVector();
-        gradient[2] = space.makeVector();
-
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
     }
 
     public void setNullRegionMethod(int nullRegionMethod) {
@@ -130,11 +112,20 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
 
         return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
     }
-    
-    public double energy(double[] r2) {
-        double RAB2 = r2[0];
-        double RAC2 = r2[1];
-        double RBC2 = r2[2];
+
+	public double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3) {
+		double RAB = Math.sqrt(dr12.squared());
+		double RAC = Math.sqrt(dr13.squared());
+		double RBC = Math.sqrt(dr23.squared());
+
+		double costhetaA =  dr12.dot(dr13)/(RAB*RAC);
+		double costhetaB = -dr12.dot(dr23)/(RAB*RBC);
+		double costhetaC =  dr13.dot(dr23)/(RAC*RBC);
+
+		return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
+	}
+
+	public double u(double RAB2, double RAC2, double RBC2) {
         double RAB = Math.sqrt(RAB2);
         double RAC = Math.sqrt(RAC2);
         double RBC = Math.sqrt(RBC2);
@@ -143,6 +134,10 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         double costhetaB = (RAB2 + RBC2 - RAC2)/(2*RAB*RBC);
         double costhetaC = (RAC2 + RBC2 - RAB2)/(2*RAC*RBC);
         return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
+    }
+
+    public double energy(double[] r2) {
+        return u(r2[0], r2[1], r2[2]);
     }
     
     protected double energy(double RAB, double RAC, double RBC, double costhetaA, double costhetaB, double costhetaC) {
@@ -217,185 +212,9 @@ public class P3CPSNonAdditiveHeSimplified extends Potential implements Potential
         return Double.POSITIVE_INFINITY;
     }
 
-    public Vector[] gradient(IAtomList atoms) {
-       throw new RuntimeException("Sorry, no gradient available yet");
-    }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
-    }
-
-    public double virial(IAtomList atoms) {
-        return 0;
-    }
-
-    public static void main(String[] args) {
-        Space space = Space3D.getInstance();
-
-        P3CPSNonAdditiveHeSimplified potential = new P3CPSNonAdditiveHeSimplified(space);
-        System.out.println(potential.energy(new double[]{4.326850577421106e+00, 4.713606275205238e+03, 4.961477925052809e+03}));
-        System.exit(1);
-//        potential.setParameters("paramsOriginalSimpler.dat");
-        //potential.setParameters("fminconSamplingB3NonAdd/params3Sets_RelErrSqrt_EM18_IG2_1e4Iter_100_K_0.dat");
-      
-        Atom atom0 = new Atom(space);
-        Atom atom1 = new Atom(space);
-        Atom atom2 = new Atom(space);
-        
-        AtomArrayList atoms = new AtomArrayList(3);
-        atoms.add(atom0);
-        atoms.add(atom1);
-        atoms.add(atom2);
-        
-        double a; double U; Vector r0; Vector r1; Vector r2;
-        boolean test = true;
-        if (test) {
-	        
-	        System.out.println("Equilateral triangle 1, rij = 4 a0");  
-	        a = BohrRadius.UNIT.toSim(4.0);
-	        r0 = Vector.of(new double[]{0, 0, 0});
-	        r1 = Vector.of(new double[]{a, 0, 0});
-	        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
-        
-	        atom0.getPosition().E(r0);
-	        atom1.getPosition().E(r1);
-	        atom2.getPosition().E(r2);
-
-	        U = Kelvin.UNIT.fromSim(potential.energy(atoms));
-	
-	        System.out.println("simplified    : " + U*1000+ " mK");
-	        P3CPSNonAdditiveHe pCencek = new P3CPSNonAdditiveHe(space);
-	        double UCencek = Kelvin.UNIT.fromSim(pCencek.energy(atoms));
-	        System.out.println("Cencek  : " + UCencek*1000+ " mK");
-	        
-	       
-	        System.out.println();
-        
-	        System.out.println("Equilateral triangle 2, rij = 5.6 a0"); 
-	        a = BohrRadius.UNIT.toSim(5.6);
-	        r0 = Vector.of(new double[]{0, 0, 0});
-	        r1 = Vector.of(new double[]{a, 0, 0});
-	        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
-	        
-	        atom0.getPosition().E(r0);
-	        atom1.getPosition().E(r1);
-	        atom2.getPosition().E(r2);
-
-	        U = Kelvin.UNIT.fromSim(potential.energy(atoms));
-	
-	        System.out.println("simplified    : " + U*1000+ " mK");
-	        UCencek = Kelvin.UNIT.fromSim(pCencek.energy(atoms));
-	        System.out.println("Cencek  : " + UCencek*1000+ " mK");
-	        
-	        
-	        System.out.println();
-	        
-	        System.out.println("Equilateral triangle 2, rij = 10 a0"); 
-	        a = BohrRadius.UNIT.toSim(10);
-	        r0 = Vector.of(new double[]{0, 0, 0});
-	        r1 = Vector.of(new double[]{a, 0, 0});
-	        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
-	        
-	        atom0.getPosition().E(r0);
-	        atom1.getPosition().E(r1);
-	        atom2.getPosition().E(r2);
-
-	        U = Kelvin.UNIT.fromSim(potential.energy(atoms));
-	
-	        System.out.println("simplified    : " + U*1000+ " mK");
-	        UCencek = Kelvin.UNIT.fromSim(pCencek.energy(atoms));
-	        System.out.println("Cencek  : " + UCencek*1000+ " mK");
-	        
-System.out.println();
-	        
-	        System.out.println("Equilateral triangle, rij = 2.6 a0"); 
-	        a = BohrRadius.UNIT.toSim(2.6);
-	        r0 = Vector.of(new double[]{0, 0, 0});
-	        r1 = Vector.of(new double[]{a, 0, 0});
-	        r2 = Vector.of(new double[]{a / 2.0, a / 2.0 * Math.sqrt(3), 0});
-	        
-	        atom0.getPosition().E(r0);
-	        atom1.getPosition().E(r1);
-	        atom2.getPosition().E(r2);
-
-	        U = Kelvin.UNIT.fromSim(potential.energy(atoms));
-	
-	        System.out.println("simplified    : " + U*1000+ " mK");
-	        UCencek = Kelvin.UNIT.fromSim(pCencek.energy(atoms));
-	        System.out.println("Cencek  : " + UCencek*1000+ " mK");
-	        
-	        
-	        Date date = new Date();
-		       long t0 = date.getTime();
-		       for (int i=0;i<1000000;i++) {
-		            a = BohrRadius.UNIT.toSim(potential.b);
-		            r0 = Vector.of(new double[]{0, 0, 0});
-		            r1 = Vector.of(new double[]{a, 0, 0});
-		            r2 = Vector.of(new double[]{2 * a, 0, 0});
-	           
-	            
-		            atom0.getPosition().E(r0);
-		            atom1.getPosition().E(r1);
-		            atom2.getPosition().E(r2);
-		
-		            U = potential.energy(atoms);
-		
-		            //System.out.println(b+"  " + U);
-		        }
-		       Date date2 = new Date();
-		       long tf = date2.getTime();
-		       long tElapsed = tf-t0;
-		       System.out.println(tElapsed+"  milliseconds for 1000000 configurations"+"  "+t0+" "+tf);
-        } else {
-        	
-        	r0 = Vector.of(new double[]{0, 0, 0});
-        	atom0.getPosition().E(r0);
-        	P2HePCKLJS p2 = new P2HePCKLJS(space);
-        	
-        	for (int i=1;i<=5;i++) {
-
-            	double r01 = 1.5*i;
-        		r1 = Vector.of(new double[]{r01, 0, 0});
-        		atom1.getPosition().E(r1);
-    		
-    	    for (int j=1;j<=5;j++) {
-    	    	
-    	    	double r02 = 1.5*j;
-
-    	    	for (int k=1;k<=5;k++) {
-    		
-    	    		 double theta = Math.PI/5*k;
-    	    		 double x2 = r02*Math.cos(theta);
-    	    		 double y2 = r02*Math.sin(theta);
-    	    		 r2 = Vector.of(new double[]{x2, y2, 0});
-    	    		 atom2.getPosition().E(r2);
-    	    		 
-    	    		 double r12 = Math.sqrt((x2-r01)*(x2-r01)+y2*y2);
-    	    		 
-    	    		 U = Kelvin.UNIT.fromSim(potential.energy(atoms));
-    	    		 
-    	    		 double Uadd = p2.energy(atoms);
-    	    		 
-    		    	 System.out.println(r01+"  "+r02+"  " +r12+"  "+ U+"  "+ Uadd);
-    		    	
-
-    	    	}
-    				
-    	    }
-        }
-    }
-       
-    }
-    
     protected final Vector drAB, drAC, drBC;
-    protected Boundary boundary;
-    protected final Vector[] gradient;
     public static boolean bigAngle;
-    
-    
-    
-    
-    
+
     //Energies in Hartrees, and distances in Bohr radii.
     //Default parameter values fitted for nonadditive classical B3 at 100 K with training set 6 at 100 K
     protected double A=-371.6663602;
@@ -403,7 +222,6 @@ System.out.println();
     protected double Z=1.00129424; 
     protected double B=-33.79160965;
     protected double b=1.09675524;
-    protected final double[][] Rpow = new double[3][9];
     protected double exitflag;
     protected double fval;
     public double[] params = new double[7];//first two are fval and exitflag

@@ -9,24 +9,21 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.chem.elements.Carbon;
-import etomica.chem.elements.IElement;
 import etomica.chem.elements.Oxygen;
-import etomica.config.IConformation;
 import etomica.models.water.PNWaterGCPM;
 import etomica.models.water.SpeciesWater4P;
 import etomica.models.water.SpeciesWater4PCOM;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.MoleculePair;
 import etomica.potential.IPotentialMolecular;
-import etomica.potential.PotentialMolecular;
 import etomica.potential.PotentialPolarizable;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Electron;
 import etomica.units.Kelvin;
 
@@ -44,11 +41,10 @@ import java.util.Map;
  *
  * @author Andrew and Dave
  */
-public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
+public class PNGCPM implements IPotentialMolecular, PotentialPolarizable {
 
     public static boolean debugme = false;
     protected final double[][] pairPolarization;
-    protected final MoleculePair pair;
     protected final double coreFac;
     protected final Vector rijVector;
     protected final Vector work, shift;
@@ -61,17 +57,13 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
     protected Vector oldMu;
     protected Component component;
     private double UpolAtkins;
+    protected final Space space;
 
     public PNGCPM(Space space, Map<AtomType, GCPMAgent> typeManager, int nAtomTypes) {
-        this(space, typeManager, nAtomTypes, Integer.MAX_VALUE);
-    }
-
-    public PNGCPM(Space space, Map<AtomType, GCPMAgent> typeManager, int nAtomTypes, int nBody) {
-        super(nBody, space);
+        this.space = space;
         this.typeManager = typeManager;
         this.nAtomTypes = nAtomTypes;
         pairAgents = new GCPMAgent[nAtomTypes][nAtomTypes];
-        pair = new MoleculePair();
         coreFac = 0.57 * 0.57;
 
         oldMu = space.makeVector();
@@ -93,18 +85,15 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double z = 4.;
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1, 2});
-        speciesCO2.setConformation(new IConformation() {
-
-            public void initializePositions(IAtomList atomList) {
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0, 1.161);
-                atomList.get(2).getPosition().setX(0, -1.161);
-            }
-        });
+        double bondL = 1.161;
+        AtomType oType = AtomType.element(Oxygen.INSTANCE);
+        SpeciesGeneral speciesCO2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.element(Carbon.INSTANCE), space.makeVector())
+                .addAtom(oType, Vector.of(-bondL, 0, 0))
+                .addAtom(oType, Vector.of(+bondL, 0, 0))
+                .build();
         sim.addSpecies(speciesCO2);
-        Box box = new etomica.box.Box(space);
+        Box box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 2);
         box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
@@ -140,17 +129,16 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double qO = -0.5 * qC;
         typeManager.put(speciesCO2.getAtomType(1), new GCPMAgent(3.193 * 1.0483, Kelvin.UNIT.toSim(67.72), 0.61, 15.5, qO, 0, 0, 0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 2);
-        p2.setBox(box);
 //        p2.setComponent(PNGCPM.Component.INDUCTION);
         IMoleculeList molecules = box.getMoleculeList();
         double u = p2.energy(molecules);
         System.out.println(u);
 
-        PNCO2GCPM p2c = new PNCO2GCPM(space);
-        p2c.setBox(box);
-//        p2c.setComponent(PNCO2GCPM.Component.INDUCTION);
-        double uc = p2c.energy(molecules);
-        System.out.println(uc);
+//        PNCO2GCPM p2c = new PNCO2GCPM(space);
+//        p2c.setBox(box);
+////        p2c.setComponent(PNCO2GCPM.Component.INDUCTION);
+//        double uc = p2c.energy(molecules);
+//        System.out.println(uc);
 
     }
 
@@ -160,18 +148,15 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double y2 = 2.;
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesSpheresHetero speciesCO2 = new SpeciesSpheresHetero(space, new IElement[]{Carbon.INSTANCE, Oxygen.INSTANCE});
-        speciesCO2.setChildCount(new int[]{1, 2});
-        speciesCO2.setConformation(new IConformation() {
-
-            public void initializePositions(IAtomList atomList) {
-                atomList.get(0).getPosition().E(0);
-                atomList.get(1).getPosition().setX(0, 1.161);
-                atomList.get(2).getPosition().setX(0, -1.161);
-            }
-        });
+        double bondL = 1.161;
+        AtomType oType = AtomType.element(Oxygen.INSTANCE);
+        SpeciesGeneral speciesCO2 = new SpeciesBuilder(space)
+                .addAtom(AtomType.element(Carbon.INSTANCE), space.makeVector())
+                .addAtom(oType, Vector.of(-bondL, 0, 0))
+                .addAtom(oType, Vector.of(+bondL, 0, 0))
+                .build();
         sim.addSpecies(speciesCO2);
-        Box box = new etomica.box.Box(space);
+        Box box = new Box(space);
         sim.addBox(box);
         box.setNMolecules(speciesCO2, 3);
         box.getBoundary().setBoxSize(Vector.of(new double[]{100, 100, 100}));
@@ -204,17 +189,16 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double qO = -0.5 * qC;
         typeManager.put(speciesCO2.getAtomType(1), new GCPMAgent(3.193 * 1.0483, Kelvin.UNIT.toSim(67.72), 0.61, 15.5, qO, 0, 0, 0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 2);
-        p2.setBox(box);
-        PNGCPM.P3GCPMAxilrodTeller p3 = p2.makeAxilrodTeller();
+        P3GCPMAxilrodTeller p3 = p2.makeAxilrodTeller();
         IMoleculeList molecules = box.getMoleculeList();
         double u = p2.energy(molecules);
         System.out.println(u);
 
-        PNCO2GCPM p2c = new PNCO2GCPM(space);
-        p2c.setBox(box);
-        PNCO2GCPM.P3GCPMAxilrodTeller p3c = p2c.makeAxilrodTeller();
-        double uc = p2c.energy(molecules);
-        System.out.println(uc);
+//        PNCO2GCPM p2c = new PNCO2GCPM(space);
+//        p2c.setBox(box);
+//        PNCO2GCPM.P3GCPMAxilrodTeller p3c = p2c.makeAxilrodTeller();
+//        double uc = p2c.energy(molecules);
+//        System.out.println(uc);
 
     }
 
@@ -224,7 +208,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double y2 = 7.;
         final Space space = Space3D.getInstance();
         Simulation sim = new Simulation(space);
-        SpeciesWater4PCOM speciesWaterCOM = new SpeciesWater4PCOM(space);
+        SpeciesGeneral speciesWaterCOM = SpeciesWater4PCOM.create(false);
         sim.addSpecies(speciesWaterCOM);
         Box box = new Box(space);
         sim.addBox(box);
@@ -241,20 +225,18 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         translator.actionPerformed(mol2);
 
         Map<AtomType, GCPMAgent> typeManager = new HashMap<>();
-        typeManager.put(speciesWaterCOM.getHydrogenType(), new GCPMAgent(1.0, 0, 0.455, 12.75, Electron.UNIT.toSim(0.6113), 0, 0, 0));
-        typeManager.put(speciesWaterCOM.getOxygenType(), new GCPMAgent(3.69, Kelvin.UNIT.toSim(110), 0, 12.75, 0, 0, 0, 0, 0));
-        typeManager.put(speciesWaterCOM.getMType(), new GCPMAgent(1.0, 0, 0.610, 12.75, Electron.UNIT.toSim(-1.2226), 0, 0, 0));
-        typeManager.put(speciesWaterCOM.getCOMType(), new GCPMAgent(1.0, 0, 0.610, 12.75, 0, 1.444, 1.444, 0));
+        typeManager.put(speciesWaterCOM.getTypeByName("H"), new GCPMAgent(1.0,0,0.455,12.75,Electron.UNIT.toSim(0.6113),0,0,0));
+        typeManager.put(speciesWaterCOM.getTypeByName("O"), new GCPMAgent(3.69,Kelvin.UNIT.toSim(110),0,12.75,0,0,0,0,0));
+        typeManager.put(speciesWaterCOM.getTypeByName("M"), new GCPMAgent(1.0,0,0.610,12.75,Electron.UNIT.toSim(-1.2226),0,0,0));
+        typeManager.put(speciesWaterCOM.getTypeByName("COM"), new GCPMAgent(1.0,0,0.610,12.75,0,1.444,1.444,0));
         PNGCPM p2 = new PNGCPM(space, typeManager, 4);
-        p2.setBox(box);
         IMoleculeList molecules = box.getMoleculeList();
-        MoleculePair pair = new MoleculePair(molecules.get(0), molecules.get(1));
         double u = p2.energy(molecules);
         System.out.println(u);
 
 
         sim = new Simulation(space);
-        SpeciesWater4P speciesWater = new SpeciesWater4P(space);
+        SpeciesGeneral speciesWater = SpeciesWater4P.create();
         sim.addSpecies(speciesWater);
         box = sim.makeBox();
         box.setNMolecules(speciesWater, 3);
@@ -268,8 +250,7 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         translator.setDestination(Vector.of(0, y2, 0));
         translator.actionPerformed(mol2);
 
-        PNWaterGCPM p2c = new PNWaterGCPM(space);
-        p2c.setBox(box);
+        PNWaterGCPM p2c = new PNWaterGCPM(space, box.getBoundary());
         double uc = p2c.energy(molecules);
         System.out.println(uc);
 
@@ -283,10 +264,8 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         double sum = 0;
         if (component != Component.INDUCTION) {
             for (int i = 0; i < molecules.size() - 1; i++) {
-                pair.mol0 = molecules.get(i);
                 for (int j = i + 1; j < molecules.size(); j++) {
-                    pair.mol1 = molecules.get(j);
-                    sum += getNonPolarizationEnergy(pair);
+                    sum += getNonPolarizationEnergy(molecules.get(i), molecules.get(j));
                     if (Double.isInfinite(sum)) {
                         return sum;
                     }
@@ -343,9 +322,9 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
      * This returns the pairwise-additive portion of the GCPM potential for a
      * pair of atoms (dispersion + fixed-charge electrostatics)
      */
-    public double getNonPolarizationEnergy(IMoleculeList molecules) {
-        IAtomList atoms1 = molecules.get(0).getChildList();
-        IAtomList atoms2 = molecules.get(1).getChildList();
+    public double getNonPolarizationEnergy(IMolecule molecule1, IMolecule molecule2) {
+        IAtomList atoms1 = molecule1.getChildList();
+        IAtomList atoms2 = molecule2.getChildList();
 
         Vector C1r = atoms1.get(0).getPosition();
         Vector C2r = atoms2.get(0).getPosition();
@@ -641,14 +620,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
         return UpolAtkins;
     }
 
-    public final double getRange() {
-        return Double.POSITIVE_INFINITY;
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
-    }
-
     public P3GCPMAxilrodTeller makeAxilrodTeller() {
         return new P3GCPMAxilrodTeller(space);
     }
@@ -701,16 +672,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
 
         }
 
-        public double getRange() {
-            return Double.POSITIVE_INFINITY;
-        }
-
-        public void setBox(Box box) {
-        }
-
-        public int nBody() {
-            return 2;
-        }
     }
 
     public class P3GCPMAxilrodTeller implements IPotentialMolecular {
@@ -741,18 +702,6 @@ public class PNGCPM extends PotentialMolecular implements PotentialPolarizable {
             xx = new double[3];
             yy = new double[3];
             zz = new double[3];
-        }
-
-        public double getRange() {
-            return Double.POSITIVE_INFINITY;
-        }
-
-        public void setBox(Box box) {
-
-        }
-
-        public int nBody() {
-            return 3;
         }
 
         public double energy(IMoleculeList molecules) {

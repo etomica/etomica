@@ -5,10 +5,9 @@
 package etomica.virial.simulations;
 
 import etomica.action.IAction;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomTypeSpheroPolyhedron;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.box.Box;
 import etomica.chem.elements.ElementSimple;
 import etomica.data.*;
 import etomica.data.histogram.HistogramReweightedData;
@@ -26,17 +25,25 @@ import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.math.SpecialFunctions;
-import etomica.potential.IPotentialAtomic;
+import etomica.potential.IPotential2;
 import etomica.potential.P2SpheroPolyhedron;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesPolyhedron;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.*;
-import etomica.virial.simulations.ShapeParser.ShapeData;
+import etomica.virial.MayerFunction;
+import etomica.virial.MayerGeneralAtomic;
+import etomica.virial.MeterVirialBD;
+import etomica.virial.ShapeParser;
+import etomica.virial.ShapeParser.ShapeData;
+import etomica.virial.cluster.*;
+import etomica.virial.mcmove.MCMoveClusterPolyhedraChain;
+import etomica.virial.mcmove.MCMoveClusterPolyhedraTree;
+import etomica.virial.wheatley.ClusterWheatleyHS;
 
 import javax.swing.*;
 import java.awt.*;
@@ -77,9 +84,9 @@ public class VirialPolyhedra2 {
 
         final P2SpheroPolyhedron p2 = new P2SpheroPolyhedron(space);
 
-        SpeciesPolyhedron[] allSpecies = new SpeciesPolyhedron[1];
+        SpeciesGeneral[] allSpecies = new SpeciesGeneral[1];
         ShapeData shapeData = ShapeParser.doParse("shape/"+shape+".dat", space);
-        allSpecies[0] = new SpeciesPolyhedron(space, shapeData.vertices, 0.0, new ElementSimple("P"));
+        allSpecies[0] = SpeciesPolyhedron.create(space, shapeData.vertices, 0.0, new ElementSimple("P"));
         double shsref = 2*((AtomTypeSpheroPolyhedron)allSpecies[0].getAtomType(0)).getOuterRadius();
         final double sigmaHSRef = shsref;
         double B2 = shapeData.B2;
@@ -90,31 +97,24 @@ public class VirialPolyhedra2 {
         }
 
         final double[][] uValues = new double[nPoints][nPoints];
-        IPotentialAtomic p2Wrapper = new IPotentialAtomic() {
-            
-            public void setBox(Box box) {
-                p2.setBox(box);
-            }
+        IPotential2 p2Wrapper = new IPotential2() {
 
-            public int nBody() {
-                return 2;
-            }
-            
-            public double getRange() {
-                return sigmaHSRef;
-            }
-            
-            public double energy(IAtomList atoms) {
-                int i0 = atoms.get(0).getLeafIndex();
-                int i1 = atoms.get(1).getLeafIndex();
+            @Override
+            public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+                int i0 = atom1.getLeafIndex();
+                int i1 = atom2.getLeafIndex();
                 if (Double.isNaN(uValues[i0][i1])) {
-                    double u = p2.energy(atoms);
+                    double u = p2.u(dr12, atom1, atom2);
                     uValues[i0][i1] = uValues[i1][i0] = u;
                 }
                 return uValues[i0][i1];
             }
+
+            public double getRange() {
+                return sigmaHSRef;
+            }
         };
-        MayerFunction fTarget = new MayerGeneralAtomic(p2Wrapper);
+        MayerFunction fTarget = new MayerGeneralAtomic(space, p2Wrapper);
 
         ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
         
@@ -161,7 +161,7 @@ public class VirialPolyhedra2 {
 
         System.out.println(steps+" steps");
 
-        final SimulationVirial sim = new SimulationVirial(space, allSpecies, new int[]{nPoints}, 1.0,ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, new ClusterAbstract[]{targetCluster});
+        final SimulationVirial sim = new SimulationVirial(space, allSpecies, new int[]{nPoints}, 1.0, ClusterWeightAbs.makeWeightCluster(refCluster),refCluster, new ClusterAbstract[]{targetCluster});
         sim.init();
         MeterVirialBD meter = new MeterVirialBD(sim.allValueClusters);
         meter.setBox(sim.box);
@@ -173,18 +173,18 @@ public class VirialPolyhedra2 {
 
         sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
         if (ref == VirialHSParam.TREE) {
-            MCMoveClusterPolyhedraTree mcMoveTree = new MCMoveClusterPolyhedraTree(sim.getRandom(), space, sigmaHSRef, p2, uValues);
+            MCMoveClusterPolyhedraTree mcMoveTree = new MCMoveClusterPolyhedraTree(sim.getRandom(), sim.box, sigmaHSRef, p2, uValues);
             sim.integrator.getMoveManager().addMCMove(mcMoveTree);
         }
         else if (ref == VirialHSParam.CHAINS) {
-            MCMoveClusterPolyhedraChain mcMoveChain = new MCMoveClusterPolyhedraChain(sim.getRandom(), space, sigmaHSRef, p2, uValues);
+            MCMoveClusterPolyhedraChain mcMoveChain = new MCMoveClusterPolyhedraChain(sim.getRandom(), sim.box, sigmaHSRef, p2, uValues);
             sim.integrator.getMoveManager().addMCMove(mcMoveChain);
         }
         else if (ref == VirialHSParam.CHAIN_TREE) {
-            MCMoveClusterPolyhedraTree mcMoveTree = new MCMoveClusterPolyhedraTree(sim.getRandom(), space, sigmaHSRef, p2, uValues);
+            MCMoveClusterPolyhedraTree mcMoveTree = new MCMoveClusterPolyhedraTree(sim.getRandom(), sim.box, sigmaHSRef, p2, uValues);
             sim.integrator.getMoveManager().addMCMove(mcMoveTree);
             sim.integrator.getMoveManager().setFrequency(mcMoveTree, 1-chainFrac);
-            MCMoveClusterPolyhedraChain mcMoveChain = new MCMoveClusterPolyhedraChain(sim.getRandom(), space, sigmaHSRef, p2, uValues);
+            MCMoveClusterPolyhedraChain mcMoveChain = new MCMoveClusterPolyhedraChain(sim.getRandom(), sim.box, sigmaHSRef, p2, uValues);
             sim.integrator.getMoveManager().addMCMove(mcMoveChain);
             sim.integrator.getMoveManager().setFrequency(mcMoveChain, chainFrac);
         }
@@ -293,7 +293,7 @@ public class VirialPolyhedra2 {
 
             sim.setAccumulatorBlockSize(1000);
             
-            final JPanel panelParentGroup = new JPanel(new java.awt.GridBagLayout());
+            final JPanel panelParentGroup = new JPanel(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridwidth = 2;
@@ -331,9 +331,9 @@ public class VirialPolyhedra2 {
                 
                 DataDouble data = new DataDouble();
             };
-            IDataInfo dataInfoSteps = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
+            IDataInfo dataInfoSteps = new DataInfoDouble("B"+nPoints, Null.DIMENSION);
             stepsBox.putDataInfo(dataInfoSteps);
-            IDataInfo dataInfo = new DataDouble.DataInfoDouble("B"+nPoints, Null.DIMENSION);
+            IDataInfo dataInfo = new DataInfoDouble("B"+nPoints, Null.DIMENSION);
             averageBox.putDataInfo(dataInfo);
             averageBox.setLabel("average");
             errorBox.putDataInfo(dataInfo);
@@ -372,8 +372,7 @@ public class VirialPolyhedra2 {
 
         long t1 = System.currentTimeMillis();
 
-        sim.ai.setMaxSteps(steps);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
         long t2 = System.currentTimeMillis();
 
         

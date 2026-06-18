@@ -4,22 +4,16 @@
 
 package etomica.graphics;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-
-import javax.swing.DefaultCellEditor;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.TableModel;
+import java.awt.*;
 
 /**
  * Presents a table of numeric properties that can be edited by typing in values.
  *
  */
-public class DeviceTable extends Device /*implements EtomicaElement*/ {
+public class DeviceTable /*implements EtomicaElement*/ {
     
     private JTable table;
     private JPanel panel;
@@ -100,10 +94,12 @@ public class DeviceTable extends Device /*implements EtomicaElement*/ {
     	return table.getSelectedRows();
     }
 
-	/**
-	 * Returns the top level panel that the table components sit on.
-	 */
-    public Component graphic(Object obj) {return panel;}
+    /**
+     * Returns the top level panel that the table components sit on.
+     */
+    public Component graphic() {
+        return panel;
+    }
 
     private class ValueEditor extends DefaultCellEditor {
         

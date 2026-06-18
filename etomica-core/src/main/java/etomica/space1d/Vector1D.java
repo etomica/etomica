@@ -123,7 +123,7 @@ public final class Vector1D implements Vector, java.io.Serializable {
     }
 
     public void normalize() {
-        x = 1.0;
+        x = x > 0 ? 1 : -1;
     }
 
     public void setRandomCube(IRandom random) {
@@ -131,7 +131,7 @@ public final class Vector1D implements Vector, java.io.Serializable {
     }
 
     public void setRandomInSphere(IRandom random) {
-        x = random.nextFixedDouble() - 0.5;
+        x = 2*(random.nextFixedDouble() - 0.5);
     }
 
     @Override

@@ -19,7 +19,6 @@ import etomica.lattice.crystal.PrimitiveOrthorhombic;
 import etomica.modules.catalysis.InteractionTracker.CatalysisAgent;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -201,8 +200,7 @@ public class ConfigurationCatalysis implements Configuration {
     protected double yOffset;
     protected final Vector moleculeOffset;
     protected ConformationChainZigZag[] conformation;
-    protected PotentialMasterList potentialMaster;
-    
+
     
     public static class BasisOrthorhombicHexagonal3D extends Basis {
         /**

@@ -4,10 +4,9 @@
 
 package etomica.potential;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
-import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.BohrRadius;
@@ -15,9 +14,8 @@ import etomica.units.Electron;
 import etomica.units.Hartree;
 import etomica.units.Kelvin;
 
-public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
+public class P3NitrogenHellmannNonAdditive implements IPotential3 {
             
-    protected Boundary boundary;
     protected Space space;
     protected double[] q,pos;    
     public boolean parametersB = true; // set this to false if using parameters for V_12^A potential
@@ -65,18 +63,58 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
         return Double.POSITIVE_INFINITY;
     }
 
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
+    public double vInd(IAtomOriented atom1, IAtomOriented atom2, IAtomOriented atom3) {
+        double vInd0 = 0;
+        Vector cm0 = atom1.getPosition();
+        Vector cm1 = atom2.getPosition();
+        Vector cm2 = atom3.getPosition();
+        Vector or0 = atom1.getOrientation().getDirection();
+        Vector or1 = atom2.getOrientation().getDirection();
+        Vector or2 = atom3.getOrientation().getDirection();
+        Vector r0 = space.makeVector();
+        Vector r1 = space.makeVector();
+        Vector r2 = space.makeVector();
+
+        for (int i=5; i<7; i++) {
+            r0.E(cm0);
+            r0.PEa1Tv1(pos[i], or0);
+            Vector dr01 = space.makeVector();
+            Vector dr02 = space.makeVector();
+            dr01.E(0);
+            dr02.E(0);
+            for (int j=0; j<5; j++){
+                int jj = siteID[j];
+                r1.E(cm1);
+                r1.PEa1Tv1(pos[j], or1);
+                r1.ME(r0);
+                r1.TE(-1.0);
+                double r01ij = Math.sqrt(r1.squared());
+                double r301ij = r01ij*r01ij*r01ij;
+                dr01.PEa1Tv1(q[jj]/r301ij, r1);
+
+                r2.E(cm2);
+                r2.PEa1Tv1(pos[j], or2);
+                r2.ME(r0);
+                r2.TE(-1.0);
+                double r02ik = Math.sqrt(r2.squared());
+                double r302ik = r02ik*r02ik*r02ik;
+                dr02.PEa1Tv1(q[jj]/r302ik, r2);
+            }
+            vInd0 += Kelvin.UNIT.toSim(dr01.dot(dr02));
+        }
+        vInd0 *= -0.5*alphaIsoSim;
+        return vInd0;
     }
-    
-    public int nBody() {
-        return 3;
-    }
-    
+
     public double energy(IAtomList atoms) {
-        final IAtomOriented atom0 = (IAtomOriented) atoms.get(0);
-        final IAtomOriented atom1 = (IAtomOriented) atoms.get(1);
-        final IAtomOriented atom2 = (IAtomOriented) atoms.get(2);
+        return u(null, null, null, atoms.get(0), atoms.get(1), atoms.get(2), new double[1]);
+    }
+
+    @Override
+    public double u(Vector dr12_, Vector dr13_, Vector dr23_, IAtom a1, IAtom a2, IAtom a3, double[] virial) {
+        final IAtomOriented atom0 = (IAtomOriented) a1;
+        final IAtomOriented atom1 = (IAtomOriented) a2;
+        final IAtomOriented atom2 = (IAtomOriented) a3;
         Vector cm0 = atom0.getPosition();
         Vector cm1 = atom1.getPosition();
         Vector cm2 = atom2.getPosition();
@@ -140,96 +178,10 @@ public class P3NitrogenHellmannNonAdditive implements IPotentialAtomic{
         double cmDist02 = cm0.Mv1Squared(cm2);
         if (cmDist02 > 900) return vDisp;
 
-        double vInd0 = 0;
-        for (int i=5; i<7; i++) {
-            r0.E(cm0);
-            r0.PEa1Tv1(pos[i], or0);
-            Vector dr01 = space.makeVector();
-            Vector dr02 = space.makeVector();
-            dr01.E(0);
-            dr02.E(0);
-            for (int j=0; j<5; j++){
-                int jj = siteID[j];
-                r1.E(cm1);
-                r1.PEa1Tv1(pos[j], or1);
-                r1.ME(r0);
-                r1.TE(-1.0);
-                double r01ij = Math.sqrt(r1.squared());
-                double r301ij = r01ij*r01ij*r01ij;
-                dr01.PEa1Tv1(q[jj]/r301ij, r1);
-                                
-                r2.E(cm2);
-                r2.PEa1Tv1(pos[j], or2);
-                r2.ME(r0);
-                r2.TE(-1.0);
-                double r02ik = Math.sqrt(r2.squared());
-                double r302ik = r02ik*r02ik*r02ik;
-                dr02.PEa1Tv1(q[jj]/r302ik, r2);
-            }
-            vInd0 += Kelvin.UNIT.toSim(dr01.dot(dr02));
-        }
-        vInd0 *= -0.5*alphaIsoSim;
-        
-        double vInd1 = 0;
-        for (int i=5; i<7; i++) {            
-            r1.E(cm1);
-            r1.PEa1Tv1(pos[i], or1);
-            Vector dr11 = space.makeVector();
-            Vector dr12 = space.makeVector();
-            dr11.E(0);
-            dr12.E(0);
-            for (int j=0; j<5; j++){
-                int jj = siteID[j];
-                r0.E(cm0);
-                r0.PEa1Tv1(pos[j], or0);
-                r0.ME(r1);
-                r0.TE(-1.0);
-                double r01ij = Math.sqrt(r0.squared());
-                double r301ij = r01ij*r01ij*r01ij;
-                dr11.PEa1Tv1(q[jj]/r301ij, r0);
-                                
-                r2.E(cm2);
-                r2.PEa1Tv1(pos[j], or2);
-                r2.ME(r1);
-                r2.TE(-1.0);
-                double r12ik = Math.sqrt(r2.squared());
-                double r312ik = r12ik*r12ik*r12ik;
-                dr12.PEa1Tv1(q[jj]/r312ik, r2);
-            }
-            vInd1 += Kelvin.UNIT.toSim(dr11.dot(dr12));
-        }
-        vInd1 *= -0.5*alphaIsoSim;
-        
-        double vInd2 = 0;
-        for (int i=5; i<7; i++) {
-            r2.E(cm2);
-            r2.PEa1Tv1(pos[i], or2);
-            Vector dr21 = space.makeVector();
-            Vector dr22 = space.makeVector();
-            dr21.E(0);
-            dr22.E(0);
-            for (int j=0; j<5; j++){
-                int jj = siteID[j];
-                r0.E(cm0);
-                r0.PEa1Tv1(pos[j], or0);
-                r0.ME(r2);
-                r0.TE(-1.0);
-                double r02ij = Math.sqrt(r0.squared());
-                double r302ij = r02ij*r02ij*r02ij;
-                dr21.PEa1Tv1(q[jj]/r302ij, r0);
-                                
-                r1.E(cm1);
-                r1.PEa1Tv1(pos[j], or1);
-                r1.ME(r2);
-                r1.TE(-1.0);
-                double r12ik = Math.sqrt(r1.squared());
-                double r312ik = r12ik*r12ik*r12ik;
-                dr22.PEa1Tv1(q[jj]/r312ik, r1);
-            }
-            vInd2 += Kelvin.UNIT.toSim(dr21.dot(dr22));
-        }
-        vInd2 *= -0.5*alphaIsoSim;
-        
+        double vInd0 = vInd(atom0, atom1, atom2);
+        double vInd1 = vInd(atom1, atom0, atom2);
+        double vInd2 = vInd(atom2, atom0, atom1);
+
         double v = vInd0 + vInd1 + vInd2 + vDisp;
         return v;
     }

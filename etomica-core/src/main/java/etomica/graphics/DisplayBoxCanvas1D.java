@@ -3,24 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.TextField;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.util.Iterator;
 
-import etomica.action.activity.Controller;
+import etomica.action.controller.Controller;
+import etomica.atom.AtomTest;
+import etomica.atom.AtomTestCollective;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.space.Boundary;
-import etomica.space.Vector;
-import etomica.atom.AtomFilter;
-import etomica.atom.AtomFilterCollective;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.space1d.Space1D;
 import etomica.units.Pixel;
+
+import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
@@ -37,10 +34,10 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
     private final Space space;
     private final int[] atomOrigin;
     
-    public DisplayBoxCanvas1D(Space _space, DisplayBox _box, Controller _controller) {
+    public DisplayBoxCanvas1D(DisplayBox _box, Controller _controller) {
         super(_controller);
         displayBox = _box;
-        space = _space;
+        space = Space1D.getInstance();
         scaleText.setVisible(true);
         scaleText.setEditable(false);
         scaleText.setBounds(0,0,100,50);
@@ -154,8 +151,7 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
 //        if(displayBox.getDrawBoundary()) {displayBox.getBox().boundary().draw(g, displayBox.getOrigin(), displayBox.getScale());}
 
         //do drawing of all drawing objects that have been added to the display
-        for(Iterator iter=displayBox.getDrawables().iterator(); iter.hasNext(); ) {
-            Drawable obj = (Drawable)iter.next();
+        for (Drawable obj : displayBox.getDrawables()) {
             obj.draw(g, displayBox.getOrigin(), displayBox.getToPixels());
         }
            
@@ -169,9 +165,9 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
         }
         IAtomList leafList = displayBox.getBox().getLeafList();
         int nLeaf = leafList.size();
-        AtomFilter atomFilter = displayBox.getAtomFilter();
-        if (atomFilter instanceof AtomFilterCollective) {
-            ((AtomFilterCollective)atomFilter).resetFilter();
+        AtomTest atomFilter = displayBox.getAtomTestDoDisplay();
+        if (atomFilter instanceof AtomTestCollective) {
+            ((AtomTestCollective) atomFilter).resetTest();
         }
         for (int iLeaf=0; iLeaf<nLeaf; iLeaf++) {
             IAtom a = leafList.get(iLeaf);
@@ -189,12 +185,12 @@ public class DisplayBoxCanvas1D extends DisplayCanvas {
 
         //Draw periodic images if indicated ONLY for an etomica Boundary
         if(displayBox.getBox().getBoundary() instanceof Boundary) {
-	        if(displayBox.getImageShells() > 0) {
-	            double[][] origins = ((Boundary)displayBox.getBox().getBoundary()).imageOrigins(displayBox.getImageShells());  //more efficient to save rather than recompute each time
-	            for(int i=0; i<origins.length; i++) {
-	                g.copyArea(displayBox.getOrigin()[0],displayBox.getOrigin()[1],displayBox.getDrawSize()[0],displayBox.getDrawSize()[1],(int)(displayBox.getToPixels()*origins[i][0]),(int)(displayBox.getToPixels()*origins[i][1]));
-	            }
-	        }
+            if(displayBox.getImageShells() > 0) {
+                double[][] origins = ((Boundary)displayBox.getBox().getBoundary()).imageOrigins(displayBox.getImageShells());  //more efficient to save rather than recompute each time
+                for(int i=0; i<origins.length; i++) {
+                    g.copyArea(displayBox.getOrigin()[0],displayBox.getOrigin()[1],displayBox.getDrawSize()[0],displayBox.getDrawSize()[1],(int)(displayBox.getToPixels()*origins[i][0]),(int)(displayBox.getToPixels()*origins[i][1]));
+                }
+            }
         }
         //Draw bar showing scale if indicated
         if(writeScale) {

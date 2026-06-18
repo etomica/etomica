@@ -17,8 +17,6 @@ import etomica.util.Arrays;
  */
 public class AccumulatorRatioAverageCovarianceFull extends AccumulatorAverageCovariance {
 
-    private static final long serialVersionUID = 1L;
-
     public AccumulatorRatioAverageCovarianceFull() {
         this(1000);
     }
@@ -40,22 +38,22 @@ public class AccumulatorRatioAverageCovarianceFull extends AccumulatorAverageCov
     }
 
     public IData getData() {
-        if (sum == null) return null;
+        if (average == null) return null;
         // let superclass calculate its quantities
         super.getData();
         // now, calculate ratios
-        int n = sum.getLength();
+        int n = average.getLength();
         double[] r = ratio.getData();
         double[] re = ratioError.getData();
         if (count > 1) {
             // calculate uncertainties on ratios
             for (int i=0; i<n-1; i++) {
                 re[i*n+i] = 0;
-                double avgi = sum.getValue(i)/(count*blockSize);
+                double avgi = average.getValue(i);
                 double rei = error.getValue(i)/(avgi);
                 rei *= rei;
                 for (int j=i+1; j<n; j++) {
-                    double avgj = sum.getValue(j)/(count*blockSize);
+                    double avgj = average.getValue(j);
                     double rej = error.getValue(j)/(avgj);
                     rej *= rej;
                     int k = i*n+j;
@@ -91,7 +89,7 @@ public class AccumulatorRatioAverageCovarianceFull extends AccumulatorAverageCov
     }
 
     public void reset() {
-        if (sum == null || ratio == null) {
+        if (average == null || ratio == null) {
             //no data has been added yet, so nothing to reset
             return;
         }

@@ -15,31 +15,18 @@ import etomica.units.dimensions.Time;
  */
 public class DataSourceCountTime extends DataSourceScalar {
 
-    /**
-	 * Sets up data source with no integrator specified.  Requires
-	 * call to addIntegrator or setIntegrator before use.
-	 */
-	public DataSourceCountTime() {
+	public DataSourceCountTime(IntegratorMD integrator) {
 		super("Simulation Time", Time.DIMENSION);
+		this.integrator = integrator;
 	}
-    
-    public DataSourceCountTime(IntegratorMD integrator) {
-        this();
-        setIntegrator(integrator);
-    }
 
-    public void setIntegrator(IntegratorMD newIntegrator) {
-        integrator = newIntegrator;
-    }
-    
 	/**
 	 * Returns the simulation time elapsed by the integrator tracked
-	 * by this class since the last reset. 
+	 * by this class since the last reset.
 	 */
 	public double getDataAsScalar() {
-        return integrator.getCurrentTime();
+		return integrator.getCurrentTime();
 	}
-    
-    private static final long serialVersionUID = 2L;
-    protected IntegratorMD integrator;
+
+	protected IntegratorMD integrator;
 }

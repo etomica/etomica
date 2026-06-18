@@ -4,15 +4,15 @@
 
 package etomica.modules.droplet;
 
-import java.awt.Color;
-
+import etomica.atom.AtomTestCollective;
 import etomica.atom.IAtom;
-import etomica.atom.AtomFilterCollective;
 import etomica.graphics.ColorSchemeCollective;
 
+import java.awt.*;
+
 public class ColorSchemeDropletSurface extends etomica.graphics.ColorScheme implements ColorSchemeCollective {
-    
-    public ColorSchemeDropletSurface(AtomFilterCollective liquidFilter) {
+
+    public ColorSchemeDropletSurface(AtomTestCollective liquidFilter) {
         this.liquidFilter = liquidFilter;
         setSurfaceColor(Color.RED);
         setInteriorColor(Color.GREEN);
@@ -35,7 +35,7 @@ public class ColorSchemeDropletSurface extends etomica.graphics.ColorScheme impl
     }
     
     public void colorAllAtoms() {
-        liquidFilter.resetFilter();
+        liquidFilter.resetTest();
     }
     
     public Color getAtomColor(IAtom a) {
@@ -43,5 +43,5 @@ public class ColorSchemeDropletSurface extends etomica.graphics.ColorScheme impl
     }
     
     protected Color surfaceColor, interiorColor;
-    protected final AtomFilterCollective liquidFilter;
+    protected final AtomTestCollective liquidFilter;
 }

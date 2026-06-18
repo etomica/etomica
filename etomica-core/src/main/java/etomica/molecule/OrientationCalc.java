@@ -4,7 +4,10 @@
 
 package etomica.molecule;
 
-import etomica.space3d.IOrientationFull3D;
+import etomica.box.Box;
+import etomica.space.IOrientation;
+import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Interface for a class that can calculate the orientation of a molecule or
@@ -14,16 +17,36 @@ import etomica.space3d.IOrientationFull3D;
  */
 public interface OrientationCalc {
 
+    IOrientation makeOrientation(Space space);
+
+    int getDOF(Space space);
+
+    Vector getMomentOfInertia(IMolecule molecule);
+
     /**
      * Calculates the orientation of the given molecule and stores that
      * in the given orientation.
      */
-    public void calcOrientation(IMolecule molecule, IOrientationFull3D orientation);
-    
+    void calcOrientation(IMolecule molecule, IOrientation orientation);
+
     /**
      * Sets the orientation of the given molecule to be equal to the given
      * orientation.  This typically involves changing the position of the atoms
      * without changing the molecules position.
      */
-    public void setOrientation(IMolecule molecule, IOrientationFull3D orientation);
+    void setOrientation(IMolecule molecule, Box box, IOrientation orientation);
+
+    Vector getAngularMomentum(IMolecule molecule, Vector com, Box box);
+
+    void setAngularMomentum(IMolecule molecule, Vector com, Box box, Vector L);
+
+    Vector angularMomentumToVelocity(IMolecule molecule, Space space, Vector L);
+
+    Vector angularMomentumToVelocity(IOrientation orientation, IMolecule molecule, Space space, Vector L);
+
+    Vector angularVelocityToMomentum(IMolecule molecule, Box box, Vector omega);
+
+    Vector bodyToSpace(IMolecule molecule, Space space, Vector v);
+
+    Vector spaceToBody(IMolecule molecule, Space space, Vector v);
 }

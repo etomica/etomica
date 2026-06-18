@@ -4,124 +4,128 @@
 
 package etomica.modules.pistoncylinder;
 
-import etomica.atom.AtomSetSinglet;
+import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.integrator.IntegratorHard;
-import etomica.potential.P1HardMovingBoundary;
-import etomica.potential.PotentialHard;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
-import etomica.util.Debug;
+import etomica.potential.IPotential1;
+import etomica.potential.IPotential2;
+import etomica.potential.compute.NeighborManagerHard;
+import etomica.space.Vector;
+import etomica.species.SpeciesManager;
+import etomica.util.random.IRandom;
 
 /**
  * Integrator for DMD with a piston (P1HardMovingBoundary)
  */
 public class IntegratorHardPiston extends IntegratorHard {
 
-    /**
-     * @param potentialMaster
-     * @param potentialMaster Potential between piston and every atom in the box
-     */
-    public IntegratorHardPiston(Simulation sim,
-                                PotentialMaster potentialMaster,
-                                P1HardMovingBoundary potentialWrapper, Box box) {
-        super(sim, potentialMaster, box);
+    public IntegratorHardPiston(IPotential2[][] pairPotentials, IPotential1[] fieldPotentials,
+                                NeighborManagerHard neighborManager, IRandom random, double timeStep, double temperature, Box box,
+                                etomica.modules.pistoncylinder.P1HardMovingBoundary pistonPotential, SpeciesManager sm) {
+        super(pairPotentials, fieldPotentials, neighborManager, random, timeStep, temperature, box, sm, null);
         setTimeStep(1.0);
-        pistonPotential = potentialWrapper;
-        atomSetSinglet = new AtomSetSinglet();
+        this.pistonPotential = pistonPotential;
     }
 
     public void resetPiston() {
         if (space.D() == 3) {
-            pistonPotential.setWallPosition(box.getBoundary().getBoxSize().getX(1)*0.5);
-        }
-        else {
-            pistonPotential.setWallPosition(-box.getBoundary().getBoxSize().getX(1)*0.5);
+            pistonPotential.setWallPosition(box.getBoundary().getBoxSize().getX(1) * 0.5);
+        } else {
+            pistonPotential.setWallPosition(-box.getBoundary().getBoxSize().getX(1) * 0.5);
         }
     }
 
-    protected void doStepInternal() {
+    public void doStepInternal() {
         if (pistonUpdateRequested) {
             pistonUpdateRequested = false;
-            updatePiston();
+            updatePiston(0);
         }
         super.doStepInternal();
     }
-    
-    public void updateAtom(IAtom a) {
-        boolean isPistonPotential = agentManager.getAgent(a).collisionPotential == pistonPotential;
+
+    @Override
+    protected void updateAtom(IAtomKinetic a, double falseTime) {
+        boolean doUpdatePiston = collisionPartners[a.getLeafIndex()] < 0 && !pistonPotential.isStationary();
         // actually updates the atom
-        super.updateAtom(a);
+        super.updateAtom(a, falseTime);
         // check if the atom hit the piston.  if so, then update every atom with the piston
-        if (isPistonPotential) {
-            updatePiston();
+        if (doUpdatePiston) {
+            updatePiston(falseTime);
         }
     }
-    
+
     public void reset() {
         super.reset();
-        updatePiston();
+        updatePiston(0);
     }
-    
+
     /**
      * recalculate collision times for all atoms with the wall/piston
      */
-    public void updatePiston() {
-        listToUpdate.clear();
+    public void updatePiston(double falseTime) {
+        AtomArrayList downColliders = new AtomArrayList(0);
         // look for atoms that wanted to collide with the wall and queue up an uplist recalculation for them.
         IAtomList leafList = box.getLeafList();
+        Vector r = box.getSpace().makeVector();
         int nAtoms = leafList.size();
-        for (int iLeaf=0; iLeaf<nAtoms; iLeaf++) {
-            IAtom atom1 = leafList.get(iLeaf);
-            atomSetSinglet.atom = atom1;
-            PotentialHard atom1Potential = agentManager.getAgent(atom1).collisionPotential;
-            if (Debug.ON && Debug.DEBUG_NOW && ((Debug.allAtoms(atomSetSinglet) && Debug.LEVEL > 1) || (Debug.anyAtom(atomSetSinglet) && Debug.LEVEL > 2))) {
-                System.out.println(atom1+" thought it would collide with the piston");
-            }
-            if(atom1Potential == pistonPotential) {
-                if (Debug.ON && Debug.DEBUG_NOW && (Debug.allAtoms(new AtomSetSinglet(atom1)) || Debug.LEVEL > 1)) {
-                    System.out.println("Will update "+atom1+" because it wanted to collide with the piston");
-                }
-                listToUpdate.add(atom1);
+        for (int iLeaf = 0; iLeaf < nAtoms; iLeaf++) {
+            IAtomKinetic atom1 = (IAtomKinetic) leafList.get(iLeaf);
+
+            IPotential2 atom1Potential = collisionPotentials[iLeaf];
+            if (atom1Potential == null) {
+                downColliders.add(atom1);
             }
 
-            
             // recalculate collision time for every atom with the wall
-            double collisionTime = pistonPotential.collisionTime(atomSetSinglet,collisionTimeStep);
-            if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || (Debug.LEVEL > 1 && Debug.anyAtom(atomSetSinglet)))) {
-                System.out.println("collision down time "+collisionTime+" for atom "+atom1+" with null "+pistonPotential.getClass());
+            r.E(atom1.getPosition());
+            r.PEa1Tv1(falseTime, atom1.getVelocity());
+            double collisionTime = pistonPotential.collisionTime(atom1, r, atom1.getVelocity(), 0, falseTime);
+            if (collisionTime < 0) {
+                System.out.println("computed piston update " + iLeaf + " at t=" + collisionTime + " at r=" + r);
+                pistonPotential.collisionTime(atom1, r, atom1.getVelocity(), 0, falseTime);
+                throw new RuntimeException("negative!");
             }
-            if(collisionTime < Double.POSITIVE_INFINITY) {
-                Agent aia = agentManager.getAgent(atom1);
-                if(collisionTime < aia.collisionTime()) {
-                    if (Debug.ON && Debug.DEBUG_NOW && (Debug.LEVEL > 2 || Debug.anyAtom(atomSetSinglet))) {
-                        System.out.println("setting down time "+collisionTime+" for atom "+atom1+" with null");
-                    }
-                    if (aia.collisionPotential != null) {
-                        aia.eventLinker.remove();
-                    }
-                    aia.setCollision(collisionTime, null, pistonPotential);
-                    eventList.add(aia.eventLinker);
-                }//end if
-            }//end if
+
+            double tcol = collisionTime + falseTime + tBase;
+            if (tcol < Math.min(collisionTimes[iLeaf], tMax)) {
+                if (collisionTimes[iLeaf] < tMax) {
+                    // need to remove j from event bins
+                    removeCollision(iLeaf);
+                }
+                collisionTimes[iLeaf] = tcol;
+                collisionPartners[iLeaf] = -1;
+                collisionPotentials[iLeaf] = null;
+                collisionOldState[iLeaf] = 0;
+                r.PEa1Tv1(collisionTime, atom1.getVelocity());
+                collisionVector[iLeaf].E(r);
+
+                int b = (int) (collisionTimes[iLeaf] / tMax * eventBinsFirstAtom.length);
+
+                int oldFirst = eventBinsFirstAtom[b];
+                eventBinsNextAtom[iLeaf] = oldFirst;
+                eventBinsPrevAtom[iLeaf] = -1 - b;
+                if (oldFirst >= 0) eventBinsPrevAtom[oldFirst] = iLeaf;
+                eventBinsFirstAtom[b] = iLeaf;
+            }
         }
-        
-        processReverseList();
+
+        for (IAtom iAtom : downColliders) {
+            collisionTimeUp((IAtomKinetic) iAtom, falseTime);
+        }
     }
-    
+
     public void advanceAcrossTimeStep(double tStep) {
         super.advanceAcrossTimeStep(tStep);
         pistonPotential.advanceAcrossTimeStep(tStep);
     }
-    
+
     public synchronized void pistonUpdateRequested() {
         pistonUpdateRequested = true;
     }
-    
-    private static final long serialVersionUID = 1L;
+
     private final P1HardMovingBoundary pistonPotential;
     private boolean pistonUpdateRequested = false;
-    protected final AtomSetSinglet atomSetSinglet;
 }

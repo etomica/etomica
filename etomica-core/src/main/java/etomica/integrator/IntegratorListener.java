@@ -11,20 +11,23 @@ public interface IntegratorListener {
      *
      * @param e
      */
-    void integratorInitialized(IntegratorEvent e);
+    default void integratorInitialized(IntegratorEvent e) {
+    }
 
     /**
      * Invoked at the beginning of each integrator step.
      *
      * @param e
      */
-    void integratorStepStarted(IntegratorEvent e);
+    default void integratorStepStarted(IntegratorEvent e) {
+    }
 
     /**
      * Invoked at the end of each integrator step.
      *
      * @param e
      */
-    void integratorStepFinished(IntegratorEvent e);
+    default void integratorStepFinished(IntegratorEvent e) {
+    }
 
 }

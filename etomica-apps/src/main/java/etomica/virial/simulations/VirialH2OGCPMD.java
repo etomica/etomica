@@ -4,12 +4,13 @@
 
 package etomica.virial.simulations;
 
-import etomica.action.IAction;
 import etomica.action.MoleculeActionTranslateTo;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.data.IData;
 import etomica.data.histogram.HistogramNotSoSimple;
 import etomica.data.histogram.HistogramSimple;
 import etomica.data.types.DataGroup;
+import etomica.graphics.ColorSchemeByType;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
@@ -21,9 +22,12 @@ import etomica.models.water.PNWaterGCPM.Component;
 import etomica.models.water.PNWaterGCPM.PNWaterGCPMCached;
 import etomica.models.water.SpeciesWater4PCOM;
 import etomica.potential.PotentialNonAdditiveDifference;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
+import etomica.species.SpeciesGeneral;
 import etomica.units.CompoundUnit;
 import etomica.units.Kelvin;
 import etomica.units.Unit;
@@ -31,7 +35,8 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.*;
-import etomica.virial.cluster.Standard;
+import etomica.virial.cluster.*;
+import etomica.virial.wheatley.*;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -53,14 +58,17 @@ public class VirialH2OGCPMD {
         }
         else {
             // customize parameters here
-            params.nPoints = 6;
+            params.nPoints = 5;
             params.nDer = 20;
-            params.temperature = 270;
+            params.temperature = 800;
             params.numSteps = 1000000;
             params.sigmaHSRef = 5;
             params.nonAdditive = Nonadditive.TOTAL;
             params.seed = null;
             params.doHist = false;
+            isCommandline = true;
+            params.dorefpref = false;
+            params.tol = 1e-12;
         }
 
         final int nPoints = params.nPoints;
@@ -70,6 +78,7 @@ public class VirialH2OGCPMD {
         double sigmaHSRef = params.sigmaHSRef;
         int[] seed = params.seed;
         boolean dorefpref = params.dorefpref;
+        final double tol = params.tol;
 
         final double refFrac = params.refFrac;
         final Nonadditive nonAdditive = nPoints < 3 ? Nonadditive.NONE : params.nonAdditive;
@@ -82,8 +91,10 @@ public class VirialH2OGCPMD {
         }
         
         double temperature = Kelvin.UNIT.toSim(temperatureK);
-        
-        final double tol = 1e-12;
+
+        final int precision = -3*(int)Math.log10(tol);
+
+        final double BDAccFrac = 0.001;
         
         System.out.println("Reference diagram: B"+nPoints+" for hard spheres with diameter " + sigmaHSRef + " Angstroms");
         
@@ -93,36 +104,46 @@ public class VirialH2OGCPMD {
         
         MayerHardSphere fRef = new MayerHardSphere(sigmaHSRef);
 
-        SpeciesWater4PCOM speciesWater = new SpeciesWater4PCOM(space);
-        
-        final PNWaterGCPM pTarget = new PNWaterGCPM(space);
+        SpeciesGeneral speciesWater = SpeciesWater4PCOM.create(false);
+
+        Boundary b = new BoundaryRectangularNonperiodic(space);
+        final PNWaterGCPM pTarget = new PNWaterGCPM(space, b);
 
         MayerGeneral fTarget = new MayerGeneral(pTarget);
 
         ClusterAbstractMultivalue targetCluster = new ClusterWheatleySoftDerivatives(nPoints, fTarget, tol,nDer);
+        ClusterAbstractMultivalue targetClusterBD = new ClusterWheatleySoftDerivativesBD(nPoints, fTarget, precision,nDer);
+
         if (nPoints==2) {
             // pure B2 for water.  we need flipping.
             // additive B3 for water should be fine and biconnectivity will help with mixture coefficients.
+            ((ClusterWheatleySoftDerivatives)targetCluster).setTolerance(0);
             ((ClusterWheatleySoftDerivatives)targetCluster).setDoCaching(false);
-            targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, space, 20,nDer);
+            ((ClusterWheatleySoftDerivativesBD)targetClusterBD).setDoCaching(false);
+            targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, targetClusterBD, space, 20, nDer, tol);
         }
 
         if (nonAdditive == Nonadditive.FULL || nonAdditive == Nonadditive.TOTAL) {
             PNWaterGCPMCached p2 = pTarget.makeCachedPairPolarization();
-            PNWaterGCPM pFull = new PNWaterGCPM(space);
+            PNWaterGCPM pFull = new PNWaterGCPM(space, b);
             pFull.setComponent(Component.INDUCTION);
-            PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(space, p2, pFull);
+            PotentialNonAdditiveDifference pnad = new PotentialNonAdditiveDifference(p2, pFull);
             MayerFunctionNonAdditiveFull fnad = new MayerFunctionNonAdditiveFull(pnad);            
-            targetCluster = new ClusterWheatleyMultibodyDerivatives(nPoints, fTarget,fnad, tol, nDer, nonAdditive == Nonadditive.TOTAL);
-            ((ClusterWheatleyMultibodyDerivatives)targetCluster).setRCut(100);            
+            targetCluster = new ClusterWheatleyMultibodyDerivatives(nPoints, fTarget,fnad, 0, nDer, nonAdditive == Nonadditive.TOTAL);
+            targetClusterBD = new ClusterWheatleyMultibodyDerivativesBD(nPoints, fTarget,fnad,new MayerFunctionNonAdditive[0], precision, nDer, nonAdditive == Nonadditive.TOTAL);
+            ((ClusterWheatleyMultibodyDerivatives)targetCluster).setRCut(100);
+            ((ClusterWheatleyMultibodyDerivativesBD)targetClusterBD).setRCut(100);
             // water induction requires flipping
             ((ClusterWheatleyMultibodyDerivatives)targetCluster).setDoCaching(false);
-            targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, space, 20,nDer);
+            ((ClusterWheatleyMultibodyDerivativesBD)targetClusterBD).setDoCaching(false);
+            targetCluster = new ClusterCoupledFlippedMultivalue(targetCluster, targetClusterBD, space, 20, nDer, tol);
         }
-        ClusterMultiToSingle[] primes = new ClusterMultiToSingle[nDer];         
-        for(int m=0;m<primes.length;m++){                                               
-            primes[m]= new ClusterMultiToSingle(targetCluster, m+1);            
+
+        ClusterMultiToSingle[] primes = new ClusterMultiToSingle[nDer];
+        for(int m=0;m<primes.length;m++){
+            primes[m]= new ClusterMultiToSingle(targetCluster, m+1);
         }
+
         targetCluster.setTemperature(temperature);
 
         ClusterWheatleyHS refCluster = new ClusterWheatleyHS(nPoints, fRef);
@@ -131,14 +152,18 @@ public class VirialH2OGCPMD {
  		
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesWater, nPoints, temperature, refCluster, targetCluster);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
+        if(targetCluster instanceof ClusterCoupledFlippedMultivalue) {
+            ((ClusterCoupledFlippedMultivalue) targetCluster).setBDAccFrac(BDAccFrac,sim.getRandom());
+        }
         sim.setExtraTargetClusters(primes);
-                
+
+        //No weighting for BD flipping
         if(nPoints > 4){
-            double r=30;
-            double w=10;
+            double r=1000;
+            double w=1;
             if(nPoints >5){
-                r = 20;
-                w = 50;
+                r = 1000;
+                w = 1;
             }
             ClusterWeight[] sampleclusters = sim.getSampleClusters();
             sampleclusters[1] = new Clusterfoo(targetCluster, r ,w);
@@ -148,6 +173,8 @@ public class VirialH2OGCPMD {
         sim.init();
 
         System.out.println("random seeds: "+Arrays.toString(seed==null?sim.getRandomSeeds():seed));
+        System.out.println("Big Decimal Tolerance: " + tol);
+        System.out.println("Big Decimal Acceptance Fraction: " + BDAccFrac);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
         
         if (nonAdditive != Nonadditive.NONE) {
@@ -165,18 +192,20 @@ public class VirialH2OGCPMD {
             sim.box[1].acceptNotify();
         }
         
-        if (false) {
-            sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
+        if(false) {
+    sim.box[0].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             sim.box[1].getBoundary().setBoxSize(Vector.of(new double[]{40, 40, 40}));
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
-            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]); 
+            DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
+            ((ColorSchemeByType) displayBox1.getColorScheme()).setColor(sim.species[0].getAtomType(0), Color.WHITE);
+            ((ColorSchemeByType) displayBox1.getColorScheme()).setColor(sim.species[0].getAtomType(1), Color.RED);
 //            displayBox0.setPixelUnit(new Pixel(300.0/size));
 //            displayBox1.setPixelUnit(new Pixel(300.0/size));
             displayBox0.setShowBoundary(false);
             displayBox1.setShowBoundary(false);
-            ((DisplayBoxCanvasG3DSys)displayBox0.canvas).setBackgroundColor(Color.WHITE);
-            ((DisplayBoxCanvasG3DSys)displayBox1.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox0.canvas).setBackgroundColor(Color.WHITE);
+            ((DisplayBoxCanvasG3DSys) displayBox1.canvas).setBackgroundColor(Color.WHITE);
 
 //            ColorSchemeRandomByMolecule colorScheme = new ColorSchemeRandomByMolecule(sim, sim.box[0], sim.getRandom());
 //            displayBox0.setColorScheme(colorScheme);
@@ -189,20 +218,14 @@ public class VirialH2OGCPMD {
 
             // if running interactively, set filename to null so that it doens't read
             // (or write) to a refpref file
-            sim.getController().removeAction(sim.ai);
-            sim.getController().addAction(new IAction() {
-                public void actionPerformed() {
-                    sim.initRefPref(null, 10);
-                    sim.equilibrate(null, 20);
-                    sim.ai.setMaxSteps(Long.MAX_VALUE);
-                }
-            });
-            sim.getController().addAction(sim.ai);
+			sim.initRefPref(null, 10, false);
+    sim.equilibrate(null, 20, false);
+    sim.getController().addActivity(new ActivityIntegrate(sim.integratorOS));
             if ((Double.isNaN(sim.refPref) || Double.isInfinite(sim.refPref) || sim.refPref == 0)) {
                 throw new RuntimeException("Oops");
             }
-            return;
-        }
+    return;
+}
 
 
         
@@ -231,22 +254,7 @@ public class VirialH2OGCPMD {
             refFileName += "K";
         }
 
-        sim.initRefPref(refFileName, steps/20);
-        sim.equilibrate(refFileName, steps/10);
-                
-        System.out.println("equilibration finished");
-        
-        if(dorefpref){
-            long t2 = System.currentTimeMillis();
-            System.out.println("time: "+(t2-t1)/1000.0);            
-            return;
-        }
-                
-        sim.integratorOS.setNumSubSteps((int)steps);
-        sim.ai.setMaxSteps(1000);
-        for (int i=0; i<2; i++) {
-            System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
-        }
+
 
         final HistogramNotSoSimple targHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
         final HistogramNotSoSimple targPiHist = new HistogramNotSoSimple(70, new DoubleRange(-1, 8));
@@ -314,12 +322,18 @@ public class VirialH2OGCPMD {
             public void integratorInitialized(IntegratorEvent e) {}
         };
 
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
+
         if (params.doHist) {
+
+            final ClusterAbstractMultivalue tempcluster = targetCluster;
+            long t11 = System.currentTimeMillis();
+
             IntegratorListener histReport = new IntegratorListener() {
                 public void integratorInitialized(IntegratorEvent e) {}
                 public void integratorStepStarted(IntegratorEvent e) {}
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*100) % ai.getMaxSteps() != 0) return;
                     System.out.println("**** reference ****");
                     double[] xValues = hist.xValues();
                     double[] h = hist.getHistogram();
@@ -343,6 +357,23 @@ public class VirialH2OGCPMD {
                             System.out.println(r+" "+h[i]+" "+piH[i]+" "+ hr[i]+" "+hBD[i]);
                         }
                     }
+
+                    if(nPoints!=2&&nonAdditive==Nonadditive.NONE ){
+                        System.out.println("SoftBDcount: " + ((ClusterWheatleySoftDerivatives)tempcluster).getSoftBDcount() + " SoftBDfrac: " + ((ClusterWheatleySoftDerivatives)tempcluster).getSoftBDfrac() + " Softcount: " + ((ClusterWheatleySoftDerivatives)tempcluster).getSoftcount());
+                    }
+                    else{
+                        ClusterCoupledFlippedMultivalue foo = (ClusterCoupledFlippedMultivalue)tempcluster;
+                        System.out.println("BDcount: " + foo.getBDcount() + " BDfrac: " + foo.getBDfrac() + " totBDcount: " + foo.getBDtotcount());
+                        System.out.println("FlipCount: " + foo.getflipcount() + " Flipfrac: " + foo.getflipfrac() + " FlipTotcount: " + foo.gettotcount());
+                        xValues= foo.histe.xValues();
+                        h=foo.histe.getHistogram();
+                        for (int i=0; i<xValues.length; i++) {
+                            if (h[i]!=0) {
+                                System.out.println(Math.exp(xValues[i]) + " " + h[i]);
+                            }
+                        }
+                    }
+                    System.out.println("time: "+(System.currentTimeMillis()-t11)/1000.0);
                 }
             };
             sim.integratorOS.getEventManager().addListener(histReport);
@@ -353,7 +384,21 @@ public class VirialH2OGCPMD {
             sim.integrators[1].getEventManager().addListener(histListenerTarget);
         }
 
-        sim.getController().actionPerformed();
+        sim.initRefPref(refFileName, steps/20);
+        sim.equilibrate(refFileName, steps/10);
+        System.out.println("equilibration finished");
+
+        if(dorefpref){
+            long t2 = System.currentTimeMillis();
+            System.out.println("time: "+(t2-t1)/1000.0);
+            return;
+        }
+
+        sim.integratorOS.setNumSubSteps((int)steps);
+        for (int i=0; i<2; i++) {
+            System.out.println("MC Move step sizes "+sim.mcMoveTranslate[i].getStepSize()+" "+sim.mcMoveRotate[i].getStepSize());
+        }
+sim.getController().runActivityBlocking(ai);
         
         if (params.doHist) {
             double[] xValues = hist.xValues();
@@ -376,7 +421,7 @@ public class VirialH2OGCPMD {
         System.out.println();
         
         sim.printResults(HSB);
-        
+
         //printing conversion factor for simulation temperature to K
         Unit conv = new CompoundUnit(new Unit[]{Kelvin.UNIT}, new double[]{1});
         System.out.println("K/SimT "+ conv.fromSim(1));
@@ -417,18 +462,14 @@ public class VirialH2OGCPMD {
         }
         long t2 = System.currentTimeMillis();
         System.out.println("time: "+(t2-t1)/1000.0);
-        
+
         if(nPoints!=2&&nonAdditive==Nonadditive.NONE ){
-            System.out.println("SoftBDcount: " + ((ClusterWheatleySoftDerivatives)targetCluster).getSoftBDcount() + " SoftBDfrac: " + ((ClusterWheatleySoftDerivatives)targetCluster).getSoftBDfrac() + " Softcount: " + ((ClusterWheatleySoftDerivatives)targetCluster).getSoftcount());            
+            System.out.println("SoftBDcount: " + ((ClusterWheatleySoftDerivatives)targetCluster).getSoftBDcount() + " SoftBDfrac: " + ((ClusterWheatleySoftDerivatives)targetCluster).getSoftBDfrac() + " Softcount: " + ((ClusterWheatleySoftDerivatives)targetCluster).getSoftcount());
         }
         else{
-            ClusterAbstract foo = ((ClusterCoupledFlippedMultivalue)targetCluster).getSubCluster();
-            if(nonAdditive!=Nonadditive.NONE){
-                System.out.println("MultiBDcount: " + ((ClusterWheatleyMultibodyDerivatives)foo).getMultiBDcount() + " MultiBDfrac: " + ((ClusterWheatleyMultibodyDerivatives)foo).getMultiBDfrac() + " Multicount: " + ((ClusterWheatleyMultibodyDerivatives)foo).getMulticount());
-            }else{
-                System.out.println("SoftBDcount: " + ((ClusterWheatleySoftDerivatives)foo).getSoftBDcount() + " SoftBDfrac: " + ((ClusterWheatleySoftDerivatives)foo).getSoftBDfrac() + " Softcount: " + ((ClusterWheatleySoftDerivatives)foo).getSoftcount());
-            }
-            System.out.println("FlipCount: " + ((ClusterCoupledFlippedMultivalue)targetCluster).getflipcount() + " Flipfrac: " + ((ClusterCoupledFlippedMultivalue)targetCluster).getflipfrac() + " FlipTotcount: " + ((ClusterCoupledFlippedMultivalue)targetCluster).gettotcount()); 
+            ClusterCoupledFlippedMultivalue foo = (ClusterCoupledFlippedMultivalue)targetCluster;
+            System.out.println("BDcount: " + foo.getBDcount() + " BDfrac: " + foo.getBDfrac() + " totBDcount: " + foo.getBDtotcount());
+            System.out.println("FlipCount: " + foo.getflipcount() + " Flipfrac: " + foo.getflipfrac() + " FlipTotcount: " + foo.gettotcount());
         }
                 
     }
@@ -499,6 +540,7 @@ public class VirialH2OGCPMD {
         public Nonadditive nonAdditive = Nonadditive.NONE;
         public int[] seed = null;
         public boolean dorefpref = false;
+        public double tol = 1e-12;
 
     }
 }

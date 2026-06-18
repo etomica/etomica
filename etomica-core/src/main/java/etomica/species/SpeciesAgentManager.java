@@ -4,7 +4,6 @@
 
 package etomica.species;
 
-import etomica.simulation.Simulation;
 import etomica.util.collections.IndexMap;
 
 import java.util.Objects;
@@ -22,15 +21,15 @@ import java.util.Objects;
 public final class SpeciesAgentManager<E> {
 
     private final AgentSource<E> agentSource;
-    private final Simulation sim;
+    private final SpeciesManager sm;
     private final IndexMap<E> agents;
 
-    public SpeciesAgentManager(AgentSource<E> source, Simulation sim) {
+    public SpeciesAgentManager(AgentSource<E> source, SpeciesManager sm) {
         this.agentSource = Objects.requireNonNull(source);
-        this.sim = Objects.requireNonNull(sim);
+        this.sm = Objects.requireNonNull(sm);
 
         agents = new IndexMap<>();
-        sim.getSpeciesList().forEach(species -> agents.put(species.getIndex(), agentSource.makeAgent(species)));
+        sm.getSpeciesList().forEach(species -> agents.put(species.getIndex(), agentSource.makeAgent(species)));
     }
 
     public IndexMap<E> getAgents() {
@@ -70,7 +69,7 @@ public final class SpeciesAgentManager<E> {
      * releases its agents.
      */
     public void dispose() {
-        sim.getSpeciesList().forEach(this::releaseAgents);
+        sm.getSpeciesList().forEach(this::releaseAgents);
     }
 
     /**

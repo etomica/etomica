@@ -4,7 +4,6 @@
 
 package etomica.potential;
 
-import etomica.space.Space;
 import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
@@ -16,17 +15,15 @@ import etomica.units.dimensions.Length;
  *
  * @author David Kofke
  */
-public class P2Fene extends Potential2SoftSpherical {
+public class P2Fene implements IPotential2 {
 
-    private static final long serialVersionUID = 1L;
     private double r0, r02, h, prefactor;
     
-    public P2Fene(Space _space) {
-        this(_space, 1.50, 30.0);
+    public P2Fene() {
+        this(1.50, 30.0);
     }
     
-    public P2Fene(Space _space, double r0, double amplitude) {
-        super(_space);
+    public P2Fene(double r0, double amplitude) {
         setMaximumSeparation(r0);
         setAmplitude(amplitude);
     }
@@ -39,6 +36,7 @@ public class P2Fene extends Potential2SoftSpherical {
      * The derivative r*du/dr.
      */
     public double du(double r2) {
+        if (r2 > 0.99 * r02) return -h * r02 * 10;
         return h*r2*r02/(r02 - r2);
     }
 
@@ -50,14 +48,7 @@ public class P2Fene extends Potential2SoftSpherical {
         double d = (r02 - r2);
         return h*r2*r02*(r02 + r2)/(d*d);
     }
-            
-    /**
-     *  Integral used for corrections to potential truncation.
-     */
-    public double uInt(double rC) {
-        return 0.0;
-    }
-    
+
     public double getAmplitude() {return h;}
     public void setAmplitude(double H) {
         this.h = H;

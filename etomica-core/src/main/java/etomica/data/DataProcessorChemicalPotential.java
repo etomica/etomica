@@ -13,10 +13,14 @@ import etomica.integrator.IntegratorBox;
  * the ideal gas contribution (kT ln(<rho>)) and the excess chemical
  * potential, (-kT ln(<exp(-beta U)>)).  The incoming data is expected to be
  * the Boltzmann factor, while the density is taken from a DataSource.
- * 
+ *
  * @author Andrew Schultz
  */
 public class DataProcessorChemicalPotential extends DataProcessor {
+
+    public DataProcessorChemicalPotential(IntegratorBox integrator) {
+        this.integrator = integrator;
+    }
 
     public void setDensityProfileDump(IDataSource newDensityProfileSource) {
         densityProfileSource = newDensityProfileSource;
@@ -25,11 +29,7 @@ public class DataProcessorChemicalPotential extends DataProcessor {
     public IDataSource getDenstiyProfileDump() {
         return densityProfileSource;
     }
-    
-    public void setIntegrator(IntegratorBox newIntegrator) {
-        integrator = newIntegrator;
-    }
-    
+
     protected IData processData(IData inputData) {
         double[] oldY = ((DataFunction)inputData).getData();
         double[] newY = data.getData();

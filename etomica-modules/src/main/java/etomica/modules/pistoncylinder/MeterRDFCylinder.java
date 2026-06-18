@@ -4,12 +4,10 @@
 
 package etomica.modules.pistoncylinder;
 
-import etomica.space.Vector;
+import etomica.box.Box;
 import etomica.data.IData;
 import etomica.data.meter.MeterRDF;
-import etomica.modules.pistoncylinder.ApiFilteredCylinder.AtomFilterInCylinder;
-import etomica.potential.P1HardMovingBoundary;
-import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * MeterRDF sublcass that properly calculates the RDF for the Piston/Cylinder
@@ -24,20 +22,17 @@ import etomica.space.Space;
  */
 public class MeterRDFCylinder extends MeterRDF {
 
-    public MeterRDFCylinder(Space space) {
-        super(space);
-    }
-    
-    public void setPotential(P1HardMovingBoundary newPistonPotential) {
-        pistonPotential = newPistonPotential;
+    public MeterRDFCylinder(Box box, P1HardMovingBoundary pistonPotential) {
+        super(box.getSpace());
+        setBox(box);
+        this.pistonPotential = pistonPotential;
         reset();
     }
-    
+
     public void reset() {
         super.reset();
         // make a new iterator with a new filter.  xMax might have changed
-        AtomFilterInCylinder filter = new AtomFilterInCylinder(box.getBoundary(), pistonPotential, xDataSource.getXMax());
-        iterator = new ApiFilteredCylinder(filter);
+        test = new AtomPairTestInCylinder(box.getBoundary(), pistonPotential, getXDataSource().getXMax());
     }
 
     public IData getData() {
@@ -47,28 +42,25 @@ public class MeterRDFCylinder extends MeterRDF {
         double pistonRatio = 1;
         Vector dimensions = box.getBoundary().getBoxSize();
         double radius = pistonPotential.getCollisionRadius();
-        for (int i=0; i<space.D(); i++) {
+        for (int i = 0; i < space.D(); i++) {
             if (i == 1) {
-                double ySize = dimensions.getX(1)*0.5;
+                double ySize = dimensions.getX(1) * 0.5;
                 if (dimensions.getD() == 2) {
                     ySize -= pistonPotential.getWallPosition();
-                }
-                else {
+                } else {
                     ySize += pistonPotential.getWallPosition();
                 }
-                pistonRatio *= (ySize - 2*(xMax + radius)) / (ySize - 2*radius);
+                pistonRatio *= (ySize - 2 * (xMax + radius)) / (ySize - 2 * radius);
                 if (pistonRatio < 0) {
                     pistonRatio = Double.NaN;
                 }
-            }
-            else {
-                pistonRatio *= (dimensions.getX(i) - 2*(xMax + radius)) / (dimensions.getX(i) - 2*radius);
+            } else {
+                pistonRatio *= (dimensions.getX(i) - 2 * (xMax + radius)) / (dimensions.getX(i) - 2 * radius);
             }
         }
-        data.TE(1/pistonRatio);
+        data.TE(1 / pistonRatio);
         return data;
     }
-    
-    private static final long serialVersionUID = 1L;
-    protected P1HardMovingBoundary pistonPotential;
+
+    protected etomica.modules.pistoncylinder.P1HardMovingBoundary pistonPotential;
 }

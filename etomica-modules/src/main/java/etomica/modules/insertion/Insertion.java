@@ -12,40 +12,36 @@ import etomica.chem.elements.ElementSimple;
 import etomica.config.ConfigurationLattice;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorListenerAction;
-import etomica.integrator.IntegratorMD.ThermostatType;
+import etomica.integrator.IntegratorMD;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.potential.*;
+import etomica.potential.P2HardGeneric;
+import etomica.potential.compute.NeighborManagerSimpleHard;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
-import etomica.util.random.RandomMersenneTwister;
+import etomica.species.SpeciesGeneral;
 
 public class Insertion extends Simulation {
-    
-    public SpeciesSpheresMono species, speciesGhost;
-    public Box box;
-    public IntegratorHard integrator;
-    public P2HardWrapper potentialWrapper;
-    public P2DoubleWell potentialGhost;
-    public ActivityIntegrate activityIntegrate;
-    
+
+    public final SpeciesGeneral species, speciesGhost;
+    public final Box box;
+    public final IntegratorHard integrator;
+    public final P2HardGeneric p2sqw;
+    public final P2HardGeneric potentialGhost;
+
+
     public Insertion(Space _space) {
         super(_space);
-        setRandom(new RandomMersenneTwister(2));
 
         // species
-        species = new SpeciesSpheresMono(this, space);//index 1
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);//index 1
         addSpecies(species);
-        speciesGhost = new SpeciesSpheresMono(this, space);
-        speciesGhost.setIsDynamic(true);
+        speciesGhost = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) speciesGhost.getLeafType().getElement()).setMass(Double.POSITIVE_INFINITY);
         addSpecies(speciesGhost);
-
-        PotentialMasterMonatomic potentialMaster = new PotentialMasterMonatomic(this); //List(this, 2.0);
 
         int N = space.D() == 3 ? 256 : 100;  //number of atoms
 
@@ -54,27 +50,21 @@ public class Insertion extends Simulation {
 
         //controller and integrator
         box = this.makeBox();
-        integrator = new IntegratorHard(this, potentialMaster, box);
-        integrator.setTimeStep(1.0);
-        integrator.setTemperature(1.0);
-        integrator.setIsothermal(false);
-        integrator.setThermostat(ThermostatType.ANDERSEN_SCALING);
-        integrator.setThermostatNoDrift(true);
-        integrator.setThermostatInterval(1);
-        P1HardPeriodic nullPotential = new P1HardPeriodic(space, sigma * lambda);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
-
-        //potentials
-        integrator.setNullPotential(nullPotential, species.getLeafType());
+        NeighborManagerSimpleHard neighborManager = new NeighborManagerSimpleHard(box);
+        PotentialComputePair potentialCompute = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         //instantiate several potentials for selection in combo-box
-        P2SquareWell potentialSW = new P2SquareWell(space, sigma, lambda, 1.0, true);
-        potentialWrapper = new P2HardWrapper(space, potentialSW);
-        potentialMaster.addPotential(potentialWrapper, new AtomType[]{species.getLeafType(), species.getLeafType()});
+        p2sqw = new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{Double.POSITIVE_INFINITY, -1.0}, true);
+        potentialCompute.setPairPotential(species.getLeafType(), species.getLeafType(), p2sqw);
 
-        potentialGhost = new P2DoubleWell(space, 1.0, lambda, 0.0, 0.0);
-        potentialMaster.addPotential(potentialGhost, new AtomType[]{species.getLeafType(), speciesGhost.getLeafType()});
+        potentialGhost = new P2HardGeneric(new double[]{sigma, sigma * lambda}, new double[]{0, 0});
+        potentialCompute.setPairPotential(species.getLeafType(), speciesGhost.getLeafType(), potentialGhost);
+
+        integrator = new IntegratorHard(potentialCompute.getPairPotentials(), neighborManager, random, 0.2, 1.0, box, getSpeciesManager());
+        integrator.setIsothermal(false);
+        integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN_SCALING);
+        integrator.setThermostatNoDrift(true);
+        integrator.setThermostatInterval(1);
 
         //construct box
         Vector dim = space.makeVector();
@@ -85,20 +75,26 @@ public class Insertion extends Simulation {
         box.setNMolecules(speciesGhost, 1);
 
         integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
+        potentialCompute.init();
     }
-    
+
+    public IntegratorHard getIntegrator() {
+        return integrator;
+    }
+
     public static void main(String[] args) {
         Space space = Space3D.getInstance();
-        if(args.length != 0) {
+        if (args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
                     space = Space3D.getInstance();
                 }
-            } catch(NumberFormatException e) {}
+            } catch (NumberFormatException e) {
+            }
         }
-            
+
         Insertion sim = new Insertion(space);
-        sim.getController().actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, Long.MAX_VALUE));
     }
 }

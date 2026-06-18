@@ -43,6 +43,5 @@ public class MayerFunctionNonAdditiveFull implements MayerFunctionNonAdditive {
     }
 
     public void setBox(Box box) {
-        pNA.setBox(box);
     }
 }

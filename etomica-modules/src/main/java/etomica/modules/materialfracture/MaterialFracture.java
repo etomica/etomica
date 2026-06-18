@@ -16,55 +16,68 @@ import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.BravaisLatticeCrystal;
 import etomica.lattice.crystal.BasisOrthorhombicHexagonal;
 import etomica.lattice.crystal.PrimitiveGeneral;
+import etomica.potential.BondingInfo;
 import etomica.potential.P2LennardJones;
 import etomica.potential.P2SoftSphericalTruncatedForceShifted;
 import etomica.potential.PotentialMaster;
+import etomica.potential.compute.PotentialCallback;
+import etomica.potential.compute.PotentialComputeAggregate;
+import etomica.potential.compute.PotentialComputeField;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 public class MaterialFracture extends Simulation {
 
     public final Box box;
     public final ConfigurationLattice config;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final IntegratorVelocityVerlet integrator;
-    public final PotentialCalculationForceStress pc;
     public final P2SoftSphericalTruncatedForceShifted pt;
     public final P2LennardJones p2LJ;
     public final P1Tension p1Tension;
+    public double wallForce;
 
     public MaterialFracture() {
         super(Space2D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         ((ElementSimple) species.getLeafType().getElement()).setMass(40);
         addSpecies(species);
 
-        PotentialMaster potentialMaster = new PotentialMaster();
         box = this.makeBox(new BoundaryRectangularSlit(0, space));
+        PotentialMaster potentialMaster = new PotentialMaster(getSpeciesManager(), box, BondingInfo.noBonding());
+        PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box) {
+            public double computeAll(boolean doForces, PotentialCallback pc) {
+                double u = super.computeAll(doForces, pc);
+                wallForce = 0;
+                for (Vector f : forces) {
+                    wallForce += Math.abs(f.getX(0));
+                }
+                return u;
+            }
+        };
+        PotentialComputeAggregate pcAgg = new PotentialComputeAggregate(potentialMaster, pcField);
+
         box.getBoundary().setBoxSize(Vector.of(new double[]{90, 30}));
-        integrator = new IntegratorVelocityVerlet(this, potentialMaster, box);
+        integrator = new IntegratorVelocityVerlet(pcAgg, this.getRandom(), 0.05, 1.0, box);
         integrator.setIsothermal(true);
         integrator.setTemperature(300.0);
         integrator.setTimeStep(0.007);
         integrator.setThermostatInterval(100);
         integrator.setThermostat(IntegratorMD.ThermostatType.ANDERSEN);
         integrator.setThermostatNoDrift(true);
-        pc = new PotentialCalculationForceStress(space);
-        integrator.setForceSum(pc);
-        getController().addAction(new ActivityIntegrate(integrator));
-        p2LJ = new P2LennardJones(space, 3, 2000);
-        pt = new P2SoftSphericalTruncatedForceShifted(space, p2LJ, 7);
+        getController().addActivity(new ActivityIntegrate(integrator));
+        p2LJ = new P2LennardJones(3, 2000);
+        pt = new P2SoftSphericalTruncatedForceShifted(p2LJ, 7);
 
-        p1Tension = new P1Tension(space);
         box.setNMolecules(species, 198);
 
-        potentialMaster.addPotential(pt, new AtomType[]{species.getLeafType(), species.getLeafType()});
-        potentialMaster.addPotential(p1Tension, new AtomType[]{species.getLeafType()});
+        potentialMaster.setPairPotential(species.getLeafType(), species.getLeafType(), pt);
+        p1Tension = new P1Tension(space);
+        pcField.setFieldPotential(species.getLeafType(), p1Tension);
 
         PrimitiveGeneral primitive = new PrimitiveGeneral(space, new Vector[]{Vector.of(new double[]{Math.sqrt(3), 0}), Vector.of(new double[]{0, 1})});
         config = new ConfigurationLattice(new BravaisLatticeCrystal(primitive, new BasisOrthorhombicHexagonal()), space) {

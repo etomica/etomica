@@ -4,9 +4,8 @@
 
 package etomica.virial;
 
-import etomica.box.Box;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.IPotentialAtomicMultibody;
+import etomica.potential.IPotential3;
 
 /**
  * Non-additive Mayer function class for "spherical" potentials 
@@ -15,18 +14,17 @@ import etomica.potential.IPotentialAtomicMultibody;
  */
 public class MayerFunctionSphericalThreeBody extends MayerFunctionThreeBody {
 
-    protected final IPotentialAtomicMultibody p3;
-    
-    public MayerFunctionSphericalThreeBody(IPotentialAtomicMultibody p3) {
+    protected final IPotential3 p3;
+
+    public MayerFunctionSphericalThreeBody(IPotential3 p3) {
         this.p3 = p3;
     }
-    
+
     protected double energy(IMoleculeList molecules, double[] r2) {
-        return p3.energy(r2);
+        return p3.u(r2[0], r2[1], r2[2]);
     }
 
-    public void setBox(Box box) {
-        p3.setBox(box);
-        super.setBox(box);
+    protected double energy(IMoleculeList molecules, double rAB2, double rAC2, double rBC2) {
+        return p3.u(rAB2, rAC2, rBC2);
     }
 }

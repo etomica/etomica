@@ -4,6 +4,7 @@
 
 package etomica.graphics;
 
+import etomica.action.controller.Controller;
 import etomica.modifier.Modifier;
 import etomica.modifier.ModifyAction;
 import etomica.units.dimensions.Null;
@@ -62,7 +63,11 @@ public class DeviceBox extends Device implements javax.swing.event.ChangeListene
     private Vector valueChangedListeners = new Vector();
 
     public DeviceBox() {
-        super();
+        this(null);
+    }
+
+    public DeviceBox(Controller controller) {
+        super(controller);
         panel = new JPanel(new java.awt.BorderLayout());
         label = null;
         labelString = null;
@@ -110,7 +115,9 @@ public class DeviceBox extends Device implements javax.swing.event.ChangeListene
         setLabel(labelString);
     }
     
-    public java.awt.Component graphic(Object obj) {return panel;}
+    public java.awt.Component graphic() {
+        return panel;
+    }
     
     /**
      * Accessor method of the precision, which specifies the number of significant figures to be displayed.
@@ -302,15 +309,11 @@ public class DeviceBox extends Device implements javax.swing.event.ChangeListene
            }
            if (newX != oldX) {
                modifyAction.setValueForAction(newX);
-               try {
-                   doAction(modifyAction);
-               }
-               catch (RuntimeException e) {
-                   // if the modifier throws, we'll revert to the old value in doUpdate
-               }
+               doAction(modifyAction).whenComplete((res, ex) -> {
+                           doUpdate();
+                           notifyValueChangedListeners();
+               });
            }
-           doUpdate();
-           notifyValueChangedListeners();
        }
     }
 

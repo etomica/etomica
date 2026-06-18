@@ -3,10 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.graphics;
-import java.awt.Color;
 
 import etomica.atom.IAtom;
+import etomica.atom.IAtomKinetic;
 import etomica.integrator.IntegratorHard;
+import etomica.integrator.IntegratorListener;
+import etomica.space.Vector;
+
+import java.awt.*;
 
 /**
  * This colorScheme acts to color differently the two atoms that are scheduled to collide next.
@@ -15,12 +19,8 @@ import etomica.integrator.IntegratorHard;
  */
 public class ColorSchemeColliders extends ColorScheme {
     
-    IntegratorHard integrator;
-    
-    public ColorSchemeColliders(IntegratorHard integrator) {
-        super();
-        this.integrator = integrator;
-    }
+    IAtom atom1, atom2;
+
     /**
      * Color applied to the downList atom of the colliding pair
      */
@@ -29,15 +29,23 @@ public class ColorSchemeColliders extends ColorScheme {
      * Color applied to the upList atom of the colliding pair
      */
     public java.awt.Color partnerColor = java.awt.Color.blue;
+
+    private IntegratorHard integrator;
+
+    public ColorSchemeColliders(IntegratorHard integrator) {
+        super();
+        this.integrator = integrator;
+    }
     /**
      * Applies the special colors to the colliding pair while coloring all other atoms with baseColor.
-     */ 
+     */
+    @Override
     public Color getAtomColor(IAtom a) {
-        IntegratorHard.Agent colliderAgent = integrator.getLastColliderAgent();
-        if(colliderAgent == null) return defaultColor;
-        else if(a == colliderAgent.atom) return colliderColor;
-        else if(a == colliderAgent.collisionPartner) return partnerColor;
+        IAtom[] colliders = integrator.getNextCollidingPair();
+        if(a == colliders[0]) return colliderColor;
+        if(a == colliders[1]) return partnerColor;
         else return defaultColor;
     }
+
 }//end of HighlightColliders
 

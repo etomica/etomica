@@ -11,13 +11,12 @@ import etomica.atom.AtomLeafAgentManager.AgentSource;
 import etomica.box.Box;
 import etomica.data.*;
 import etomica.data.history.HistoryCollapsingAverage;
-import etomica.data.meter.MeterPotentialEnergy;
 import etomica.data.meter.MeterVolume;
 import etomica.exception.ConfigurationOverlapException;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.mcmove.MCMove;
+import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.integrator.mcmove.MCMoveStepTracker;
 import etomica.integrator.mcmove.MCMoveVolume;
 import etomica.lattice.crystal.BasisCubicFcc;
@@ -26,13 +25,15 @@ import etomica.lattice.crystal.PrimitiveCubic;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
 import etomica.modifier.Modifier;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2HardGeneric;
 import etomica.potential.P2HardSphere;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
@@ -48,31 +49,26 @@ import java.io.IOException;
  * scaling with volume changes.
  */
 public class HSNPT extends Simulation {
-    
+
     public final PotentialMasterList potentialMaster;
     public final IntegratorMC integrator;
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     public final Box box;
-    public final ActivityIntegrate activityIntegrate;
     public final CoordinateDefinition coordinateDefinition;
-    public final P2HardSphere pCross;
+    public final P2HardGeneric pCross;
 
     public HSNPT(Space _space, int numAtoms, double rho, boolean nvt, boolean fancyMove, double sigma2) {
         super(_space);
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
         double sigma = 1.0;
-        SpeciesSpheresMono species2 = null;
+        SpeciesGeneral species2 = null;
         if (sigma2 != sigma) {
-            species2 = new SpeciesSpheresMono(this, space);
-            species.setIsDynamic(true);
+            species2 = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
             addSpecies(species2);
         }
-
-        potentialMaster = new PotentialMasterList(this, space);
 
         double neighborRangeFac = 1.4;
         double l = Math.pow(numAtoms / rho, 1.0 / 3.0);
@@ -86,21 +82,21 @@ public class HSNPT extends Simulation {
             bx *= nx * Math.sqrt(v2 / v1);
             l = bx;
         }
-        potentialMaster.setCellRange(1);
-        potentialMaster.setRange(neighborRangeFac * sigma);
         box = this.makeBox();
-        integrator = new IntegratorMC(potentialMaster, getRandom(), 1.0, box);
-        activityIntegrate = new ActivityIntegrate(integrator);
-        getController().addAction(activityIntegrate);
+
+        potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 1, neighborRangeFac * sigma, BondingInfo.noBonding());
+
+        integrator = new IntegratorMC(potentialMaster, random, 1.0, box);
+        this.getController().addActivity(new ActivityIntegrate(integrator));
         AtomType type1 = species.getLeafType();
 
-        P2HardSphere p2 = new P2HardSphere(space, sigma, false);
-        potentialMaster.addPotential(p2, new AtomType[]{type1, type1});
+        P2HardGeneric p2 = P2HardSphere.makePotential(sigma);
+        potentialMaster.setPairPotential(type1, type1, p2);
         box.setNMolecules(species, numAtoms);
         if (sigma2 != sigma) {
             AtomType type2 = species2.getLeafType();
-            pCross = new P2HardSphere(space, (sigma + sigma2) / 2.0, false);
-            potentialMaster.addPotential(pCross, new AtomType[]{type1, type2});
+            pCross = P2HardSphere.makePotential((sigma+sigma2)/2.0);
+            potentialMaster.setPairPotential(type1, type2, pCross);
             box.setNMolecules(species, numAtoms - 1);
             box.setNMolecules(species2, 1);
         } else {
@@ -123,14 +119,8 @@ public class HSNPT extends Simulation {
             coordinateDefinition.initializeCoordinates(new int[]{nx, ny});
         }
 
-        potentialMaster.getNeighborManager(box).reset();
-
-        MeterPotentialEnergy meterPE = new MeterPotentialEnergy(potentialMaster, box);
-        MCMoveAtomCoupled mcMove = new MCMoveAtomCoupled(potentialMaster, meterPE, getRandom(), space);
-        mcMove.setPotential(p2);
+        MCMoveAtomCoupled mcMove = new MCMoveAtomCoupled(potentialMaster, random, _space);
         integrator.getMoveManager().addMCMove(mcMove);
-
-        box.getBoundary().getEventManager().removeListener(potentialMaster.getNbrCellManager(box));
 
         if (!nvt) {
             // using Carnahan-Starling EOS.  the pressure will be too high because
@@ -151,14 +141,14 @@ public class HSNPT extends Simulation {
                 }
             }
 
-            MCMove mcMoveVolume;
+            MCMoveBoxStep mcMoveVolume;
             if (fancyMove) {
                 // fancy move
-                mcMoveVolume = new MCMoveVolumeSolid(potentialMaster, coordinateDefinition, getRandom(), space, p);
+                mcMoveVolume = new MCMoveVolumeSolid(integrator, coordinateDefinition, getRandom(), space, p);
                 ((MCMoveVolumeSolid) mcMoveVolume).setTemperature(1.0);
             } else {
                 // standard move
-                mcMoveVolume = new MCMoveVolume(potentialMaster, getRandom(), space, p);
+                mcMoveVolume = new MCMoveVolume(integrator, random, p);
             }
             ((MCMoveStepTracker) mcMoveVolume.getTracker()).setNoisyAdjustment(true);
             integrator.getMoveManager().addMCMove(mcMoveVolume);
@@ -205,7 +195,7 @@ public class HSNPT extends Simulation {
 //            DataPumpListener displacementMaxPump = new DataPumpListener(meterDisplacementMax, displacementMax, params.numAtoms);
 //            sim.integrator.getEventManager().addListener(displacementMaxPump);
     
-            MeterMaxExpansion meterMaxExpansion = new MeterMaxExpansion(sim.space, sim.box, sim.potentialMaster.getNeighborManager(sim.box));
+            MeterMaxExpansion meterMaxExpansion = new MeterMaxExpansion(sim.box, sim.potentialMaster.getNeighborManager().makeNeighborIterator());
             maxExpansionAvg = new AccumulatorAverageFixed();
             DataPumpListener maxExpansionPump = new DataPumpListener(meterMaxExpansion, maxExpansionAvg, params.numAtoms);
             sim.integrator.getEventManager().addListener(maxExpansionPump);
@@ -290,8 +280,7 @@ public class HSNPT extends Simulation {
             fluctuationFactorSlider.setShowBorder(true);
             graphic.add(fluctuationFactorSlider);
             
-            DeviceBox nominalFluctuationBox = new DeviceBox();
-            nominalFluctuationBox.setController(sim.getController());
+            DeviceBox nominalFluctuationBox = new DeviceBox(sim.getController());
             nominalFluctuationBox.setEditable(true);
             nominalFluctuationBox.setLabel("Nominal fluctuation");
             nominalFluctuationBox.setModifier(new Modifier() {
@@ -332,24 +321,23 @@ public class HSNPT extends Simulation {
 
             graphic.add(fluctuationSelector);
             
-            DeviceBox sigmaBox = new DeviceBox();
-            sigmaBox.setController(sim.getController());
+            DeviceBox sigmaBox = new DeviceBox(sim.getController());
             sigmaBox.setModifier(new Modifier() {
 
                 public double getValue() {
-                    return (sim.pCross.getCollisionDiameter() * 2 - 1);
+                    return (sim.pCross.getCollisionDiameter(0) * 2 - 1);
                 }
                 
                 public void setValue(double newValue) {
                     double oldValue = getValue();
                     if  (newValue < 0.5 || newValue > 2) throw new IllegalArgumentException();
-                    sim.pCross.setCollisionDiameter((newValue+1)*0.5);
+                    sim.pCross.setCollisionDiameter(0, (newValue+1)*0.5);
                     try {
                         sim.integrator.reset();
                     }
                     catch (ConfigurationOverlapException e) {
                         newValue = oldValue;
-                        sim.pCross.setCollisionDiameter((newValue+1)*0.5);
+                        sim.pCross.setCollisionDiameter(0, (newValue+1)*0.5);
                         sim.integrator.reset();
                         return;
                     }
@@ -372,8 +360,7 @@ public class HSNPT extends Simulation {
             return;
         }
         long t1 = System.currentTimeMillis();
-        sim.activityIntegrate.setMaxSteps(params.numSteps/10);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps / 10));
         if (!params.nvt) {
             volumeAvg.reset();
         }
@@ -415,8 +402,7 @@ public class HSNPT extends Simulation {
             vfw = null;
         }
 
-        sim.activityIntegrate.setMaxSteps(params.numSteps);
-        sim.activityIntegrate.actionPerformed();
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
         System.out.println("time "+(System.currentTimeMillis()-t1)/1000);
 
         if (!params.nvt) {
@@ -456,7 +442,7 @@ public class HSNPT extends Simulation {
         protected final Vector v, v2;
         protected final ActionSummer summer;
         protected CoordinateDefinition coordinateDefinition;
-        protected AtomLeafAgentManager agentManager;
+        protected AtomLeafAgentManager<MyAgent> agentManager;
         protected double siteFactor = 1000;
         protected double fluctuationFactor = 1000;
         protected double nominalFluctuation = 0.0627;  // 256=>0.0607, 864=>0.0627
@@ -505,7 +491,7 @@ public class HSNPT extends Simulation {
         }
         
         public Color getAtomColor(IAtom a) {
-            MyAgent agent = (MyAgent)agentManager.getAgent(a);
+            MyAgent agent = agentManager.getAgent(a);
             int count = summer.getCount();
             v.Ea1Tv1(1.0/count, agent.pSum);
             int red = (int)Math.round(255*(siteFactor * (v.Mv1Squared(coordinateDefinition.getLatticePosition(a)))));
@@ -553,7 +539,7 @@ public class HSNPT extends Simulation {
         
         public ActionSummer(Box box, Space space) {
             this.space = space;
-            agentManager = new AtomLeafAgentManager<MyAgent>(this, box);
+            agentManager = new AtomLeafAgentManager<>(this, box);
             v = space.makeVector();
         }
         

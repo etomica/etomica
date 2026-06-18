@@ -1,9 +1,5 @@
 package etomica;
 
-import etomica.simulation.BenchSimDCVGCMD;
-import etomica.simulation.BenchSimSWChain;
-import org.openjdk.jmh.profile.GCProfiler;
-import org.openjdk.jmh.profile.StackProfiler;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -13,7 +9,9 @@ public class Main {
     public static void main(String[] args) throws RunnerException {
 
         Options opts = new OptionsBuilder()
-                .include("BenchBox")
+                .include("BenchNbrUpdates")
+//                .addProfiler(StackProfiler.class)
+                .jvmArgs()
 //                .jvmArgs(
 //                        "-XX:+UnlockDiagnosticVMOptions",
 //                        "-XX:+PrintAssembly",

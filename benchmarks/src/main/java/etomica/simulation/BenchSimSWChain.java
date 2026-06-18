@@ -32,7 +32,6 @@ public class BenchSimSWChain {
     public int numSteps;
 
     private TestSWChain sim;
-    private MeterPressureHard pMeter;
 
     @Setup(Level.Iteration)
     public void setUp() {
@@ -42,15 +41,17 @@ public class BenchSimSWChain {
                 TestSWChain.class
         );
 
-        sim = new TestSWChain(Space3D.getInstance(), numMolecules, simTime, config);
+        {
+            sim = new TestSWChain(Space3D.getInstance(), numMolecules, config);
 
-        pMeter = new MeterPressureHard(sim.integrator);
-        MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
-        DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
-        energyAccumulator.setBlockSize(50);
-        sim.integrator.getEventManager().addListener(energyPump);
-        sim.integrator.reset();
+            MeterPressureHard pMeter = new MeterPressureHard(sim.integrator);
+            MeterPotentialEnergyFromIntegrator energyMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
+            AccumulatorAverage energyAccumulator = new AccumulatorAverageFixed();
+            DataPumpListener energyPump = new DataPumpListener(energyMeter, energyAccumulator);
+            energyAccumulator.setBlockSize(50);
+            sim.integrator.getEventManager().addListener(energyPump);
+            sim.integrator.reset();
+        }
     }
 
     @Benchmark

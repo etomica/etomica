@@ -4,10 +4,11 @@
 
 package etomica.action;
 
+import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.molecule.MoleculePositionGeometricCenter;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -23,10 +24,6 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
      * the box size.
      */
     public BoxInflate(Space space) {
-
-        translator = new AtomActionTranslateBy(space);
-        groupScaler = new MoleculeChildAtomAction(translator);
-        moleculeCenter = new MoleculePositionGeometricCenter(space);
         scaleVector = space.makeVector();
         dimVector = space.makeVector();
         setScale(1.0);
@@ -122,19 +119,19 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         if(box == null) return;
         // substract 1 from each dimension so that multiplying by it yields
         // the amount each coordinate is to be translated *by* (not to).
-        scaleVector.PE(-1);
-        Vector translationVector = translator.getTranslationVector();
+        Vector sv = box.getSpace().makeVector();
+        sv.E(scaleVector);
+        sv.PE(-1);
+        Vector translationVector = box.getSpace().makeVector();
 
         IMoleculeList molecules = box.getMoleculeList();
         for (int i = 0; i<molecules.size(); i++) {
             IMolecule molecule = molecules.get(i);
-            translationVector.E(moleculeCenter.position(molecule));
-            translationVector.TE(scaleVector);
-            groupScaler.actionPerformed(molecule);
+            Vector com = CenterOfMass.position(box, molecule);
+            translationVector.E(com);
+            translationVector.TE(sv);
+            transformMolecule(molecule, com, translationVector);
         }
-        
-        // undo previous subtraction
-        scaleVector.PE(1);
 
         // actually change the boundary.  With cell/neighbor listing, this
         // triggers cell reassignment, which would fail if we shrink before
@@ -143,6 +140,27 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         dimVector.E(box.getBoundary().getBoxSize());
         dimVector.TE(scaleVector);
         box.getBoundary().setBoxSize(dimVector);
+
+    }
+
+    protected void wrapMolecules() {
+        for (IMolecule molecule : box.getMoleculeList()) {
+            for (IAtom atom : molecule.getChildList()) {
+                Vector shift = box.getBoundary().centralImage(atom.getPosition());
+                atom.getPosition().PE(shift);
+            }
+        }
+    }
+
+    protected void transformMolecule(IMolecule molecule, Vector com, Vector translationVector) {
+        for (IAtom atom : molecule.getChildList()) {
+            atom.getPosition().PE(translationVector);
+            // now unwrap
+            Vector dr = box.getSpace().makeVector();
+            dr.Ev1Mv2(atom.getPosition(), com);
+            box.getBoundary().nearestImage(dr);
+            atom.getPosition().Ev1Pv2(com, dr);
+        }
     }
 
     /**
@@ -160,10 +178,6 @@ public class BoxInflate extends BoxActionAdapter implements Undoable {
         }
     }
 
-    private static final long serialVersionUID = 1L;
-    protected final AtomActionTranslateBy translator;
-    protected final MoleculeChildAtomAction groupScaler;
     protected final Vector scaleVector, dimVector;
-    protected final MoleculePositionGeometricCenter moleculeCenter;
-    
+
 }

@@ -37,7 +37,7 @@ public class DataSourcePMu implements IDataSource, DataSourceIndependent {
     protected int nMu;
     protected double bALattice, volume, latticeDensity;
     protected boolean returnMu;
-    
+
     public DataSourcePMu(MCMoveOverlapListener mcMoveOverlapMeter, double deltaBMu, int nMu, double bmu, DataDistributer pSplitter, double bALattice, double latticeDensity, double volume, boolean returnMu) {
         tag = new DataTag();
         xTag = new DataTag();

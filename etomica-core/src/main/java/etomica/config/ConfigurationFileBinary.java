@@ -5,14 +5,14 @@
 package etomica.config;
 
 import etomica.action.BoxInflate;
+import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class ConfigurationFileBinary implements Configuration {
      */
     public static void replicate(Configuration config, Box box1, int[] reps, Space space) {
         Simulation sim = new Simulation(space);
-        ISpecies species = new SpeciesSpheresMono(sim, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
         Box box0 = new Box(space);
         sim.addBox(box0);
@@ -122,7 +122,7 @@ public class ConfigurationFileBinary implements Configuration {
 
     public static void rescale(Configuration config, Box box1, double density1, Space space) {
         Simulation sim = new Simulation(space);
-        ISpecies species = new SpeciesSpheresMono(sim, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
         Box box0 = new Box(space);
         sim.addBox(box0);

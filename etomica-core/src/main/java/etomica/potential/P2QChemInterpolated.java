@@ -3,15 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.potential;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
 import Jama.Matrix;
+import etomica.math.numerical.AkimaSpline;
 import etomica.space.Space;
 import etomica.space3d.Space3D;
 import etomica.util.ParameterBase;
-import etomica.math.numerical.AkimaSpline;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Pair potential for argon interpolated from Q-Chem results.  
@@ -24,14 +25,8 @@ import etomica.math.numerical.AkimaSpline;
  *
  * @author Kate Shaul
  */
-public class P2QChemInterpolated extends Potential2SoftSpherical {
+public class P2QChemInterpolated implements IPotential2 {
     
-    public P2QChemInterpolated(Space space) {
-    	
-        super(space);
-   
-    }
-
     /**
      * The energy u.
      */
@@ -250,21 +245,21 @@ public class P2QChemInterpolated extends Potential2SoftSpherical {
      
         return 0;
     }
-            
-    /**
-     *  Integral used for corrections to potential truncation.
-     */
-    public double uInt(double rC) {
-        
-        return 0;  //complete LRC is obtained by multiplying by N1*N2/V
-    }
+
+	/**
+	 * Integral used for corrections to potential truncation.
+	 */
+	public double integral(Space space, double rC) {
+
+		return 0;  //complete LRC is obtained by multiplying by N1*N2/V
+	}
     
     
 
     public static void main(String[] args)  {
     	
     	Space space = Space3D.getInstance();
-    	P2QChemInterpolated p2 = new P2QChemInterpolated(space);
+    	P2QChemInterpolated p2 = new P2QChemInterpolated();
     	
 		DampingParams params = new DampingParams();
 	     

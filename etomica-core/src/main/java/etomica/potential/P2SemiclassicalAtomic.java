@@ -6,9 +6,7 @@ package etomica.potential;
 
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
 import etomica.atom.IAtomOriented;
-import etomica.box.Box;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.util.Constants;
@@ -27,17 +25,16 @@ import java.util.Map;
  *
  * @author Andrew Schultz
  */
-public class P2SemiclassicalAtomic implements IPotentialAtomic {
+public class P2SemiclassicalAtomic implements IPotential2 {
 
-    protected final IPotentialTorque p2Classy;
+    protected final IPotential2 p2Classy;
     protected final Map<AtomType, AtomInfo> agents;
     protected final Space space;
     protected double temperature, fac;
 
-    public P2SemiclassicalAtomic(Space space, IPotentialTorque p2Classy, double temperature) {
+    public P2SemiclassicalAtomic(Space space, IPotential2 p2Classy, double temperature) {
         this.space = space;
         this.p2Classy = p2Classy;
-        if (p2Classy.nBody() != 2) throw new RuntimeException("I would really rather have a 2-body potential");
         agents = new HashMap<>();
         setTemperature(temperature);
     }
@@ -56,21 +53,18 @@ public class P2SemiclassicalAtomic implements IPotentialAtomic {
         return p2Classy.getRange();
     }
 
-    public void setBox(Box box) {
-        p2Classy.setBox(box);
-    }
-
-    public int nBody() {
-        return 2;
-    }
-
-    public double energy(IAtomList molecules) {
-        double uC = p2Classy.energy(molecules);
+    public double u(Vector dr12, IAtom atom1, IAtom atom2) {
+        double uC = p2Classy.u(dr12, atom1, atom2);
         if (uC / temperature > 100) return Double.POSITIVE_INFINITY;
-        Vector[][] gradAndTorque = p2Classy.gradientAndTorque(molecules);
+        Vector f1 = space.makeVector();
+        Vector f2 = space.makeVector();
+        Vector t1 = space.makeVector();
+        Vector t2 = space.makeVector();
+        p2Classy.uduTorque(dr12, atom1, atom2, f1, f2, t1, t2);
+        Vector[][] gradAndTorque = new Vector[][]{{f1,f2},{t1,t2}};
         double sum = 0;
         for (int i = 0; i < 2; i++) {
-            IAtom iMol = molecules.get(i);
+            IAtom iMol = i == 0 ? atom1 : atom2;
             double mi = iMol.getType().getMass();
             sum += gradAndTorque[0][i].squared() / mi;
             if (iMol instanceof IAtomOriented) {

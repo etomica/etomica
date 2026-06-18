@@ -4,14 +4,10 @@
 
 package etomica.normalmode;
 
-import etomica.atom.Atom;
-import etomica.atom.AtomLeafDynamic;
 import etomica.atom.AtomType;
-import etomica.chem.elements.ElementSimple;
-import etomica.molecule.IMolecule;
-import etomica.molecule.Molecule;
 import etomica.space.Space;
-import etomica.species.Species;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 
 /**
  * 
@@ -21,43 +17,15 @@ import etomica.species.Species;
  * @author Tai Boon Tan
  *
  */
-public class SpeciesHSDimer extends Species {
+public class SpeciesHSDimer {
 
     public final static int indexAtom1 = 0;
     public final static int indexAtom2 = 1;
-    private static final long serialVersionUID = 1L;
-    protected final Space space;
-    protected final boolean isDynamic;
-    protected final AtomType dimerAtomType;
-    public SpeciesHSDimer(Space space) {
-        this(space, false, 1.0);
-    }
-    
-    public SpeciesHSDimer(Space space, boolean isDynamic, double L) {
-        super();
-        this.space = space;
-        this.isDynamic = isDynamic;
-
-        dimerAtomType = new AtomType(new ElementSimple("P", 1.0));
-        addChildType(dimerAtomType);
-
-        setConformation(new ConformationHSDimer(space, L));
-     }
-
-     public IMolecule makeMolecule() {
-         Molecule hsDimer = new Molecule(this, 2);
-         hsDimer.addChildAtom(isDynamic ? new AtomLeafDynamic(space, dimerAtomType) : new Atom(space, dimerAtomType));
-         hsDimer.addChildAtom(isDynamic ? new AtomLeafDynamic(space, dimerAtomType) : new Atom(space, dimerAtomType));
-
-         conformation.initializePositions(hsDimer.getChildList());
-         return hsDimer;
-     }
-
-    public AtomType getDimerAtomType() {
-         return dimerAtomType;
-     }
-
-     public int getNumLeafAtoms() {
-         return 2;
+     public static SpeciesGeneral create(Space space, boolean isDynamic, double L) {
+        return new SpeciesBuilder(space)
+                .addCount(AtomType.simple("P", 1.0), 2)
+                .setDynamic(isDynamic)
+                .withConformation(new ConformationHSDimer(space, L))
+                .build();
      }
 }

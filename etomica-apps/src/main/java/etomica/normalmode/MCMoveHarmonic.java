@@ -4,11 +4,8 @@
 
 package etomica.normalmode;
 
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBox;
-import etomica.integrator.mcmove.MCMoveTracker;
 import etomica.normalmode.CoordinateDefinition.BasisCell;
 import etomica.space.Vector;
 import etomica.util.random.IRandom;
@@ -16,9 +13,8 @@ import etomica.util.random.IRandom;
 public class MCMoveHarmonic extends MCMoveBox {
 
     public MCMoveHarmonic(IRandom random) {
-        super(null, new MCMoveTracker());
+        super();
         this.random = random;
-        iterator = new AtomIteratorLeafAtoms();
     }
 
     public void setRejectable(boolean newIsRejectable) {
@@ -68,7 +64,6 @@ public class MCMoveHarmonic extends MCMoveBox {
     
     public void setBox(Box newBox) {
         super.setBox(newBox);
-        iterator.setBox(newBox);
 
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         u = new double[coordinateDim];
@@ -77,12 +72,7 @@ public class MCMoveHarmonic extends MCMoveBox {
         iRand = new double[waveVectors.length][coordinateDim];
     }
 
-    public AtomIterator affectedAtoms() {
-        return iterator;
-    }
-
     public boolean doTrial() {
-        iterator.reset();
         int coordinateDim = coordinateDefinition.getCoordinateDim();
         BasisCell[] cells = coordinateDefinition.getBasisCells();
 
@@ -211,7 +201,6 @@ public class MCMoveHarmonic extends MCMoveBox {
     
     private static final long serialVersionUID = 1L;
     protected CoordinateDefinition coordinateDefinition;
-    protected final AtomIteratorLeafAtoms iterator;
     private double[][] oneOverOmega2;
     private double[][][] eigenVectors;
     private Vector[] waveVectors;

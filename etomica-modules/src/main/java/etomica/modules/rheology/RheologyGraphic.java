@@ -4,29 +4,20 @@
 
 package etomica.modules.rheology;
 
-import java.awt.GridBagConstraints;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-
 import etomica.action.IAction;
-import etomica.space.Vector;
 import etomica.atom.AtomPair;
 import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataPumpListener;
-import etomica.graphics.DeviceBox;
-import etomica.graphics.DeviceButton;
-import etomica.graphics.DeviceDelaySlider;
-import etomica.graphics.DeviceSlider;
-import etomica.graphics.DisplayBoxCanvasG3DSys;
-import etomica.graphics.DisplayTextBoxesCAE;
-import etomica.graphics.SimulationGraphic;
-import etomica.graphics.SimulationPanel;
+import etomica.graphics.*;
 import etomica.math.geometry.LineSegment;
 import etomica.modifier.ModifierGeneral;
-import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import g3dsys.images.Figure;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Module for "Macromolecular dynamics related to rheological properties
@@ -69,8 +60,7 @@ public class RheologyGraphic extends SimulationGraphic {
         sliderB.setShowValues(true);
         add(sliderB);
 
-        shearBox = new DeviceBox();
-        shearBox.setController(sim.getController());
+        shearBox = new DeviceBox(sim.getController());
         shearBox.setLabelType(DeviceBox.LabelType.BORDER);
         ModifierGeneral modifierShear = new ModifierGeneral(sim.integrator, "shearRateNumber");
         shearBox.setModifier(modifierShear);
@@ -181,7 +171,7 @@ public class RheologyGraphic extends SimulationGraphic {
             }
         });
 
-        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController(), sim.activityIntegrate);
+        DeviceDelaySlider delaySlider = new DeviceDelaySlider(sim.getController());
         getPanel().controlPanel.add(delaySlider.graphic(), SimulationPanel.getVertGBC());
 
         final DeviceButton showFlowButton = new DeviceButton(sim.getController());
@@ -252,21 +242,6 @@ public class RheologyGraphic extends SimulationGraphic {
         SimulationRheology sim = new SimulationRheology(Space3D.getInstance());
         RheologyGraphic graphic = new RheologyGraphic(sim);
         graphic.makeAndDisplayFrame();
-    }
-
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-            getRootPane().putClientProperty(
-                            "defeatSystemEventQueueCheck", Boolean.TRUE);
-            int dim = 3;
-            Space sp = Space.getInstance(dim);
-            RheologyGraphic swmdGraphic = new RheologyGraphic(new SimulationRheology(sp));
-
-            getContentPane().add(swmdGraphic.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
     }
 
     protected ArrayList<LineSegment> flowLines;

@@ -4,14 +4,8 @@
 
 package etomica.data.types;
 
+import etomica.data.*;
 import etomica.math.function.IFunction;
-import etomica.data.DataInfo;
-import etomica.data.DataInfoFactory;
-import etomica.data.DataTag;
-import etomica.data.IData;
-import etomica.data.IDataInfo;
-import etomica.data.IDataInfoFactory;
-import etomica.meta.annotations.IgnoreProperty;
 import etomica.units.dimensions.Dimension;
 
 /**
@@ -170,7 +164,6 @@ public class DataDouble implements IData, java.io.Serializable {
             return 1;
         }
 
-        @IgnoreProperty
         public IDataInfoFactory getFactory() {
             return new DataInfoDoubleFactory(this);
         }

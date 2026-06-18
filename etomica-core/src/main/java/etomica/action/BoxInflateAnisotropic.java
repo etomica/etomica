@@ -5,12 +5,12 @@
 package etomica.action;
 
 import etomica.box.Box;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.space3d.Space3D;
 
 /**
  * Class that perform anisotropic angle fluctuation 
@@ -40,7 +40,7 @@ public class BoxInflateAnisotropic extends BoxInflate{
     public void actionPerformed() {
         if(box == null) throw new RuntimeException("oops");
         
-        translationVector = translator.getTranslationVector();
+        Vector translationVector = box.getSpace().makeVector();
         
         cVectorOld.E(box.getBoundary().getEdgeVector(2));
         
@@ -50,16 +50,16 @@ public class BoxInflateAnisotropic extends BoxInflate{
         double slope = deltacx/cz;
         
         IMoleculeList molecules = box.getMoleculeList();
-        Vector comVector = Space3D.makeVector(3);
         for(int i = 0; i<molecules.size(); i++) {
             IMolecule molecule = molecules.get(i);
-            comVector.E(moleculeCenter.position(molecule));
+            Vector com = CenterOfMass.position(box, molecule);
             
             // delta_x = slope * z
-            double h = comVector.getX(2);
+            double h = com.getX(2);
             deltaX[i] = slope*h;
             translationVector.setX(0, deltaX[i]);
-            groupScaler.actionPerformed(molecule);
+            // atoms will end up unwrapped -- out of the box
+            transformMolecule(molecule, com, translationVector);
         }
 
         // set the edgeVectors according to the scaling before passing it to BoundaryDeformablePeriodic
@@ -68,6 +68,9 @@ public class BoxInflateAnisotropic extends BoxInflate{
         // the beta-angle
         
         ((BoundaryDeformablePeriodic)box.getBoundary()).setEdgeVector(2, cVector);
+
+        // now wrap the atoms back in to the box
+        wrapMolecules();
     }
     
     
@@ -76,11 +79,14 @@ public class BoxInflateAnisotropic extends BoxInflate{
     	
     	for(int i = 0; i<molecules.size(); i++) {
     		IMolecule molecule = molecules.get(i);
+            Vector com = CenterOfMass.position(box, molecule);
     		translationVector.E(new double[]{-deltaX[i], 0.0, 0.0});
-    		groupScaler.actionPerformed(molecule);
+            transformMolecule(molecule, com, translationVector);
     	}
     	
         ((BoundaryDeformablePeriodic)box.getBoundary()).setEdgeVector(2, cVectorOld);
+
+        wrapMolecules();
     }
         
     public void setCVector(Vector cVec){

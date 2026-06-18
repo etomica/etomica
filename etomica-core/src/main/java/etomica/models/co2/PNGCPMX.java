@@ -22,13 +22,7 @@ public class PNGCPMX extends PNGCPM {
     
     public PNGCPMX(Space space, Map<AtomType, GCPMAgent> typeManager,
                    int nAtomTypes, double kSigma, double kEpsilon, double kGamma) {
-        this(space, typeManager, nAtomTypes, kSigma, kEpsilon, kGamma, Integer.MAX_VALUE);
-    }
-
-    public PNGCPMX(Space space, Map<AtomType, GCPMAgent> typeManager,
-                   int nAtomTypes, double kSigma, double kEpsilon, double kGamma,
-                   int nBody) {
-        super(space, typeManager, nAtomTypes, nBody);
+        super(space, typeManager, nAtomTypes);
         this.kSigma = kSigma;
         this.kEpsilon = kEpsilon;
         this.kGamma = kGamma;

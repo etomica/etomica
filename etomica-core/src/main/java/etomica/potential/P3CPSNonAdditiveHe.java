@@ -4,15 +4,12 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtom;
-import etomica.atom.IAtomList;
-import etomica.space.Boundary;
-import etomica.box.Box;
-import etomica.space.Vector;
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
 import etomica.space.Space;
-import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.space3d.Space3D;
 import etomica.units.BohrRadius;
 import etomica.units.Hartree;
@@ -23,24 +20,19 @@ import etomica.units.Kelvin;
  *  
  * @author kate, Andrew Schultz
  */
-public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPotentialAtomicMultibody {
+public class P3CPSNonAdditiveHe implements IPotential3 {
 
     public P3CPSNonAdditiveHe(Space space) {
-        super(3, space);
+        this(space, 0);
+    }
+
+    public P3CPSNonAdditiveHe(Space space, double sigma) {
         drAB = space.makeVector();
         drBC = space.makeVector();
         drAC = space.makeVector();
-        gradient = new Vector[3];
-        gradient[0] = space.makeVector();
-        gradient[1] = space.makeVector();
-        gradient[2] = space.makeVector();
-        
+        this.sigma = sigma;
         setA();
         setAlpha();
-    }
-
-    public void setBox(Box box) {
-        boundary = box.getBoundary();
     }
 
     public void setNullRegionMethod(int nullRegionMethod) {
@@ -66,11 +58,20 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
 
         return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
     }
-    
-    public double energy(double[] r2) {
-        double RAB2 = r2[0];
-        double RAC2 = r2[1];
-        double RBC2 = r2[2];
+
+    public double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3) {
+        double RAB = Math.sqrt(dr12.squared());
+        double RAC = Math.sqrt(dr13.squared());
+        double RBC = Math.sqrt(dr23.squared());
+
+        double costhetaA =  dr12.dot(dr13)/(RAB*RAC);
+        double costhetaB = -dr12.dot(dr23)/(RAB*RBC);
+        double costhetaC =  dr13.dot(dr23)/(RAC*RBC);
+
+        return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
+    }
+
+    public double u(double RAB2, double RAC2, double RBC2) {
         double RAB = Math.sqrt(RAB2);
         double RAC = Math.sqrt(RAC2);
         double RBC = Math.sqrt(RBC2);
@@ -79,6 +80,10 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         double costhetaB = (RAB2 + RBC2 - RAC2)/(2*RAB*RBC);
         double costhetaC = (RAC2 + RBC2 - RAB2)/(2*RAC*RBC);
         return energy(RAB, RAC, RBC, costhetaA, costhetaB, costhetaC);
+    }
+
+    public double energy(double[] r2) {
+        return u(r2[0], r2[1], r2[2]);
     }
     
     protected double energy(double RAB, double RAC, double RBC, double costhetaA, double costhetaB, double costhetaC) {
@@ -327,6 +332,9 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
                 }
             }
         }
+        if (sigma != 0) {
+            u *= 1 + 0.01 * sigma * Math.signum(u);
+        }
         return u;
     }
     
@@ -537,16 +545,8 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
         return Double.POSITIVE_INFINITY;
     }
 
-    public Vector[] gradient(IAtomList atoms) {
+    private Vector[] gradient(IAtomList atoms) {
        throw new RuntimeException("Sorry, no gradient available yet");
-    }
-
-    public Vector[] gradient(IAtomList atoms, Tensor pressureTensor) {
-        return gradient(atoms);
-    }
-
-    public double virial(IAtomList atoms) {
-        return 0;
     }
 
     public static void main(String[] args) {
@@ -692,9 +692,6 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
     }
     
     protected final Vector drAB, drAC, drBC;
-    protected Boundary boundary;
-    private static final long serialVersionUID = 1L;
-    protected final Vector[] gradient;
     public static boolean bigAngle;
     protected final double[][][] alpha = new double [5][5][5];
     protected final double[][][] A = new double [5][5][5];
@@ -723,6 +720,7 @@ public class P3CPSNonAdditiveHe extends Potential implements PotentialSoft, IPot
     private static final double KPerHartree = 315774.65; // Rounding provided by Pryzbytek et al. 2010
     public boolean verbose = false;
     private int nullRegionMethod = 2; // What we have been using so far.
+    protected final double sigma;
 }
 
 

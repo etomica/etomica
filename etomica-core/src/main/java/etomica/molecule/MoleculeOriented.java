@@ -37,7 +37,12 @@ public class MoleculeOriented extends Molecule implements IMoleculeOriented {
         return position;
     }
 
-    private static final long serialVersionUID = 1L;
+    public void copyCoordinatesFrom(IMolecule molecule) {
+        super.copyCoordinatesFrom(molecule);
+        position.E(((IMoleculeOriented) molecule).getPosition());
+        orientation.E(((IMoleculeOriented) molecule).getOrientation());
+    }
+
     protected final IOrientation3D orientation;
     protected final Vector position;
 }

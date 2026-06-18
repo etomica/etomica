@@ -25,7 +25,6 @@ public class BenchSimLJGCMC3D {
     private int numSteps;
 
     private TestLJGCMC3D sim;
-    private MeterPressure pMeter;
 
     @Setup(Level.Iteration)
     public void setUp() {
@@ -36,13 +35,16 @@ public class BenchSimLJGCMC3D {
                 TestLJGCMC3D.class
         );
 
-        sim = new TestLJGCMC3D(numMolecules, numSteps, config);
+        {
+            sim = new TestLJGCMC3D(numMolecules, config);
 
-        pMeter = new MeterPressure(sim.space);
-        pMeter.setIntegrator(sim.integrator);
-        DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
-        sim.integrator.getEventManager().addListener(pumpListener);
-        sim.integrator.reset();
+            MeterPressure pMeter = new MeterPressure(sim.box, sim.integrator.getPotentialCompute());
+            pMeter.setTemperature(sim.integrator.getTemperature());
+            DataPumpListener pumpListener = new DataPumpListener(pMeter, new AccumulatorAverageFixed(10), 2 * numMolecules);
+            sim.integrator.getEventManager().addListener(pumpListener);
+            sim.integrator.reset();
+        }
+
     }
 
     @Benchmark

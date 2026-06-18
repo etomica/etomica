@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationLatticeSimple;
@@ -16,8 +17,7 @@ import etomica.space.Boundary;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
 import etomica.space.Vector;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 public class BasisBigCell extends Basis {
 
@@ -30,7 +30,7 @@ public class BasisBigCell extends Basis {
     protected static Vector[] makeScaledCoordinates(Space space, Basis subBasis, int[] nSubCells) {
         // make pretend sim, species and box so we can find the appropriate coordinates
         Simulation sim = new Simulation(space);
-        ISpecies species = new SpeciesSpheresMono(sim, space);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
         // we might be used in the context of a deformable boundary (non-rectangular primitive)
         // but because we only care about scaled coordinates, the deformation doesn't

@@ -4,10 +4,9 @@
 
 package etomica.modules.pistoncylinder;
 
-import etomica.space.Vector;
 import etomica.math.geometry.Plane;
-import etomica.potential.P1HardMovingBoundary;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Wrap a P1HardMovingBoundary and make it look like a Plane.  A boatload of
@@ -22,20 +21,20 @@ public class PistonPlane extends Plane {
         super(space);
         this.pistonPotential = pistonPotential;
     }
-    
+
     // DisplayBoxCanvasG3DSys calls this
     public double distanceTo(Vector v) {
         return v.getX(1) - pistonPotential.getWallPosition();
     }
-    
+
     public double getA() {
         return 0;
     }
-    
+
     public double getB() {
         return 1;
     }
-    
+
     public double getC() {
         return 0;
     }
@@ -44,7 +43,6 @@ public class PistonPlane extends Plane {
     public double getD() {
         return -pistonPotential.getWallPosition();
     }
-    
-    private static final long serialVersionUID = 1L;
+
     protected final P1HardMovingBoundary pistonPotential;
 }

@@ -6,7 +6,7 @@ package etomica.data;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
-import etomica.atom.iterator.AtomIterator;
+import etomica.box.Box;
 import etomica.data.histogram.Histogram;
 import etomica.data.histogram.HistogramCollapsing;
 import etomica.data.types.DataDouble;
@@ -31,12 +31,12 @@ import java.io.Serializable;
 
 public class DataSourceRmsVelocity implements IDataSource, DataSourceAtomic, DataSourceIndependent, Serializable {
 
-    public DataSourceRmsVelocity() {
-        this(new HistogramCollapsing());
+    public DataSourceRmsVelocity(Box box) {
+        this(box, new HistogramCollapsing());
     }
     
-	public DataSourceRmsVelocity(Histogram histogram) {
-        setIterator(null);
+	public DataSourceRmsVelocity(Box box, Histogram histogram) {
+        this.box = box;
         atomDataInfo = new DataInfoDouble("RMS Velocity", new DimensionRatio(Length.DIMENSION, Time.DIMENSION));
         atomData = new DataDouble();
         this.histogramRMS = histogram;
@@ -63,11 +63,9 @@ public class DataSourceRmsVelocity implements IDataSource, DataSourceAtomic, Dat
 	 * given in the first element of the array, which is always of dimension 1.
 	 */
 	public IData getData() {
-		iterator.reset();
         histogramRMS.reset();
-		for (IAtomKinetic atom = (IAtomKinetic)iterator.nextAtom(); atom != null;
-             atom = (IAtomKinetic)iterator.nextAtom()) {
-			histogramRMS.addValue(Math.sqrt(atom.getVelocity().squared()));
+		for (IAtom atom : box.getLeafList()) {
+			histogramRMS.addValue(Math.sqrt(((IAtomKinetic)atom).getVelocity().squared()));
 		}
 
         //covertly invoke getHistogram, which actually calculates the histogram
@@ -117,26 +115,7 @@ public class DataSourceRmsVelocity implements IDataSource, DataSourceAtomic, Dat
         return xTag;
     }
 
-	/**
-	 * Sets the iterator defining the atoms for which the RMS velocity is
-	 * calculated.
-	 * 
-	 * @param newIterator
-	 */
-	public void setIterator(AtomIterator newIterator) {
-	    iterator = newIterator;
-	}
-
-	/**
-	 * @return The iterator defining the atoms used for the RMS velocity
-	 *         calculation
-	 */
-	public AtomIterator getIterator() {
-		return iterator;
-	}
-
-    private static final long serialVersionUID = 1L;
-	private AtomIterator iterator;
+    protected final Box box;
     private final DataDouble atomData;
     private final IDataInfo atomDataInfo;
     private IDataInfo dataInfo;

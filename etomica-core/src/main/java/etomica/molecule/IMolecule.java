@@ -7,30 +7,33 @@ package etomica.molecule;
 
 import etomica.atom.IAtomList;
 import etomica.species.ISpecies;
+import etomica.util.Statefull;
 
 /**
  * Interface for an IMolecule
  */
-public interface IMolecule {
+public interface IMolecule extends Statefull {
 
     /**
      * Returns this IMolecule's index, which is its place in the list of
      * molecules of its ISpecies in its Box.
      */
-    public int getIndex();
+    int getIndex();
 
     /**
      * Informs the IMolecule of its index.
      */
-    public void setIndex(int index);
+    void setIndex(int index);
 
     /**
      * Returns the atoms in the molecule as an IAtomList.
      */
-    public IAtomList getChildList();
+    IAtomList getChildList();
 
     /**
      * Returns the ISpecies of this IMolecule.
      */
-    public ISpecies getType();
+    ISpecies getType();
+
+    void copyCoordinatesFrom(IMolecule molecule);
 }

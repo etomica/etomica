@@ -69,6 +69,7 @@ public class HistogramExpanding extends HistogramSimple {
     		setXRange(new DoubleRange(newXMin,newXMin+deltaX));
     	}
     	else if (x < xMin) {
+    	    if(x>xMax)throw new RuntimeException(x + " " + xMin + " " + xMax);
             setXRange(new DoubleRange(x,xMax));
         }
         else if(x > xMax) {
@@ -94,10 +95,12 @@ public class HistogramExpanding extends HistogramSimple {
             histogram = new double[0];
             xValues = new double[0];
         	nBins = 0;
+        	return;
         }
         newXMin = Math.floor(newXMin/deltaX) * deltaX;
         newXMax = Math.ceil(newXMax/deltaX) * deltaX;
         int newNBins = (int)Math.round((newXMax - newXMin) / deltaX);
+        if(newNBins <= 0) throw new RuntimeException(newNBins + " "+ newXMin + " "+ newXMax + " "+ xRange);
         // if called from the constructor, we have no data to copy, so skip this
         if (xMax != 0 || xMin != 0) {
             // how many bins would get dropped on the left side

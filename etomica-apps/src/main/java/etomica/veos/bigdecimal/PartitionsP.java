@@ -4,9 +4,8 @@
 
 package etomica.veos.bigdecimal ;
 
-import java.lang.* ;
-import java.util.* ;
-import java.math.* ;
+import java.math.BigInteger;
+import java.util.Vector;
 
 /** Number of partitions.
 * @since 2008-10-15
@@ -17,7 +16,7 @@ public class PartitionsP
         /**
         * The list of all partitions as a vector.
         */
-        static protected Vector<BigInteger> a = new Vector<BigInteger>() ;
+        static protected Vector<BigInteger> a = new Vector<>() ;
 
         /**
         * The maximum integer covered by the high end of the list.
@@ -84,7 +83,7 @@ public class PartitionsP
         public static void main(String[] args) throws Exception
         {
                 PartitionsP a = new PartitionsP() ;
-                int n = (new Integer(args[0])).intValue() ;
+                int n = Integer.parseInt(args[0]);
                 System.out.println("P("+ n +")=" + a.at(n)) ;
         }
 }

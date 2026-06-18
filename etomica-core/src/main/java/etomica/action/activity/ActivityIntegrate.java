@@ -4,9 +4,10 @@
 
 package etomica.action.activity;
 
-import etomica.action.Activity;
-import etomica.integrator.Integrator;
+import etomica.action.controller.Activity;
+import etomica.action.controller.Controller;
 import etomica.exception.ConfigurationOverlapException;
+import etomica.integrator.Integrator;
 import etomica.util.Debug;
 
 /**
@@ -14,108 +15,114 @@ import etomica.util.Debug;
  */
 public class ActivityIntegrate extends Activity {
 
-    /**
-	 * Constructs activity to generate configurations with
-	 * the given integrator (which is final).  Defaults include
-	 * interval = 1, doSleep given by Default class, and sleepPeriod = 10.
-	 */
-	public ActivityIntegrate(Integrator integrator) {
-        this(integrator,0,false);
-    }
-    
-    public ActivityIntegrate(Integrator integrator, int sleepPeriod, boolean ignoreOverlap) {
-        super();
-        this.integrator = integrator;
-        this.ignoreOverlap = ignoreOverlap;
-        this.sleepPeriod = sleepPeriod;
-        setMaxSteps(Long.MAX_VALUE);
-	}
-    
-    /**
-     * Main loop for conduct of integration.  Repeatedly calls doStep() method,
-     * while checking for halt/pause/reset requests, firing regular interval events,
-     * and entering a brief sleep state if so indicated by doSleep flag.  Integration
-     * loop continues until number of steps equals maxSteps field.  This method should
-     * not be called directly, but instead is called by the instance's actionPerformed method.
-     */
-    protected void run() {
-        try {
-            integrator.reset();
-        }
-        catch (ConfigurationOverlapException e) {
-            if (!ignoreOverlap) {
-                throw e;
-            }
-        }
-        integrator.resetStepCount();
-        for (stepCount = 0; stepCount < maxSteps; stepCount++) {
-            if (Debug.ON) {
-                if (stepCount == Debug.START) Debug.DEBUG_NOW = true;
-                if (stepCount == Debug.STOP) break;
-                if (Debug.DEBUG_NOW && Debug.LEVEL > 0) System.out.println("*** integrator step "+stepCount);
-                Debug.stepCount = stepCount;
-            }
-            if (!doContinue()) break;
-            integrator.doStep();
-            if(sleepPeriod > 0) {
-                try { Thread.sleep(sleepPeriod); }
-                catch (InterruptedException e) { }
-            }
-        }
-	}
+	public static long stepIntervalCheckTime = 1000;
+    private final Integrator integrator;
 
-	/**
-	 * Amount of time that thread is kept in sleep state after
-	 * each doStep done on integrator.  If doSleep is false, this no sleep
-	 * is performed and this parameter has no effect.
-	 * 
-	 * @return sleep period, in milliseconds.
-	 */
-	public int getSleepPeriod() {
-		return sleepPeriod;
-	}
-	
-	/**
-	 * Sets amount of time that thread is kept in sleep state after
-	 * each doStep done on integrator.  Default value is 0.
-	 */
-
-	public void setSleepPeriod(int sleepPeriod) {
-		this.sleepPeriod = sleepPeriod;
-	}
-    /**
-     * Accessor method for the number of doStep calls to be
-     * performed by this integrator after it is started.
-     */
-	public long getMaxSteps() {
-		return maxSteps;
-	}
-
-	/**
-     * Mutator method for the number of doStep steps to be
-     * performed by this integrator after it is started.  Can
-     * be changed while activity is running; if set to a value
-     * less than number of steps already executed, integration will end.
-     */
-	public void setMaxSteps(long maxSteps) {
-		if(maxSteps < 0) throw new IllegalArgumentException("steps must not be negative");
-		this.maxSteps = maxSteps;
-	}
-    
-    public long getCurrentStep() {
-        return stepCount;
-    }
-	
-	/**
-	 * @return Returns the integrator.
-	 */
-	public Integrator getIntegrator() {
-		return integrator;
-	}
-    
-    private static final long serialVersionUID = 1L;
-	private final Integrator integrator;
+    private long maxSteps;
     private boolean ignoreOverlap;
-	private int sleepPeriod;
-	protected long maxSteps, stepCount;
+    private long currentStep = 0;
+	private boolean skipReset = false;
+	private final double maxWalltime;
+
+	public ActivityIntegrate(Integrator integrator, long maxSteps, boolean ignoreOverlap, double maxWalltime, boolean skipReset) {
+		this.integrator = integrator;
+		this.maxSteps = maxSteps;
+		this.ignoreOverlap = ignoreOverlap;
+		this.maxWalltime = maxWalltime;
+		this.skipReset = skipReset;
+	}
+
+	public ActivityIntegrate(Integrator integrator, long maxSteps, boolean ignoreOverlap, double maxWalltime) {
+		this(integrator, maxSteps, ignoreOverlap, maxWalltime, false);
+	}
+
+    public ActivityIntegrate(Integrator integrator, long maxSteps, boolean ignoreOverlap) {
+		this(integrator, maxSteps, ignoreOverlap, Double.POSITIVE_INFINITY);
+	}
+
+	public ActivityIntegrate(Integrator integrator, long maxSteps) {
+		this(integrator, maxSteps, false);
+	}
+
+	public ActivityIntegrate(Integrator integrator, boolean ignoreOverlap) {
+		this(integrator, Long.MAX_VALUE, ignoreOverlap);
+	}
+
+	public ActivityIntegrate(Integrator integrator) {
+		this(integrator, Long.MAX_VALUE, false);
+	}
+
+	public void doAction() {
+		if (Debug.ON) {
+			if (currentStep == Debug.START) { Debug.DEBUG_NOW = true; }
+			if (Debug.DEBUG_NOW && Debug.LEVEL > 0) {
+				System.out.println("*** integrator step " + currentStep);
+			}
+			Debug.stepCount = currentStep;
+		}
+		this.integrator.doStep();
+	}
+
+	@Override
+	public void runActivity(Controller.ControllerHandle handle) {
+		long stopTime = System.nanoTime() + (long)(maxWalltime * 1e9);
+		if (!skipReset) {
+			try {
+				this.integrator.reset();
+			} catch (ConfigurationOverlapException e) {
+				if (!ignoreOverlap) {
+					throw e;
+				}
+			}
+			integrator.resetStepCount();
+		}
+
+		for (currentStep = 0; currentStep < this.maxSteps; currentStep++) {
+			handle.yield(this::doAction);
+			if (Debug.ON && currentStep == Debug.STOP) break;
+			if (maxWalltime < Double.POSITIVE_INFINITY && currentStep%stepIntervalCheckTime == 0 && System.nanoTime() >= stopTime) break;
+		}
+
+	}
+
+	@Override
+	public void restart() {
+		if (integrator.getStepCount() > 0) {
+			integrator.resetStepCount();
+		}
+		if (integrator.isInitialized()) {
+			try {
+				integrator.reset();
+			} catch (ConfigurationOverlapException e) {
+				if (!ignoreOverlap) {
+					throw e;
+				}
+			}
+		}
+	}
+
+	public Integrator getIntegrator() {
+        return integrator;
+    }
+
+    public long getMaxSteps() {
+        return maxSteps;
+    }
+
+    public void setMaxSteps(long maxSteps) {
+        this.maxSteps = maxSteps;
+    }
+
+    public boolean isIgnoreOverlap() {
+        return ignoreOverlap;
+    }
+
+	public void setIgnoreOverlap(boolean ignoreOverlap) {
+		this.ignoreOverlap = ignoreOverlap;
+	}
+
+	public void setDoSkipReset(boolean doSkipReset) {
+		skipReset = doSkipReset;
+	}
+
 }

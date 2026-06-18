@@ -8,7 +8,7 @@ import etomica.atom.AtomArrayList;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
-import etomica.potential.IPotentialAtomic;
+import etomica.potential.IPotential1;
 import etomica.space.Boundary;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -16,7 +16,7 @@ import etomica.space.Vector;
 import java.util.HashMap;
 import java.util.Map;
 
-public class P1ConstraintNbr implements IPotentialAtomic {
+public class P1ConstraintNbr implements IPotential1 {
 
     protected final Vector drj, drk;
     protected int[][] neighborAtoms;
@@ -92,12 +92,9 @@ public class P1ConstraintNbr implements IPotentialAtomic {
         return boxManager.get(box);
     }
 
-    public int nBody() {
-        return 1;
-    }
-
-    public double getRange() {
-        return Double.POSITIVE_INFINITY;
+    @Override
+    public double udu(IAtom atom, Vector f) {
+        return u(atom);
     }
 
     public void setBox(Box box) {
@@ -126,8 +123,7 @@ public class P1ConstraintNbr implements IPotentialAtomic {
     /**
      * Returns sum of energy for all triplets containing the given atom
      */
-    public double energy(IAtomList atoms) {
-        IAtom atom = atoms.get(0);
+    public double u(IAtom atom) {
         double u = energyi(atom);
         if (u == Double.POSITIVE_INFINITY) {
             return u;

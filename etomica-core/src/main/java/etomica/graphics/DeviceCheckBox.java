@@ -5,6 +5,7 @@
 //This class includes a main method to demonstrate its use
 package etomica.graphics;
 
+import etomica.action.controller.Controller;
 import etomica.modifier.ModifierBoolean;
 import etomica.modifier.ModifyBooleanAction;
 
@@ -24,19 +25,27 @@ public class DeviceCheckBox extends Device {
     private ModifierBoolean modifier;
     private JCheckBox box;
     private boolean currentValue = false;
-    
+
     public DeviceCheckBox(ModifierBoolean modifier) {
         this("Select", modifier);
     }
+
     public DeviceCheckBox(String label, ModifierBoolean modifier) {
-        super();
-        init(label, modifier);
+        this(null, label, modifier);
     }
-    
+
+    public DeviceCheckBox(Controller controller, String label, ModifierBoolean modifier) {
+        super(controller);
+        init(label, modifier);
+        setController(controller);
+    }
+
     private void init(String label, ModifierBoolean modifier) {
         this.modifier = modifier;
-        modifyAction = new ModifyBooleanAction(modifier);
-        currentValue = modifier.getBoolean();
+        if (modifier != null) {
+            modifyAction = new ModifyBooleanAction(modifier);
+            currentValue = modifier.getBoolean();
+        }
         box = new JCheckBox(label,currentValue);
         box.addActionListener( new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -75,13 +84,15 @@ public class DeviceCheckBox extends Device {
      */
     public void setModifier(ModifierBoolean newModifier) {
         modifier = newModifier;
-        modifier.setBoolean(currentValue);
+        currentValue = modifier.getBoolean();
+        modifyAction = new ModifyBooleanAction(modifier);
+        box.setSelected(currentValue);
     }
     
     /**
      * Returns the GUI box element for display in the simulation.
      */
-    public java.awt.Component graphic(Object obj) {
+    public java.awt.Component graphic() {
         return box;
     }
     

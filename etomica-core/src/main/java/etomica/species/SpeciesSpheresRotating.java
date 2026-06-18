@@ -7,11 +7,10 @@ package etomica.species;
 import etomica.atom.AtomOriented;
 import etomica.atom.AtomOrientedDynamic;
 import etomica.atom.AtomTypeOriented;
-import etomica.atom.IAtom;
-import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.IElement;
-import etomica.simulation.Simulation;
+import etomica.config.ConformationLinear;
 import etomica.space.Space;
+import etomica.space.Vector;
 
 /**
  * Species in which molecules are made of a single atom of type OrientedSphere
@@ -19,28 +18,30 @@ import etomica.space.Space;
  * @author David Kofke
  * @see AtomTypeOriented
  */
-public class SpeciesSpheresRotating extends SpeciesSpheresMono {
+public class SpeciesSpheresRotating {
 
-    protected boolean isAxisSymmetric = true;
-    
-    public SpeciesSpheresRotating(Simulation sim, Space _space) {
-        this(_space, new ElementSimple(sim));
-    }
-    
-    public SpeciesSpheresRotating(Space _space, IElement element) {
-        super(_space, new AtomTypeOriented(element, _space));
+    public static SpeciesGeneral create(Space space, IElement element) {
+        return create(space, element, false, true);
     }
 
-    public boolean isAxisSymmetric() {
-        return isAxisSymmetric;
+    public static SpeciesGeneral create(Space space, IElement element, boolean isAxisSymmetric) {
+        return create(space, element, false, isAxisSymmetric);
     }
 
-    public void setAxisSymmetric(boolean isAxisSymmetric) {
-        this.isAxisSymmetric = isAxisSymmetric;
-    }
-
-    protected IAtom makeLeafAtom() {
-        return isDynamic ? new AtomOrientedDynamic(space, leafAtomType, isAxisSymmetric)
-                         : new AtomOriented(space, leafAtomType, isAxisSymmetric);
+    public static SpeciesGeneral create(Space space, IElement element, boolean isDynamic, boolean isAxisSymmetric) {
+        Vector moment = space.makeVector();
+        moment.E(1);
+        if (isAxisSymmetric) {
+            moment.setX(0, 0);
+        }
+        return new SpeciesBuilder(space)
+                .setDynamic(isDynamic)
+                .addCount(new AtomTypeOriented(element, moment), 1)
+                .withConformation(new ConformationLinear(space))
+                .withAtomFactory((atomType -> {
+                    return isDynamic ? new AtomOrientedDynamic(space, atomType, isAxisSymmetric)
+                            : new AtomOriented(space, atomType, isAxisSymmetric);
+                }))
+                .build();
     }
 }

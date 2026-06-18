@@ -5,10 +5,7 @@
 package etomica.space;
 
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import etomica.math.function.IFunction;
-import etomica.meta.annotations.IgnoreProperty;
-import etomica.meta.serializers.VectorSerializer;
 import etomica.space1d.Vector1D;
 import etomica.space2d.Vector2D;
 import etomica.space3d.Vector3D;
@@ -18,21 +15,20 @@ import etomica.util.random.IRandom;
 /**
  * Interface containing vector operations, accessor, and mutator methods.
  */
-@JsonSerialize(using = VectorSerializer.class)
 public interface Vector {
 
     /**
      * Dimension of the space occupied by the vector. Number of elements in the
      * vector.
      */
-    int getD();
+    public int getD();
 
     /**
      * Assigns the components of this vector to the elements of the given array.
      * Does not check that array length is consistent with vector dimension.
      * Inverse of the E method.
      */
-    void assignTo(double[] array);
+    public void assignTo(double[] array);
 
     default double[] toArray() {
         double[] arr = new double[this.getD()];
@@ -50,43 +46,40 @@ public interface Vector {
      * Returns true if all corresponding elements of this and the given vector
      * are equal; returns false otherwise.
      */
-    boolean equals(Vector v);
+    public boolean equals(Vector v);
 
     /**
      * Vector components corresponding to the given index. For example,
      * x-component is given for i = 0. If index exceeds dimension of vector, no
      * error is given and the last element of the vector is returned.
      */
-    double getX(int i);
-
+    public double getX(int i);
 
     /**
      * Returns the square magnitude of this vector, e.g., x^2 + y^2 for D = 2.
      */
-    double squared();
+    public double squared();
 
     /**
      * Returns true if all components of this vector are zero; false otherwise.
      */
-    @IgnoreProperty
-    boolean isZero();
+    public boolean isZero();
 
     /**
      * Returns the dot product of this vector with the given one.
      */
-    double dot(Vector u);
+    public double dot(Vector u);
 
     /**
      * Returns true if any element of the vector is not-a-number.
      */
-    @IgnoreProperty
-    boolean isNaN();
+    public boolean isNaN();
 
     /**
      * Returns square of vector resulting from subtracting given vector
      * from this one.  Neither vector is changed by this operation.
      */
-    double Mv1Squared(Vector v1);
+    public double Mv1Squared(Vector v1);
 
     /**
      * Sets the i-th component of the vector to the given value d. If index
@@ -205,7 +198,7 @@ public interface Vector {
 
     /**
      * Assigns this vector to equal a point chosen randomly in the volume
-     * of a unit sphere.
+     * of a unit sphere (i.e., a sphere of unit radius).
      * @param random the random number generator used to perform the operation
      */
     void setRandomInSphere(IRandom random);

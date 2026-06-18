@@ -12,27 +12,23 @@ import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
 import etomica.molecule.MoleculeAgentManager;
 import etomica.molecule.MoleculeAgentManager.MoleculeAgentSource;
-import etomica.nbr.NeighborCriterion;
-import etomica.simulation.Simulation;
 import etomica.species.ISpecies;
+import etomica.species.SpeciesManager;
 
 /**
  * Returns first leaf atom of each polymer molecule and the atom its bonded to.
  */
-public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource {
+public class CriterionTether3 implements MoleculeAgentSource<IAtomList> {
 
-    protected final Simulation sim;
+    protected final SpeciesManager sm;
     protected final ISpecies polymerSpecies;
     protected final AtomType surfaceType;
     protected Box box;
     protected IMoleculeList polymerList;
-    protected MoleculeAgentManager bondManager;
-    protected int cursor;
-    protected int surfaceCursor;
-    protected IMolecule targetMolecule;
+    protected MoleculeAgentManager<IAtomList> bondManager;
 
-    public CriterionTether3(Simulation sim, ISpecies polymerSpecies, AtomType surfaceType) {
-        this.sim = sim;
+    public CriterionTether3(SpeciesManager sm, ISpecies polymerSpecies, AtomType surfaceType) {
+        this.sm = sm;
         this.polymerSpecies = polymerSpecies;
         this.surfaceType = surfaceType;
     }
@@ -42,7 +38,7 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
             if (box != null) {
                 bondManager.dispose();
             }
-            bondManager = new MoleculeAgentManager(sim, newBox, this);
+            bondManager = new MoleculeAgentManager<>(sm, newBox, this);
         }
         box = newBox;
         polymerList = box.getMoleculeList(polymerSpecies);
@@ -64,7 +60,7 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
         if (atom2.getType() != surfaceType) {
             return false;
         }
-        IAtomList bondedSurfaceAtoms = ((IAtomList)bondManager.getAgent(atom1.getParentGroup()));
+        IAtomList bondedSurfaceAtoms = bondManager.getAgent(atom1.getParentGroup());
         if (bondedSurfaceAtoms == null) {
             return false;
         }
@@ -87,10 +83,10 @@ public class CriterionTether3 implements NeighborCriterion, MoleculeAgentSource 
         return false;
     }
 
-    public Object makeAgent(IMolecule a) {
+    public IAtomList makeAgent(IMolecule a) {
         return null;
     }
 
-    public void releaseAgent(Object agent, IMolecule atom) {
+    public void releaseAgent(IAtomList agent, IMolecule atom) {
     }
 }

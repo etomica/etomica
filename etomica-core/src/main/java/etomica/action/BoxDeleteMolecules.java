@@ -10,7 +10,7 @@ import etomica.molecule.IMoleculeList;
 import java.util.function.Predicate;
 
 /**
- * Deletes molecules from a box as determined by an AtomFilter. Atoms deleted
+ * Deletes molecules from a box as determined by an AtomTest. Atoms deleted
  * are those for which the filter's test method returns false.
  * 
  * @author David Kofke

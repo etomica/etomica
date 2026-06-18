@@ -4,6 +4,7 @@
 
 package etomica.normalmode;
 
+import etomica.atom.AtomType;
 import etomica.box.Box;
 import etomica.lattice.crystal.Primitive;
 import etomica.lattice.crystal.PrimitiveOrthorhombicHexagonal;
@@ -12,8 +13,7 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space2d.Space2D;
 import etomica.space2d.Vector2D;
-import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 
 import java.io.Serializable;
 
@@ -149,7 +149,7 @@ outer:              for (int i=0; i<2; i++){
         int [] nCells = new int []{2,2};
         Space sp = Space2D.getInstance();
         Simulation sim = new Simulation(sp);
-        ISpecies species = new SpeciesSpheresMono(sim, sp);
+        SpeciesGeneral species = SpeciesGeneral.monatomic(sp, AtomType.simpleFromSim(sim));
         sim.addSpecies(species);
         Box box = new Box(sp);
         sim.addBox(box);

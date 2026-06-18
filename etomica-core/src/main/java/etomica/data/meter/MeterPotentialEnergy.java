@@ -4,91 +4,37 @@
 
 package etomica.data.meter;
 
-import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.DataSourceScalar;
-import etomica.molecule.IMolecule;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialCalculationEnergySum;
-import etomica.potential.PotentialMaster;
+import etomica.data.IDataSourcePotential;
+import etomica.potential.compute.PotentialCompute;
 import etomica.units.dimensions.Energy;
 
-/**
- * Meter for evaluation of the potential energy in a box.
- * Includes several related methods for computing the potential energy of a single
- * atom or molecule with all neighboring atoms
- *
- * @author David Kofke
- */
- 
-public class MeterPotentialEnergy extends DataSourceScalar {
-    
-    public MeterPotentialEnergy(PotentialMaster potentialMaster) {
-        super("Potential Energy",Energy.DIMENSION);
-        iteratorDirective.includeLrc = true;
-        potential = potentialMaster;
-        iteratorDirective.setDirection(IteratorDirective.Direction.UP);
-    }
-
-    public MeterPotentialEnergy(PotentialMaster potentialMaster, Box box) {
-        this(potentialMaster);
-        this.setBox(box);
-    }
-
-    /**
-     * Sets flag indicating whether calculated energy should include
-     * long-range correction for potential truncation (true) or not (false).
-     */
-    public void setIncludeLrc(boolean b) {
-    	iteratorDirective.includeLrc = b;
-    }
-    /**
-     * Indicates whether calculated energy should include
-     * long-range correction for potential truncation (true) or not (false).
-     */
-    public boolean isIncludeLrc() {
-    	return iteratorDirective.includeLrc;
-    }
-
-    public void setTarget(IAtom atom) {
-    	iteratorDirective.setTargetAtom(atom);
-        iteratorDirective.setDirection(atom == null ? IteratorDirective.Direction.UP : null);
-    }
-
-    public void setTarget(IMolecule mole) {
-        iteratorDirective.setTargetMolecule(mole);
-        iteratorDirective.setDirection(mole == null ? IteratorDirective.Direction.UP : null);
-    }
-    
-   /**
-    * Computes total potential energy for box.
-    * Currently, does not include long-range correction to truncation of energy
-    */
-    public double getDataAsScalar() {
-        if (box == null) throw new IllegalStateException("must call setBox before using meter");
-    	energy.zeroSum();
-        potential.calculate(box, iteratorDirective, energy);
-        return energy.getSum();
-    }
-    /**
-     * @return Returns the box.
-     */
-    public Box getBox() {
-        return box;
-    }
-    /**
-     * @param box The box to set.
-     */
-    public void setBox(Box box) {
-        this.box = box;
-    }
-    
-    public void setPotentialCalculation(PotentialCalculationEnergySum newEnergySummer) {
-        energy = newEnergySummer;
-    }
+public class MeterPotentialEnergy extends DataSourceScalar implements IDataSourcePotential {
 
     protected Box box;
-    protected final IteratorDirective iteratorDirective = new IteratorDirective();
-    protected PotentialCalculationEnergySum energy = new PotentialCalculationEnergySum();
-    protected final PotentialMaster potential;
+    protected final PotentialCompute potentialMaster;
+    protected boolean callComputeAll;
+
+    public MeterPotentialEnergy(PotentialCompute potentialMaster) {
+        super("Potential Energy", Energy.DIMENSION);
+        this.potentialMaster = potentialMaster;
+        callComputeAll = true;
+    }
+
+    /**
+     * Computes total potential energy for box.
+     * Currently, does not include long-range correction to truncation of energy
+     */
+    public double getDataAsScalar() {
+        if (callComputeAll) {
+            potentialMaster.computeAll(false);
+        }
+        return potentialMaster.getLastEnergy();
+    }
+
+    @Override
+    public void doCallComputeAll(boolean callComputeAll) {
+        this.callComputeAll = callComputeAll;
+    }
 }

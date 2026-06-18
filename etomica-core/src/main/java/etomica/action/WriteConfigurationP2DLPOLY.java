@@ -66,9 +66,6 @@ public class WriteConfigurationP2DLPOLY implements IAction {
      * Sets the box whose atom coordinates get written to the file.
      */
     public void setBox(Box newBox) {
-    	if(!(box.getBoundary() instanceof Boundary)) {
-    		throw new RuntimeException("The boundary within the box in WriteConfigurationP2DLPOLY MUST be derived from etomica.space.Boundary.");
-        }
         box = newBox;
         setDoApplyPBC(true);
     }
@@ -158,7 +155,7 @@ public class WriteConfigurationP2DLPOLY implements IAction {
         	}
         	
         
-        	formatter.format("\n%10d%10d\n", new Object[]{new Integer(writeVelocity? 1:0), boundaryType});
+        	formatter.format("\n%10d%10d\n", writeVelocity ? 1 : 0, boundaryType);
 
         	for (int i=0; i<3; i++){
                 Vector cell = boundary.getEdgeVector(i);
@@ -170,7 +167,7 @@ public class WriteConfigurationP2DLPOLY implements IAction {
         			 * 2. dl_multi does not run ewald sum with non-periodic boundary condition
         			 * 
         			 */
-        			formatter.format("%20f",new Object[]{cell.getX(j)*500});
+        			formatter.format("%20f", cell.getX(j)*500);
         		}
         		formatter.format("\n");
         	}
@@ -210,16 +207,16 @@ public class WriteConfigurationP2DLPOLY implements IAction {
 	            			IAtom atom = molecule.getChildList().get(iLeaf);
 	            			String atomName = elementHash.get(atom.getType().getElement());
 	            			
-	            			formatter.format("%8s%10d\n", new Object[]{atomName, atomCount});
+	            			formatter.format("%8s%10d\n", atomName, atomCount);
 	            			atomCount++;
 		                	Vector atomPos = atom.getPosition();
-		                	formatter.format("%20.12f%20.12f%20.12f\n", new Object[]{atomPos.getX(0), atomPos.getX(1), atomPos.getX(2)});
+		                	formatter.format("%20.12f%20.12f%20.12f\n", atomPos.getX(0), atomPos.getX(1), atomPos.getX(2));
 	                		                	
 		                	
 		                	if (writeVelocity){
 		                		Vector atomVelocity = ((IAtomKinetic)atom).getVelocity();
-		                		formatter.format("%20f%20f%20f\n", 
-		                				new Object[]{atomVelocity.getX(0), atomVelocity.getX(1), atomVelocity.getX(2)});
+		                		formatter.format("%20f%20f%20f\n",
+										atomVelocity.getX(0), atomVelocity.getX(1), atomVelocity.getX(2));
 		                	}
 	            		}
 	            	}
@@ -258,7 +255,7 @@ public class WriteConfigurationP2DLPOLY implements IAction {
     private Box box;
     private boolean doApplyPBC;
     private boolean writeVelocity;
-    private HashMap<IElement,String> elementHash;
+    private final HashMap<IElement,String> elementHash;
     private int indexj, indexjp;
     private int typeInteraction;
 }

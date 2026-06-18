@@ -5,19 +5,18 @@
 package etomica.modules.ljmd;
 
 import etomica.action.IAction;
-import etomica.atom.iterator.AtomIteratorLeafAtoms;
+import etomica.action.activity.ActivityIntegrate;
 import etomica.config.ConfigurationLattice;
 import etomica.data.*;
 import etomica.data.AccumulatorAverage.StatType;
 import etomica.data.DataSourceUniform.LimitType;
 import etomica.data.histogram.HistogramSimple;
 import etomica.data.meter.*;
-import etomica.data.types.DataDouble;
-import etomica.data.types.DataTensor;
 import etomica.graphics.*;
+import etomica.integrator.ActionZeroMomentum;
+import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.integrator.IntegratorListenerAction;
 import etomica.math.DoubleRange;
 import etomica.space.Space;
 import etomica.space2d.Space2D;
@@ -28,6 +27,7 @@ import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
 import etomica.util.Constants.CompassDirection;
+import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -36,57 +36,56 @@ public class LjmdGraphic extends SimulationGraphic {
 
     private final static String APP_NAME = "Lennard-Jones Molecular Dynamics";
     private final static int REPAINT_INTERVAL = 20;
-    private DeviceThermoSlider temperatureSelect;
+    private final DeviceThermoSlider temperatureSelect;
     protected Ljmd sim;
-    
-    private boolean showConfig = false;
 
-    public LjmdGraphic(final Ljmd simulation, Space _space) {
+    private final boolean showConfig = false;
 
-    	super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
+    public LjmdGraphic(final Ljmd simulation) {
+
+        super(simulation, TABBED_PANE, APP_NAME, REPAINT_INTERVAL);
 
         ArrayList<DataPump> dataStreamPumps = getController().getDataStreamPumps();
-        
-    	this.sim = simulation;
 
-        sim.activityIntegrate.setSleepPeriod(1);
+        this.sim = simulation;
 
-	    //display of box, timer
+        sim.getController().setSleepPeriod(1);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
+
+        //display of box, timer
         ColorSchemeByType colorScheme = new ColorSchemeByType();
         colorScheme.setColor(sim.species.getLeafType(), Color.red);
         getDisplayBox(sim.box).setColorScheme(new ColorSchemeByType());
 //        sim.integrator.addListener(new IntervalActionAdapter(this.getDisplayBoxPaintAction(sim.box)));
 
-	    //meters and displays
+        //meters and displays
         final MeterRDF rdfMeter = new MeterRDF(sim.getSpace());
         IntegratorListenerAction rdfMeterListener = new IntegratorListenerAction(rdfMeter);
         sim.integrator.getEventManager().addListener(rdfMeterListener);
         rdfMeterListener.setInterval(10);
         rdfMeter.getXDataSource().setXMax(4.0);
         rdfMeter.setBox(sim.box);
-        DisplayPlot rdfPlot = new DisplayPlot();
-        DataPump rdfPump = new DataPump(rdfMeter,rdfPlot.getDataSet().makeDataSink());
+        DisplayPlotXChart rdfPlot = new DisplayPlotXChart();
+        DataPump rdfPump = new DataPump(rdfMeter, rdfPlot.getDataSet().makeDataSink());
         IntegratorListenerAction rdfPumpListener = new IntegratorListenerAction(rdfPump);
         sim.integrator.getEventManager().addListener(rdfPumpListener);
         rdfPumpListener.setInterval(10);
         dataStreamPumps.add(rdfPump);
-        
+
         rdfPlot.setDoLegend(false);
         rdfPlot.getPlot().setTitle("Radial Distribution Function");
         rdfPlot.setLabel("RDF");
-        
-        final IAction resetDataAction = new IAction(){
+
+        final IAction resetDataAction = new IAction() {
             public void actionPerformed() {
-                getController().getSimRestart().getDataResetAction();
                 rdfMeter.reset();
             }
         };
 
-		//velocity distribution
+        //velocity distribution
         double vMin = 0;
         double vMax = 4;
-		DataSourceRmsVelocity meterVelocity = new DataSourceRmsVelocity(new HistogramSimple(100,new DoubleRange(0,4)));
-        meterVelocity.setIterator(new AtomIteratorLeafAtoms(sim.box));
+        DataSourceRmsVelocity meterVelocity = new DataSourceRmsVelocity(sim.box, new HistogramSimple(100, new DoubleRange(0, 4)));
         AccumulatorAverage rmsAverage = new AccumulatorAverageFixed(10);
         DataPump velocityPump = new DataPump(meterVelocity, rmsAverage);
         IntegratorListenerAction velocityPumpListener = new IntegratorListenerAction(velocityPump);
@@ -94,59 +93,60 @@ public class LjmdGraphic extends SimulationGraphic {
         velocityPumpListener.setInterval(10);
         rmsAverage.setPushInterval(10);
         dataStreamPumps.add(velocityPump);
-        
-        final DisplayPlot vPlot = new DisplayPlot();
+
+        final DisplayPlotXChart vPlot = new DisplayPlotXChart();
         rmsAverage.addDataSink(vPlot.getDataSet().makeDataSink(), new StatType[]{rmsAverage.AVERAGE});
         vPlot.setDoLegend(false);
         vPlot.getPlot().setTitle("Velocity Distribution");
         vPlot.setDoLegend(true);
         vPlot.setLabel("Velocity");
 
-		final MaxwellBoltzmann.Distribution mbDistribution = new MaxwellBoltzmann.Distribution(sim.getSpace(),sim.integrator.getTemperature(),sim.species.getLeafType().getMass());
-		final DataSourceFunction mbSource = new DataSourceFunction("Maxwell Boltzmann Distribution",
-                Null.DIMENSION, mbDistribution, 100, "Speed", new DimensionRatio(Length.DIMENSION,Time.DIMENSION));
-		DataSourceUniform mbX = mbSource.getXSource();
-		mbX.setTypeMax(LimitType.HALF_STEP);
-		mbX.setTypeMin(LimitType.HALF_STEP);
-		mbX.setNValues(meterVelocity.getDataInfo().getLength());
-		mbX.setXMin(vMin);
-		mbX.setXMax(vMax);
-		mbSource.update();
-        final DataPump mbPump = new DataPump(mbSource,vPlot.getDataSet().makeDataSink());
+        final MaxwellBoltzmann.Distribution mbDistribution = new MaxwellBoltzmann.Distribution(sim.getSpace(), sim.integrator.getTemperature(), sim.species.getLeafType().getMass());
+        final DataSourceFunction mbSource = new DataSourceFunction("Maxwell Boltzmann Distribution",
+                Null.DIMENSION, mbDistribution, 100, "Speed", new DimensionRatio(Length.DIMENSION, Time.DIMENSION));
+        DataSourceUniform mbX = mbSource.getXSource();
+        mbX.setTypeMax(LimitType.HALF_STEP);
+        mbX.setTypeMin(LimitType.HALF_STEP);
+        mbX.setNValues(meterVelocity.getDataInfo().getLength());
+        mbX.setXMin(vMin);
+        mbX.setXMax(vMax);
+        mbSource.update();
+        final DataPump mbPump = new DataPump(mbSource, vPlot.makeSink("boltzmann"));
+        vPlot.getSeries("boltzmann")
+                .setMarker(SeriesMarkers.NONE);
 
         DataSourceCountTime timeCounter = new DataSourceCountTime(sim.integrator);
 
         //add meter and display for current kinetic temperature
 
-		MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
+        MeterTemperature thermometer = new MeterTemperature(sim.box, space.D());
         DataFork temperatureFork = new DataFork();
-        final DataPump temperaturePump = new DataPump(thermometer,temperatureFork);
+        final DataPump temperaturePump = new DataPump(thermometer, temperatureFork);
         IntegratorListenerAction temperaturePumpListener = new IntegratorListenerAction(temperaturePump);
         sim.integrator.getEventManager().addListener(temperaturePumpListener);
         temperaturePumpListener.setInterval(10);
         final AccumulatorHistory temperatureHistory = new AccumulatorHistory();
         temperatureHistory.setTimeDataSource(timeCounter);
-		final DisplayTextBox tBox = new DisplayTextBox();
-		temperatureFork.setDataSinks(new IDataSink[]{tBox,temperatureHistory});
-		tBox.setLabel("Measured Temperature");
-		tBox.setLabelPosition(CompassDirection.NORTH);
+        final DisplayTextBox tBox = new DisplayTextBox();
+        temperatureFork.setDataSinks(new IDataSink[]{tBox, temperatureHistory});
+        tBox.setLabel("Measured Temperature");
+        tBox.setLabelPosition(CompassDirection.NORTH);
 
-		dataStreamPumps.add(temperaturePump);
-		tBox.setLabel("Measured Temperature");
-		tBox.setLabelPosition(CompassDirection.NORTH);
+        dataStreamPumps.add(temperaturePump);
+        tBox.setLabel("Measured Temperature");
+        tBox.setLabelPosition(CompassDirection.NORTH);
 
-		// Number density box
-	    MeterDensity densityMeter = new MeterDensity(sim.getSpace());
-        densityMeter.setBox(sim.box);
-	    final DisplayTextBox densityBox = new DisplayTextBox();
+        // Number density box
+        MeterDensity densityMeter = new MeterDensity(sim.box);
+        final DisplayTextBox densityBox = new DisplayTextBox();
         final DataPump densityPump = new DataPump(densityMeter, densityBox);
         IntegratorListenerAction densityPumpListener = new IntegratorListenerAction(densityPump);
         sim.integrator.getEventManager().addListener(densityPumpListener);
         densityPumpListener.setInterval(10);
         dataStreamPumps.add(densityPump);
-	    densityBox.setLabel("Number Density");
+        densityBox.setLabel("Number Density");
 
-		MeterEnergy eMeter = new MeterEnergy(sim.integrator.getPotentialMaster(), sim.box);
+        MeterEnergyFromIntegrator eMeter = new MeterEnergyFromIntegrator(sim.integrator);
         AccumulatorHistory energyHistory = new AccumulatorHistory();
         energyHistory.setTimeDataSource(timeCounter);
         DataPump energyPump = new DataPump(eMeter, energyHistory);
@@ -156,7 +156,7 @@ public class LjmdGraphic extends SimulationGraphic {
         energyHistory.setPushInterval(5);
         dataStreamPumps.add(energyPump);
 
-		MeterPotentialEnergy peMeter = new MeterPotentialEnergy(sim.integrator.getPotentialMaster(), sim.box);
+        MeterPotentialEnergyFromIntegrator peMeter = new MeterPotentialEnergyFromIntegrator(sim.integrator);
         AccumulatorHistory peHistory = new AccumulatorHistory();
         peHistory.setTimeDataSource(timeCounter);
         final AccumulatorAverageCollapsing peAccumulator = new AccumulatorAverageCollapsing();
@@ -169,7 +169,7 @@ public class LjmdGraphic extends SimulationGraphic {
         peHistory.setPushInterval(5);
         dataStreamPumps.add(pePump);
 
-		MeterKineticEnergy keMeter = new MeterKineticEnergy(sim.box);
+        MeterKineticEnergy keMeter = new MeterKineticEnergy(sim.box);
         AccumulatorHistory keHistory = new AccumulatorHistory();
         keHistory.setTimeDataSource(timeCounter);
         DataFork keFork = new DataFork();
@@ -182,8 +182,8 @@ public class LjmdGraphic extends SimulationGraphic {
         kePumpListener.setInterval(60);
         keHistory.setPushInterval(5);
         dataStreamPumps.add(kePump);
-        
-        DisplayPlot ePlot = new DisplayPlot();
+
+        DisplayPlotXChart ePlot = new DisplayPlotXChart();
         energyHistory.setDataSink(ePlot.getDataSet().makeDataSink());
         ePlot.setLegend(new DataTag[]{energyHistory.getTag()}, "Total");
         peHistory.setDataSink(ePlot.getDataSet().makeDataSink());
@@ -192,15 +192,12 @@ public class LjmdGraphic extends SimulationGraphic {
         ePlot.setLegend(new DataTag[]{keHistory.getTag()}, "Kinetic");
 
         ePlot.getPlot().setTitle("Energy History");
-		ePlot.setDoLegend(true);
-		ePlot.setLabel("Energy");
+        ePlot.setDoLegend(true);
+        ePlot.setLabel("Energy");
 
-        MeterPressureTensorFromIntegrator pMeter = new MeterPressureTensorFromIntegrator(space);
-        pMeter.setIntegrator(sim.integrator);
+        MeterPressureFromIntegrator pMeter = new MeterPressureFromIntegrator(sim.integrator);
         final AccumulatorAverageCollapsing pAccumulator = new AccumulatorAverageCollapsing();
-        DataProcessorTensorTrace tracer = new DataProcessorTensorTrace();
-        final DataPump pPump = new DataPump(pMeter, tracer);
-        tracer.setDataSink(pAccumulator);
+        final DataPump pPump = new DataPump(pMeter, pAccumulator);
         sim.integrator.getEventManager().addListener(new IntegratorListenerAction(pPump));
         pAccumulator.setPushInterval(10);
         dataStreamPumps.add(pPump);
@@ -209,7 +206,7 @@ public class LjmdGraphic extends SimulationGraphic {
         pDisplay.setAccumulator(pAccumulator);
         final DisplayTextBoxesCAE peDisplay = new DisplayTextBoxesCAE();
         peDisplay.setAccumulator(peAccumulator);
-        
+
         IAction mbAction = new IAction() {
             public void actionPerformed() {
                 if (!sim.integrator.isIsothermal()) {
@@ -240,26 +237,29 @@ public class LjmdGraphic extends SimulationGraphic {
         // system sizes (since we're using ANDERSEN_SINGLE.  Smaller systems 
         // don't need as much thermostating.
         nSlider.setPostAction(new IAction() {
+            final ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
+            int oldN = sim.box.getMoleculeList().size();
+
             public void actionPerformed() {
-                int n = (int)nSlider.getValue();
-                if(n == 0) {
-                	sim.integrator.setThermostatInterval(400);
+                int n = (int) nSlider.getValue();
+                if (n == 0) {
+                    sim.integrator.setThermostatInterval(400);
+                } else {
+                    sim.integrator.setThermostatInterval(400 / n + 1);
                 }
-                else {
-                  sim.integrator.setThermostatInterval(400/n+1);
-                }
-                
+
                 if (oldN < n) {
                     config.initializeCoordinates(sim.box);
                 }
                 oldN = n;
                 sim.integrator.reset();
+                if (!sim.integrator.isIsothermal() && n > 1) {
+                    ActionZeroMomentum.zeroMomenta(sim.box);
+                }
                 resetDataAction.actionPerformed();
                 getDisplayBox(sim.box).repaint();
             }
 
-            ConfigurationLattice config = new ConfigurationLattice((space.D() == 2) ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space);
-            int oldN = sim.box.getMoleculeList().size();
         });
 
         //************* Lay out components ****************//
@@ -274,19 +274,19 @@ public class LjmdGraphic extends SimulationGraphic {
         temperatureSelect.setMinimum(0.0);
         temperatureSelect.setMaximum(10.0);
         temperatureSelect.setSliderMajorValues(3);
-	    temperatureSelect.setAdiabatic();
+        temperatureSelect.setAdiabatic();
 
         final IAction temperatureAction = new IAction() {
             public void actionPerformed() {
                 resetDataAction.actionPerformed();
-		        mbDistribution.setTemperature(temperatureSelect.getTemperature());
-		        mbSource.update();
-		        vPlot.doUpdate();
-		        vPlot.repaint();
-		    }
-		};
+                mbDistribution.setTemperature(temperatureSelect.getTemperature());
+                mbSource.update();
+                mbPump.actionPerformed();
+                vPlot.doUpdate();
+            }
+        };
 
-		temperatureSelect.setSliderPostAction(temperatureAction);
+        temperatureSelect.setSliderPostAction(temperatureAction);
         temperatureSelect.setRadioGroupPostAction(temperatureAction);
 
         // show config button
@@ -295,28 +295,24 @@ public class LjmdGraphic extends SimulationGraphic {
         configButton.setAction(new ActionConfigWindow(sim.box));
 
         IAction resetAction = new IAction() {
-        	public void actionPerformed() {
+            public void actionPerformed() {
                 rdfMeter.reset();
 
                 // Reset density (Density is set and won't change, but
-        		// do this anyway)
-        		densityPump.actionPerformed();
-        		densityBox.repaint();
+                // do this anyway)
+                densityPump.actionPerformed();
 
-        		// Reset temperature (THIS IS NOT WORKING)
+                // Reset temperature (THIS IS NOT WORKING)
                 temperaturePump.actionPerformed();
 //                tBox.putData(temperatureHistory.getData());
-                tBox.repaint();
 
                 // IS THIS WORKING?
                 pPump.actionPerformed();
                 pDisplay.putData(pAccumulator.getData());
-                pDisplay.repaint();
                 peDisplay.putData(peAccumulator.getData());
-                peDisplay.repaint();
 
-        		getDisplayBox(sim.box).graphic().repaint();
-        	}
+                getDisplayBox(sim.box).graphic().repaint();
+            }
         };
 
         this.getController().getReinitButton().setPostAction(resetAction);
@@ -324,81 +320,39 @@ public class LjmdGraphic extends SimulationGraphic {
 
         getPanel().controlPanel.add(temperatureSelect.graphic(), vertGBC);
         add(nSlider);
-        if(showConfig == true) {
+        if (showConfig == true) {
             add(configButton);
         }
 
-    	add(rdfPlot);
-    	add(vPlot);
-    	add(ePlot);
-    	add(densityBox);
-    	add(tBox);
-    	add(pDisplay);
-    	add(peDisplay);
-
+        add(rdfPlot);
+        add(vPlot);
+        add(ePlot);
+        add(densityBox);
+        add(tBox);
+        add(pDisplay);
+        add(peDisplay);
     }
 
     public static void main(String[] args) {
         Space sp = null;
-        if(args.length != 0) {
+        if (args.length != 0) {
             try {
                 int D = Integer.parseInt(args[0]);
                 if (D == 3) {
                     sp = Space3D.getInstance();
+                } else {
+                    sp = Space2D.getInstance();
                 }
-                else {
-                	sp = Space2D.getInstance();
-                }
-            } catch(NumberFormatException e) {}
-        }
-        else {
-        	sp = Space2D.getInstance();
-        }
-
-        LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(sp), sp);
-		SimulationGraphic.makeAndDisplayFrame
-		        (ljmdGraphic.getPanel(), APP_NAME);
-    }
-    
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-	        getRootPane().putClientProperty(
-	                        "defeatSystemEventQueueCheck", Boolean.TRUE);
-	        Space sp = Space2D.getInstance();
-            LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(sp), sp);
-
-		    getContentPane().add(ljmdGraphic.getPanel());
-	    }
-    }
-    
-    /**
-     * Inner class to find the total pressure of the system from the pressure
-     * tensor.
-     */
-    public static class DataProcessorTensorTrace extends DataProcessor {
-
-        public DataProcessorTensorTrace() {
-            data = new DataDouble();
-        }
-        
-        protected IData processData(IData inputData) {
-            // take the trace and divide by the dimensionality
-            data.x = ((DataTensor)inputData).x.trace()/((DataTensor)inputData).x.D();
-            return data;
-        }
-
-        protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-            if (!(inputDataInfo instanceof DataTensor.DataInfoTensor)) {
-                throw new IllegalArgumentException("Gotta be a DataInfoTensor");
+            } catch (NumberFormatException e) {
             }
-            dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
-            return dataInfo;
+        } else {
+            sp = Space3D.getInstance();
         }
 
-        protected final DataDouble data;
+        LjmdGraphic ljmdGraphic = new LjmdGraphic(new Ljmd(sp));
+        SimulationGraphic.makeAndDisplayFrame
+                (ljmdGraphic.getPanel(), APP_NAME);
     }
-
 }
 
 

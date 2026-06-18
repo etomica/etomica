@@ -19,14 +19,15 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.nbr.list.NeighborListManager;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.P2HardSphere;
-import etomica.potential.PotentialMaster;
-import etomica.potential.PotentialMasterMonatomic;
+import etomica.nbr.list.NeighborListManagerHard;
+import etomica.potential.BondingInfo;
+import etomica.potential.P2HardGeneric;
+import etomica.potential.compute.NeighborManagerHard;
+import etomica.potential.compute.NeighborManagerSimpleHard;
+import etomica.potential.compute.PotentialComputePair;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 
 /**
@@ -53,13 +54,13 @@ public class HSMD3D extends Simulation {
     /**
      * The single hard-sphere species.
      */
-    public final SpeciesSpheresMono species;
+    public final SpeciesGeneral species;
     /**
      * The hard-sphere potential governing the interactions.
      */
-    public final P2HardSphere potential;
+    public final P2HardGeneric potential;
 
-    public final PotentialMaster potentialMaster;
+    public final PotentialComputePair potentialMaster;
 
     /**
      * Makes a simulation using a 3D space and the default parameters.
@@ -70,36 +71,40 @@ public class HSMD3D extends Simulation {
 
     /**
      * Makes a simulation according to the specified parameters.
+     *
      * @param params Parameters as defined by the inner class HSMD3DParam
      */
     public HSMD3D(HSMD3DParam params) {
 
         super(Space3D.getInstance());
 
-        species = new SpeciesSpheresMono(this, space);
-        species.setIsDynamic(true);
+        species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         box = this.makeBox();
 
         double neighborRangeFac = 1.6;
         double sigma = 1.0;
-        potentialMaster = params.useNeighborLists ? new PotentialMasterList(this, sigma * neighborRangeFac, space) : new PotentialMasterMonatomic(this);
+        NeighborManagerHard neighborManager = params.useNeighborLists ?
+                new NeighborListManagerHard(getSpeciesManager(), box, 2, sigma * neighborRangeFac, BondingInfo.noBonding())
+                : new NeighborManagerSimpleHard(box);
+        if (params.useNeighborLists) {
+            ((NeighborListManagerHard) neighborManager).setDoDownNeighbors(true);
+        }
+        potentialMaster = new PotentialComputePair(getSpeciesManager(), box, neighborManager);
 
         int numAtoms = params.nAtoms;
 
-        integrator = new IntegratorHard(this, potentialMaster, box);
-        integrator.setIsothermal(false);
-        integrator.setTimeStep(0.01);
-
-        ActivityIntegrate activityIntegrate = new ActivityIntegrate(integrator);
-        activityIntegrate.setSleepPeriod(1);
-        getController().addAction(activityIntegrate);
-
-        potential = new P2HardSphere(space, sigma, true);
+        potential = new P2HardGeneric(new double[]{sigma}, new double[]{Double.POSITIVE_INFINITY}, true);
         AtomType leafType = species.getLeafType();
 
-        potentialMaster.addPotential(potential, new AtomType[]{leafType, leafType});
+        potentialMaster.setPairPotential(leafType, leafType, potential);
+
+        integrator = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager, random, 0.01, 1, box, getSpeciesManager());
+        integrator.setIsothermal(false);
+
+        ActivityIntegrate ai2 = new ActivityIntegrate(integrator);
+        getController().addActivity(ai2, Long.MAX_VALUE, 1.0);
 
         box.setNMolecules(species, numAtoms);
         BoxInflate inflater = new BoxInflate(box, space);
@@ -111,12 +116,14 @@ public class HSMD3D extends Simulation {
             new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
         }
 
-        if (params.useNeighborLists) {
-            NeighborListManager nbrManager = ((PotentialMasterList) potentialMaster).getNeighborManager(box);
-            integrator.getEventManager().addListener(nbrManager);
-        } else {
+        if (!params.useNeighborLists) {
             integrator.getEventManager().addListener(new IntegratorListenerAction(new BoxImposePbc(box, space)));
         }
+    }
+
+    @Override
+    public IntegratorHard getIntegrator() {
+        return integrator;
     }
 
     /**

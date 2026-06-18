@@ -75,7 +75,11 @@ public abstract class MayerFunctionThreeBody implements MayerFunctionNonAdditive
         return Math.exp(x)-1;
     }
     
-    protected abstract double energy(IMoleculeList molecules, double[] r2);
+    protected double energy(IMoleculeList molecules, double[] r2) {
+        return energy(molecules, r2[0], r2[1], r2[2]);
+    };
+
+    protected abstract double energy(IMoleculeList molecules, double rAB2, double rAC2, double rBC2);
 
     public void setBox(Box box) {
         if (lastValue != null) return;

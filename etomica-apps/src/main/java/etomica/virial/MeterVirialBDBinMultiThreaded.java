@@ -4,23 +4,15 @@
 
 package etomica.virial;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import etomica.action.IAction;
 import etomica.util.random.IRandom;
 import etomica.virial.IntSet.PropertyBin;
+import etomica.virial.wheatley.ClusterWheatley;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.*;
 
 /**
  * Measures cluster averages for virial coefficients.  Configurations are

@@ -20,17 +20,9 @@ public class ActionGroupSeries implements ActionGroup {
     private final List<IAction> actions = new ArrayList<>();
 
     /**
-     * Constructs an action group that holds no actions.
+     * Defines group via the given set of actions.
      */
-    public ActionGroupSeries() {
-        this(new IAction[0]);
-    }
-
-    /**
-     * Defines group via the given array of actions.  Copy
-     * of array is made and used internally.
-     */
-    public ActionGroupSeries(IAction[] actionArray) {
+    public ActionGroupSeries(IAction... actionArray) {
         for(IAction action : actionArray) {
             addAction(action);
         }

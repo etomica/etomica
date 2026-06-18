@@ -27,7 +27,7 @@ public final class Temperature extends Dimension {
      * The simulation unit for temperature, which as kT has dimensions
      * of energy and is D-A^2/ps^2.
      */
-    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1.0, "sim temperature units", "kB D-A^2/ps^2", Prefix.NOT_ALLOWED);
+    public static final Unit SIM_UNIT = new SimpleUnit(DIMENSION, 1.0, "sim temperature units", "D-A^2/ps^2/kB", Prefix.NOT_ALLOWED);
 
     private Temperature() {
         super("Temperature", 0, 0, 0, 0, 1, 0, 0);// LMTCtNl

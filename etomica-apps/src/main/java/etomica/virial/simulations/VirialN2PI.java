@@ -4,8 +4,11 @@
 package etomica.virial.simulations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import etomica.atom.*;
-import etomica.atom.iterator.ApiIntergroupCoupled;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.AtomHydrogen;
+import etomica.atom.AtomTypeOriented;
+import etomica.atom.IAtomList;
+import etomica.atom.IAtomOriented;
 import etomica.chem.elements.ElementSimple;
 import etomica.chem.elements.Nitrogen;
 import etomica.config.ConformationLinear;
@@ -20,13 +23,20 @@ import etomica.potential.P2SemiclassicalAtomic.AtomInfo;
 import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
-import etomica.species.SpeciesSpheresHetero;
+import etomica.species.ISpecies;
+import etomica.species.SpeciesBuilder;
+import etomica.species.SpeciesGeneral;
 import etomica.units.Kelvin;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.virial.*;
 import etomica.virial.cluster.Standard;
+import etomica.virial.mcmove.MCMoveClusterRingRegrow;
+import etomica.virial.mcmove.MCMoveClusterRingRegrowOrientation;
+import etomica.virial.wheatley.ClusterWheatleyHS;
+import etomica.virial.wheatley.ClusterWheatleyMultibody;
+import etomica.virial.wheatley.ClusterWheatleySoft;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -106,16 +116,15 @@ public class VirialN2PI {
         final P2SemiclassicalAtomic p2PISC = new P2SemiclassicalAtomic(space, p2Full, temperature*nBeads);
         // Temperature value for PI with SCB was T*P^2.
         // Should be just T*P for SCB-TI as the internal set temperature method squares the argument.
-        final IPotentialAtomic p2;
+        final IPotential2 p2;
         if (scBeads) {
             p2 = p2PISC;
         }
         else {
             p2 = p2Full;
         }
-        PotentialGroupPI pTarGroup = new PotentialGroupPI(beadFac);
-        pTarGroup.addPotential(p2, new ApiIntergroupCoupled());
-        MayerGeneral fTar = new MayerGeneral(pTarGroup) {
+        PotentialMoleculePairPI pTar = new PotentialMoleculePairPI(space, p2, beadFac, nPoints);
+        MayerGeneral fTar = new MayerGeneral(pTar) {
             @Override
             public double f(IMoleculeList pair, double r2, double beta) {
                 return super.f(pair, r2, beta/nBeads);
@@ -126,8 +135,8 @@ public class VirialN2PI {
         if (nPoints == 3 && nonAdditive) {
             final P3NitrogenHellmannNonAdditive p3N2NonAdditive = new P3NitrogenHellmannNonAdditive(space);
             if (p3N2HellmannA) p3N2NonAdditive.parametersB = false;
-            final IPotentialAtomic p3 = p3N2NonAdditive;
-            PotentialMolecularMonatomic p3N2Molecular = new PotentialMolecularMonatomic(space, p3);
+            final IPotential3 p3 = p3N2NonAdditive;
+            P3MolecularMonatomic p3N2Molecular = new P3MolecularMonatomic(space, p3);
             MayerFunctionMolecularThreeBody f3Tar = new MayerFunctionMolecularThreeBody(p3N2Molecular);
             MayerFunctionNonAdditive [] m1 = new MayerFunctionNonAdditive[]{null,null,null,f3Tar};
             tarCluster = new ClusterWheatleyMultibody(nPoints, fTar, m1);
@@ -136,19 +145,15 @@ public class VirialN2PI {
 
         // make species
         ElementSimple n2 = new ElementSimple("N2", 2*Nitrogen.INSTANCE.getMass());
-        AtomTypeOriented atype = new AtomTypeOriented(n2, space);
-        SpeciesSpheresHetero speciesN2 = null;
-        speciesN2 = new SpeciesSpheresHetero(space, new AtomTypeOriented[]{atype}) {
-            @Override
-            protected IAtom makeLeafAtom(AtomType leafType) {
-                return new AtomHydrogen(space, (AtomTypeOriented) leafType, blN2);
-            }
-        };
-        speciesN2.setChildCount(new int [] {nBeads});
-        speciesN2.setConformation(new ConformationLinear(space, 0));
+        AtomTypeOriented atype = new AtomTypeOriented(n2, space.makeVector());
+        SpeciesGeneral speciesN2 = new SpeciesBuilder(space)
+                .addCount(atype, nBeads)
+                .withConformation(new ConformationLinear(space, 0))
+                .withAtomFactory((leafType) -> new AtomHydrogen(space, (AtomTypeOriented) leafType, blN2))
+                .build();
         // make simulation
-        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesN2, temperature, refCluster, tarCluster);
-        //        sim.init();
+        final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, new ISpecies[]{speciesN2}, new int[]{nPoints}, temperature, refCluster, tarCluster);
+        sim.init();
         sim.integratorOS.setNumSubSteps(1000);
         steps /= 1000;
         final Vector[] rv = space.makeVectorArray(4);
@@ -247,13 +252,12 @@ public class VirialN2PI {
             sim.integratorOS.setAdjustStepFraction(false);
         }
         sim.equilibrate(refFileName, steps/10);
+        ActivityIntegrate ai = new ActivityIntegrate(sim.integratorOS, 1000);
         System.out.println("equilibration finished");
 
         sim.integratorOS.setNumSubSteps((int)steps);
         sim.setAccumulatorBlockSize(steps);
         sim.integratorOS.setAggressiveAdjustStepFraction(true);
-        sim.ai.setMaxSteps(1000);
-
         System.out.println("MC Move step sizes (ref)    "+sim.mcMoveTranslate[0].getStepSize());
         System.out.println("MC Move step sizes (target) "+sim.mcMoveTranslate[1].getStepSize());
 
@@ -266,7 +270,7 @@ public class VirialN2PI {
                 public void integratorStepStarted(IntegratorEvent e) {}
                 @Override
                 public void integratorStepFinished(IntegratorEvent e) {
-                    if ((sim.integratorOS.getStepCount()*10) % sim.ai.getMaxSteps() != 0) return;
+                    if ((sim.integratorOS.getStepCount()*10) % ai.getMaxSteps() != 0) return;
                     System.out.print(sim.integratorOS.getStepCount()+" steps: ");
                     double[] ratioAndError = sim.dvo.getAverageAndError();
                     double ratio = ratioAndError[0];
@@ -281,7 +285,8 @@ public class VirialN2PI {
             sim.integratorOS.getEventManager().addListener(progressReport);
         }
         // this is where the simulation takes place
-        sim.getController().actionPerformed();
+
+        sim.getController().runActivityBlocking(ai);
         //end of simulation
         long t2 = System.currentTimeMillis();
 

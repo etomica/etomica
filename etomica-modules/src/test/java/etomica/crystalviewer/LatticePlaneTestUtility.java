@@ -4,6 +4,7 @@
 
 package etomica.crystalviewer;
 
+import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.config.ConfigurationLattice;
@@ -13,7 +14,7 @@ import etomica.simulation.Simulation;
 import etomica.space.BoundaryDeformableLattice;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
-import etomica.species.SpeciesSpheresMono;
+import etomica.species.SpeciesGeneral;
 import org.junit.jupiter.api.Assertions;
 
 public class LatticePlaneTestUtility {
@@ -43,7 +44,7 @@ public class LatticePlaneTestUtility {
     	space.makeVector();
 
     	// Create a species with one atom / molecule
-    	species = new SpeciesSpheresMono(sim, space);
+    	species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(sim));
     	sim.addSpecies(species);
 
 	}

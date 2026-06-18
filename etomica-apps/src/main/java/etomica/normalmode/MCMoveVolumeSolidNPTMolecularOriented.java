@@ -6,9 +6,10 @@ package etomica.normalmode;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.integrator.IntegratorMC;
 import etomica.molecule.IMolecule;
 import etomica.molecule.IMoleculeList;
-import etomica.potential.PotentialMaster;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.RotationTensor;
 import etomica.space.Space;
 import etomica.space.Vector;
@@ -33,10 +34,11 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
     protected transient RotationTensor rotationTensor;
     protected int maxMolecule;
     protected double thetaFrac = 1;
-    
-    public MCMoveVolumeSolidNPTMolecularOriented(PotentialMaster potentialMaster, IRandom random,
-                                                 Space space, double pressure, Vector[] drSum) {
-        super(potentialMaster, random, space, pressure, 5);
+
+    public MCMoveVolumeSolidNPTMolecularOriented(PotentialCompute potentialCompute, IntegratorMC integrator,
+                                                 IRandom random, double pressure, Vector[] drSum) {
+        super(potentialCompute, integrator, random, pressure, 5);
+        Space space = integrator.getBox().getSpace();
         rotationTensor = space.makeRotationTensor();
         this.drSum = drSum;
         orientation = space.makeVector();
@@ -198,6 +200,8 @@ public class MCMoveVolumeSolidNPTMolecularOriented extends
         if (maxMolecule != -1) {
             throw new RuntimeException("oops");
         }
+        potentialCompute.init();
+        potentialCompute.computeAll(false);
     }
     
     public void acceptNotify() {

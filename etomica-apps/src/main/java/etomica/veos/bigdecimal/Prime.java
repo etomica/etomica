@@ -4,9 +4,8 @@
 
 package etomica.veos.bigdecimal ;
 
-import java.lang.* ;
-import java.util.* ;
-import java.math.* ;
+import java.math.BigInteger;
+import java.util.Vector;
 
 /** Prime numbers.
 * The implementation is a very basic computation of the set of all primes
@@ -23,7 +22,7 @@ public class Prime
 {
         /** The list of all numbers as a vector.
         */
-        static Vector<BigInteger> a = new Vector<BigInteger>();
+        static Vector<BigInteger> a = new Vector<>();
 
         /** The maximum integer covered by the high end of the list.
         */
@@ -147,7 +146,7 @@ public class Prime
                 /* test the bases prime(1), prime(2) up to prime(mrLim+1)
                 */
                 for(int p =0 ; p <= mrLim ; p++)
-                        if ( isSPP(n, at(p)) == false )
+                        if (!isSPP(n, at(p)))
                                 return -1;
                 return 1;
         }
@@ -271,7 +270,7 @@ public class Prime
         public static void main(String[] args) throws Exception
         {
                 Prime a = new Prime() ;
-                int n = (new Integer(args[0])).intValue() ;
+                int n = Integer.parseInt(args[0]);
                 if ( n >= 1 )
                 {
                         if ( n >= 2)

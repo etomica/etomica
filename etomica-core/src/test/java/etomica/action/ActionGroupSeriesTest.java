@@ -60,7 +60,7 @@ class ActionGroupSeriesTest {
 
         //test constructor
         sum = 0;
-        ags = new ActionGroupSeries(new IAction[] {a2, a2, a2, a2, a1, a2, a2});
+        ags = new ActionGroupSeries(a2, a2, a2, a2, a1, a2, a2);
         ags.actionPerformed();
         assertEquals(13,sum);
 

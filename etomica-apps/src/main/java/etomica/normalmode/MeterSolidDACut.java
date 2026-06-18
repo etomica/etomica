@@ -11,9 +11,7 @@ import etomica.data.IDataInfo;
 import etomica.data.IDataSource;
 import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataDoubleArray.DataInfoDoubleArray;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.potential.IteratorDirective;
-import etomica.potential.PotentialMaster;
+import etomica.potential.compute.PotentialCompute;
 import etomica.space.Space;
 import etomica.units.dimensions.Null;
 
@@ -28,26 +26,33 @@ import etomica.units.dimensions.Null;
 
 public class MeterSolidDACut implements IDataSource {
 
-    public MeterSolidDACut(Space space, PotentialMaster potentialMaster, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
+    protected final int dim;
+    protected final DataTag tag;
+    protected DataInfoDoubleArray dataInfo;
+    protected DataDoubleArray data;
+    protected final PotentialCompute potentialMaster;
+    protected PotentialCompute potentialMasterDADv2;
+    private final PotentialCalculationSolidSuperCut pc, pcDADv2;
+    protected double temperature;
+    protected double[] latticeEnergy, latticePressure;
+    protected double[] latticeEnergyDADv2, latticePressureDADv2;
+    protected final Box box;
+    protected double[] bpRes, bpResDADv2;
+    protected final CoordinateDefinition coordinteDefinition;
+
+    public MeterSolidDACut(Space space, PotentialCompute potentialMaster, CoordinateDefinition coordinateDefinition, double[] cutoffs) {
         this.coordinteDefinition = coordinateDefinition;
         tag = new DataTag();
         this.potentialMaster = potentialMaster;
-        iteratorDirective = new IteratorDirective();
-        iteratorDirective.includeLrc = false;
         dim = space.D();
         box = coordinateDefinition.getBox();
 
         latticeEnergyDADv2 = latticeEnergy = new double[cutoffs.length];
         latticePressureDADv2 = latticePressure = new double[cutoffs.length];
 
-        if (potentialMaster instanceof PotentialMasterList) {
-            pc = new PotentialCalculationSolidSuperCut(space, coordinateDefinition, cutoffs);
-        }
-        else {
-            pc = new PotentialCalculationSolidSuperCutLS(space, coordinateDefinition, cutoffs);
-        }
+        pc = new PotentialCalculationSolidSuperCut(space, coordinateDefinition, cutoffs);
         pc.zeroSum();
-        potentialMaster.calculate(box, iteratorDirective, pc);
+        potentialMaster.computeAll(false, pc);
         double[] energy = pc.getEnergySum();
         double[] virial = pc.getVirialSum();
         
@@ -71,22 +76,17 @@ public class MeterSolidDACut implements IDataSource {
         dataInfo.addTag(tag);
         data = new DataDoubleArray(n);
 
-        if (potentialMaster instanceof PotentialMasterList) {
-            pcDADv2 = new PotentialCalculationSolidSuperCut(space, coordinateDefinition, cutoffs);
-        }
-        else {
-            pcDADv2 = new PotentialCalculationSolidSuperCutLS(space, coordinateDefinition, cutoffs);
-        }
+        pcDADv2 = new PotentialCalculationSolidSuperCut(space, coordinateDefinition, cutoffs);
     }
 
-    public void setPotentialMasterDADv2(PotentialMaster potentialMasterDADv2, double[] bpResDADv2) {
+    public void setPotentialMasterDADv2(PotentialCompute potentialMasterDADv2, double[] bpResDADv2) {
         this.potentialMasterDADv2 = potentialMasterDADv2;
         this.bpResDADv2 = bpResDADv2;
         latticeEnergyDADv2 = new double[latticeEnergy.length];
         latticePressureDADv2 = new double[latticeEnergy.length];
 
         pcDADv2.zeroSum();
-        potentialMasterDADv2.calculate(box, iteratorDirective, pcDADv2);
+        potentialMasterDADv2.computeAll(false, pcDADv2);
         double[] energy = pcDADv2.getEnergySum();
         double[] virial = pcDADv2.getVirialSum();
         if (false) System.out.print("LJ Lattice energy: ");
@@ -121,7 +121,7 @@ public class MeterSolidDACut implements IDataSource {
         this.bpRes = bpRes;
         bpResDADv2 = bpRes;
     }
-    
+
     /**
      * Computes total pressure in box by summing virial over all pairs, and adding
      * ideal-gas contribution.
@@ -131,7 +131,7 @@ public class MeterSolidDACut implements IDataSource {
         int N = box.getMoleculeList().size();
         double rho = N/V;
     	pc.zeroSum();
-        potentialMaster.calculate(box, iteratorDirective, pc);
+        potentialMaster.computeAll(false, pc);
         double[] p1 = pc.getPressure1();
         double[] virial = pc.getVirialSum();
         double[] energy = pc.getEnergySum();
@@ -144,7 +144,7 @@ public class MeterSolidDACut implements IDataSource {
 
         if (potentialMasterDADv2 != null) {
             pcDADv2.zeroSum();
-            potentialMasterDADv2.calculate(box, iteratorDirective, pcDADv2);
+            potentialMasterDADv2.computeAll(false, pcDADv2);
             p1DADv2 = pcDADv2.getPressure1();
             energyDADv2 = pcDADv2.getEnergySum();
             dadbDADv2 = pcDADv2.getDADBSum();
@@ -182,18 +182,4 @@ public class MeterSolidDACut implements IDataSource {
         return data;
     }
 
-    protected final int dim;
-    protected final DataTag tag;
-    protected DataInfoDoubleArray dataInfo;
-    protected DataDoubleArray data;
-    protected final PotentialMaster potentialMaster;
-    protected PotentialMaster potentialMasterDADv2;
-    private IteratorDirective iteratorDirective;
-    private final PotentialCalculationSolidSuperCut pc, pcDADv2;
-    protected double temperature;
-    protected double[] latticeEnergy, latticePressure;
-    protected double[] latticeEnergyDADv2, latticePressureDADv2;
-    protected final Box box;
-    protected double[] bpRes, bpResDADv2;
-    protected final CoordinateDefinition coordinteDefinition;
 }

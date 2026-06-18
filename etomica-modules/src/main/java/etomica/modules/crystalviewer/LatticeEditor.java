@@ -122,7 +122,7 @@ public class LatticeEditor {
         gl.setHgap(2);
         sizePanel = new JPanel(gl);
         sizePanel.setBorder(new TitledBorder("Cell Dimensions"));
-        DeviceSlider nSlider = new DeviceSlider(null, new NModifier());
+        DeviceSlider nSlider = new DeviceSlider(viewer.sim.getController(), new NModifier());
         nSlider.setPrecision(0);
         nSlider.setMinimum(1);
         nSlider.setMaximum(10);
@@ -172,7 +172,7 @@ public class LatticeEditor {
     	// Unit cell size entry fields
         for(int box = UNIT_CELL_START_INDEX; box <= UNIT_CELL_END_INDEX; box++) {
 
-            DeviceBox newBox = new DeviceBox();
+            DeviceBox newBox = new DeviceBox(viewer.sim.getController());
 
             sizePanel.add(newBox.graphic());
             sizeBoxes = (DeviceBox[])Arrays.addObject(sizeBoxes, newBox);
@@ -187,7 +187,7 @@ public class LatticeEditor {
         // Angle entry fields
     	for(int angle = ANGLE_START_INDEX; angle <= ANGLE_END_INDEX; angle++) {
 
-    		DeviceBox newBox = new DeviceBox();
+    		DeviceBox newBox = new DeviceBox(viewer.sim.getController());
 
             newBox.setUnit(Degree.UNIT);
             anglePanel.add(newBox.graphic());

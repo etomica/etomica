@@ -4,12 +4,11 @@
 
 package etomica.integrator.mcmove;
 
+import etomica.box.Box;
+import etomica.util.random.IRandom;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import etomica.box.Box;
-import etomica.meta.annotations.IgnoreProperty;
-import etomica.util.random.IRandom;
 
 public class MCMoveManager {
 
@@ -49,11 +48,17 @@ public class MCMoveManager {
      * given MCMove is not an MCMoveBox
      */
     public void addMCMove(MCMove move) {
+        addMCMove(move, 1);
+    }
+
+    public void addMCMove(MCMove move, double frequency) {
         //make sure move wasn't added already
         for (int i=0; i<mcMoveList.size(); i++) {
             if (mcMoveList.get(i).move == move) throw new RuntimeException("move already added");
         }
-        mcMoveList.add(new MCMoveLinker(move));
+        MCMoveLinker l = new MCMoveLinker(move);
+        l.frequency = frequency;
+        mcMoveList.add(l);
 
         MCMoveTracker tracker = move.getTracker();
         if (tracker instanceof MCMoveStepTracker && !isEquilibrating) {
@@ -110,6 +115,7 @@ public class MCMoveManager {
      * probability in proportion to the frequency value assigned to the move.
      */
     public MCMove selectMove() {
+//        System.out.println("select move");
         if (mcMoveList.size() == 0) return null;
         int i = random.nextInt(frequencyTotal);
         int pos = 0;
@@ -120,7 +126,6 @@ public class MCMoveManager {
         return selectedLink.move;
     }
 
-    @IgnoreProperty
     public MCMove getSelectedMove() {
         return selectedLink.move;
     }

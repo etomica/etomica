@@ -12,7 +12,7 @@ package etomica.math.function;
  *
  */
 public interface FunctionMultiDimensionalDifferentiable extends FunctionMultiDimensional{
-	
+
     /**
      * Returns the derivative indicated by the array d evaluated at the given point x.  The array d
      * should be the same length as x. Each entry of d specifies the order of the derivative
@@ -20,6 +20,16 @@ public interface FunctionMultiDimensionalDifferentiable extends FunctionMultiDim
      * on a 2-dimensional space, d = {2,0}, indicates d2f/dx[0]^2, while d = {1,1}, indicates
      * d2f/dx[0]dx[1]; d = {2,1} indicates d3f/dx[0]^2dx[1]; etc.
      */
-	public double df(int[] d, double[] x);
-	
+	double df(int[] d, double[] x);
+
+    default double[] gradf(double[] x) {
+        int[] d = new int[x.length];
+        double[] rv = new double[d.length];
+        for (int i=0; i<d.length; i++) {
+            d[i] = 1;
+            rv[i] = df(d, x);
+            d[i] = 0;
+        }
+        return rv;
+    }
 }

@@ -9,6 +9,7 @@ import etomica.data.IData;
 import etomica.data.IDataInfo;
 import etomica.data.types.DataDouble;
 import etomica.integrator.IntegratorBox;
+import etomica.units.dimensions.Energy;
 
 /**
  * DataProcessor that takes in <exp(-beta*deltaU)> and spits out
@@ -26,7 +27,7 @@ public class DataProcessorMu extends DataProcessor {
     }
 
     public IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-        dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), inputDataInfo.getDimension());
+        dataInfo = new DataDouble.DataInfoDouble(inputDataInfo.getLabel(), Energy.DIMENSION);
         dataInfo.addTags(inputDataInfo.getTags());
         dataInfo.addTag(tag);
         if (dataSink != null) dataSink.putDataInfo(dataInfo);

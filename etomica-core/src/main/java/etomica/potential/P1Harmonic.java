@@ -4,10 +4,9 @@
 
 package etomica.potential;
 
-import etomica.atom.IAtomList;
-import etomica.space.Vector;
+import etomica.atom.IAtom;
 import etomica.space.Space;
-import etomica.space.Tensor;
+import etomica.space.Vector;
 import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Energy;
@@ -16,22 +15,20 @@ import etomica.units.dimensions.Length;
 /**
  * Potential in which attaches a harmonic spring between each affected atom and
  * the nearest boundary in each direction.
- *
+ * <p>
  * This class has not been used or checked for correctness.
  *
  * @author David Kofke
  */
- 
-public class P1Harmonic extends Potential1 implements PotentialSoft {
-    
-    private static final long serialVersionUID = 1L;
+
+public class P1Harmonic implements IPotential1 {
+
+    private final Space space;
     private double w = 100.0;
-    private final Vector[] force;
     private final Vector x0;
-    
+
     public P1Harmonic(Space space) {
-        super(space);
-        force = new Vector[]{space.makeVector()};
+        this.space = space;
         x0 = space.makeVector();
     }
     public void setSpringConstant(double springConstant) {
@@ -49,33 +46,26 @@ public class P1Harmonic extends Potential1 implements PotentialSoft {
     public Vector getX0() {
         return x0;
     }
-    
+
     public Dimension getX0Dimension() {
         return Length.DIMENSION;
     }
 
     public Dimension getSpringConstantDimension() {
-        return new CompoundDimension(new Dimension[]{Energy.DIMENSION,Length.DIMENSION},new double[]{1,-2});
+        return new CompoundDimension(new Dimension[]{Energy.DIMENSION, Length.DIMENSION}, new double[]{1, -2});
     }
 
-    public double energy(IAtomList a) {
-        return 0.5*w*a.get(0).getPosition().Mv1Squared(x0);
-    }
-    
-    public double virial(IAtomList a) {
-        return 0.0;
+    public double u(IAtom atom) {
+        return 0.5 * w * atom.getPosition().Mv1Squared(x0);
     }
 
-    public Vector[] gradient(IAtomList a){
-        Vector r = a.get(0).getPosition();
-        force[0].Ev1Mv2(r,x0);
-        force[0].TE(w);
-            
-        return force;
+    public double udu(IAtom atom, Vector f) {
+        Vector dr = space.makeVector();
+        dr.Ev1Mv2(atom.getPosition(), x0);
+        double u = 0.5 * w * dr.squared();
+        f.PEa1Tv1(-w, dr);
+        return u;
     }
-        
-    public Vector[] gradient(IAtomList a, Tensor pressureTensor){
-        return gradient(a);
-    }
+
 }
    

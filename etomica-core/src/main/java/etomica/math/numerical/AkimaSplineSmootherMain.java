@@ -4,15 +4,14 @@
 
 package etomica.math.numerical;
 
+import etomica.util.random.IRandom;
+import etomica.util.random.RandomMersenneTwister;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import etomica.util.random.IRandom;
-import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGeneratorUnix;
 
 /**
  * Main method to drive AkimaSplineSmoother
@@ -116,7 +115,7 @@ public class AkimaSplineSmootherMain {
             System.out.println(usage());
             throw new RuntimeException("d2fac, d2dfac, d3fac or d3dfac must be non-negative.  At least one must be positive.");
         }
-        IRandom rand = new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray());
+        IRandom rand = new RandomMersenneTwister(IRandom.getRandSeedArray());
         double[] x;
         double[] y;
         double[] dy;

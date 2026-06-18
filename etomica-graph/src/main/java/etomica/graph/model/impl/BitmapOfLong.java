@@ -95,7 +95,7 @@ public class BitmapOfLong extends AbstractBitmap {
 
     if (other instanceof BitmapOfLong) {
       long otherBitmap = ((BitmapOfLong) other).bitmap;
-      return bitmap < otherBitmap ? -1 : bitmap == otherBitmap ? 0 : 1;
+      return Long.compare(bitmap, otherBitmap);
     }
     return super.compareTo(other);
   }
@@ -121,7 +121,7 @@ public class BitmapOfLong extends AbstractBitmap {
   @Override
   public int hashCode() {
 
-    return (new Long(bitmap)).hashCode();
+    return (Long.valueOf(bitmap)).hashCode();
   }
 
   /**

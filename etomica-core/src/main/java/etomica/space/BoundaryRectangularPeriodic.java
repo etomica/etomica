@@ -41,14 +41,17 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
         updateDimensions();
     }
 
+    @Override
     public void updateDimensions() {
         super.updateDimensions();
     }
 
+    @Override
     public IndexIteratorSizable getIndexIterator() {
         return new IndexIteratorRectangular(space.D());
     }
 
+    @Override
     public Vector centralImage(Vector r) {
         tempImage.E(r);
         nearestImage(tempImage);
@@ -56,10 +59,12 @@ public class BoundaryRectangularPeriodic extends BoundaryRectangular {
         return tempImage;
     }
 
+    @Override
     public void nearestImage(Vector dr) {
         dr.nearestImage(dimensions);
     }
 
+    @Override
     public boolean getPeriodicity(int d) {
         return true;
     }
