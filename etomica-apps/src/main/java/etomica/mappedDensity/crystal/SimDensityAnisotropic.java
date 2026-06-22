@@ -65,14 +65,14 @@ public class SimDensityAnisotropic extends Simulation {
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this));
         addSpecies(species);
 
+        double L = Math.pow(4.0 / density, 1.0 / 3.0);
+        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
+        boundary = new BoundaryRectangularPeriodic(space, n * L);
         box = this.makeBox(boundary);
         int cellRange = 2;
         potentialMaster = new PotentialMasterList(getSpeciesManager(), box, cellRange, rc, BondingInfo.noBonding());
         potentialMaster.setDoDownNbrs(true);
 
-        double L = Math.pow(4.0 / density, 1.0 / 3.0);
-        int n = (int) Math.round(Math.pow(numAtoms / 4, 1.0 / 3.0));
-        boundary = new BoundaryRectangularPeriodic(space, n * L);
         box.setNMolecules(species, numAtoms);
 
         integrator = new IntegratorMC(potentialMaster, getRandom(), temperature, box);
@@ -125,8 +125,6 @@ public class SimDensityAnisotropic extends Simulation {
             params.rcMax0 = 3;
             params.rc = 3;
             params.rc0 = 3;
-            params.bpharm = new double[]{9.550752087386252e+00,9.554899656911383e+00,9.557975701182272e+00,9.561039289571333e+00,9.561785691168332e+00,9.562084920108349e+00,9.562184015777641e+00,9.562223770855450e+00,9.562237600652669e+00}; //500
-            params.bpharmLJ = new double[]{1.361085875265710e+00,1.362422294066396e+00,1.363399142959180e+00,1.364383687422787e+00,1.364621191334029e+00,1.364711705394565e+00,1.364747826183867e+00,1.364760708535937e+00,1.364768368160011e+00}; //500
             params.ss = false;
         }
         else {
@@ -186,7 +184,7 @@ public class SimDensityAnisotropic extends Simulation {
         AccumulatorAverageFixed accMSD = new AccumulatorAverageFixed(1);
         DataPumpListener pumpmsd = new DataPumpListener(meterMSD, accMSD, interval);
         sim.getIntegrator().getEventManager().addListener(pumpmsd);
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps/10));
 
         double avgMSD = accMSD.getData(accMSD.AVERAGE).getValue(0);
         System.out.println("MSD: "+avgMSD);
@@ -204,6 +202,12 @@ public class SimDensityAnisotropic extends Simulation {
         AccumulatorAverageFixed accCon = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpCon = new DataPumpListener(meterConventional3D, accCon, interval);
         sim.getIntegrator().getEventManager().addListener(pumpCon);
+
+        MeterForceDensityAnisotropic meterConventionalForce3D = new MeterForceDensityAnisotropic(avgMSD, params.rnumberofbins, params.thetaphinumberofbins, sim.box(), sim.coordinateDefinition, sim.potentialMaster);
+
+        AccumulatorAverageFixed accConForce = new AccumulatorAverageFixed(blockSize);
+        DataPumpListener pumpConForce = new DataPumpListener(meterConventionalForce3D, accConForce, interval);
+        sim.getIntegrator().getEventManager().addListener(pumpConForce);
 
         int nX;
         double X2, X3;
@@ -281,6 +285,8 @@ public class SimDensityAnisotropic extends Simulation {
 
         DataDoubleArray data =  (DataDoubleArray)accCon.getData(accCon.AVERAGE);
         DataDoubleArray dataunc =(DataDoubleArray)  accCon.getData(accCon.ERROR);
+        DataDoubleArray dataForce =  (DataDoubleArray)accConForce.getData(accCon.AVERAGE);
+        DataDoubleArray datauncForce =(DataDoubleArray)  accConForce.getData(accCon.ERROR);
         DataDoubleArray dataMappedAvg =(DataDoubleArray)  accMappedAvg.getData(accMappedAvg.AVERAGE);
         DataDoubleArray dataMappedAvgunc = (DataDoubleArray) accMappedAvg.getData(accMappedAvg.ERROR);
         IData pot =   pe.getData(pe.AVERAGE);
@@ -323,12 +329,19 @@ public class SimDensityAnisotropic extends Simulation {
                             break;
                     }
                     int [] rho=new int[] {i,j,k};
-                    if(!Double.isNaN(xHMA)) System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+", "+p+", "+" "+(data.getValue(rho)-p)+", "+dataunc.getValue(rho)+", "+(xHMA-p)+", "+uHMA+"},");
+                    int [] rhoF=new int[] {i,j,k,sim.getSpace().D()};
+                    int [] rhoF2=new int[] {i,j,k,2*sim.getSpace().D()};
+//                    if(!Double.isNaN(xHMA)) System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+", "+p+", "+" "+(data.getValue(rho)-p)+", "+dataunc.getValue(rho)+", "+(xHMA-p)+", "+uHMA+"},");
+                    if(!Double.isNaN(xHMA)) System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+" "+data.getValue(rho)+", "+dataunc.getValue(rho)+", "+dataForce.getValue(rhoF)+", "+datauncForce.getValue(rhoF)+", "+dataForce.getValue(rhoF2)+", "+datauncForce.getValue(rhoF2)+"},");
                 }
             }
         }
 
         System.out.println("time taken: "+(endTime-startTime)/1000./60+" minutes");
+    }
+
+    public IntegratorMC getIntegrator() {
+        return integrator;
     }
 
     public void initialize(long initSteps) {
@@ -339,6 +352,7 @@ public class SimDensityAnisotropic extends Simulation {
 
     private static void makeSimGraphic(SimDensityAnisotropic sim, boolean ss) {
         SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
+        sim.getController().addActivity(new ActivityIntegrate(sim.integrator));
         simGraphic.setPaintInterval(sim.box, 1000);
         ColorScheme colorScheme = new ColorScheme() {
             protected Color[] allColors;
@@ -387,8 +401,6 @@ public class SimDensityAnisotropic extends Simulation {
         public double rc0 = rc;
         public double rcMax1 = 3;
         public double rcMax0 = 3;
-        public double[] bpharm = new double[0];
-        public double[] bpharmLJ = new double[0];
         public boolean ss = false;
         public int[] randomSeeds = null;
     }
