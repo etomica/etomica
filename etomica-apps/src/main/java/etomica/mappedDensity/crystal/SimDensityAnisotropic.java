@@ -203,7 +203,7 @@ public class SimDensityAnisotropic extends Simulation {
         DataPumpListener pumpCon = new DataPumpListener(meterConventional3D, accCon, interval);
         sim.getIntegrator().getEventManager().addListener(pumpCon);
 
-        MeterForceDensityAnisotropic meterConventionalForce3D = new MeterForceDensityAnisotropic(avgMSD, params.rnumberofbins, params.thetaphinumberofbins, sim.box(), sim.coordinateDefinition, sim.potentialMaster);
+        MeterForceDensityAnisotropic meterConventionalForce3D = new MeterForceDensityAnisotropic(avgMSD, temperature, params.rnumberofbins, params.thetaphinumberofbins, sim.box(), sim.coordinateDefinition, sim.potentialMaster);
 
         AccumulatorAverageFixed accConForce = new AccumulatorAverageFixed(blockSize);
         DataPumpListener pumpConForce = new DataPumpListener(meterConventionalForce3D, accConForce, interval);
@@ -332,7 +332,7 @@ public class SimDensityAnisotropic extends Simulation {
                     int [] rhoF=new int[] {i,j,k,sim.getSpace().D()};
                     int [] rhoF2=new int[] {i,j,k,2*sim.getSpace().D()+1};
 //                    if(!Double.isNaN(xHMA)) System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+", "+p+", "+" "+(data.getValue(rho)-p)+", "+dataunc.getValue(rho)+", "+(xHMA-p)+", "+uHMA+"},");
-                    if(!Double.isNaN(xHMA)) System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+" "+data.getValue(rho)+", "+dataunc.getValue(rho)+", "+dataForce.getValue(rhoF)+", "+datauncForce.getValue(rhoF)+", "+dataForce.getValue(rhoF2)+", "+datauncForce.getValue(rhoF2)+"},");
+                    if(!Double.isNaN(xHMA)) System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+", "+data.getValue(rho)+", "+dataunc.getValue(rho)+", "+dataForce.getValue(rhoF)+", "+datauncForce.getValue(rhoF)+", "+dataForce.getValue(rhoF2)+", "+datauncForce.getValue(rhoF2)+"},");
                 }
             }
         }

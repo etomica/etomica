@@ -43,13 +43,13 @@ public class MeterForceDensityAnisotropic implements IDataSource, DataSourceInde
     protected CoordinateDefinition latticesite;
 
     protected final PotentialCompute pc;
-    protected final double sigmaSq;
+    protected final double kspring;
 
-    public MeterForceDensityAnisotropic(double msd, int rnumberofbins, int thetaphinumberofbins, Box box, CoordinateDefinition latticesite, PotentialCompute pc) {
+    public MeterForceDensityAnisotropic(double msd, double temperature, int rnumberofbins, int thetaphinumberofbins, Box box, CoordinateDefinition latticesite, PotentialCompute pc) {
         this.box = box;
         this.rnumberofbins = rnumberofbins;
         this.thetaphinumberofbins = thetaphinumberofbins;
-        sigmaSq = msd/3;
+        kspring = 3 * temperature / msd;
         this.Rmax = Math.sqrt(msd)*4;
         this.latticesite = latticesite;
         this.rivector = box.getSpace().makeVector();
@@ -98,25 +98,6 @@ public class MeterForceDensityAnisotropic implements IDataSource, DataSourceInde
     public DataTag getTag() {
         return tag;
     }
-//sim.coordinateDefinition - latticesites
-    /**
-     * Accessor method for vector describing the direction along which the profile is measured.
-     * Each atom position is dotted along this vector to obtain its profile abscissa value.
-     */
-    /**
-     * Accessor method for vector describing the direction along which the profile is measured.
-     * Each atom position is dotted along this vector to obtain its profile abscissa value.
-     * The given vector is converted to a unit vector, if not already.
-     */
-    //       double pminusLby2= c.df(1, -L/2);
-    //       double zidotminusLby2=-0.0725;
-    //     zidotminusLby2=pz*(cz/q-1/2)/(pminusLby2*temperature);
-    //      if (zi >= z) {zidotminusLby2=-pz*(1-(czplusLby2/q))/(pminusLby2*temperature);} else {zidotminusLby2=pz*((czminusLby2/q))/(pminusLby2*temperature);}
-    //      double heavisidei;
-    //      if (zi >= z) {heavisidei=1;} else {heavisidei=0;}
-    //      return ((pminusLby2*zidotminusLby2/pzi)+(pz*((heavisidei)-(czi/q))/(temperature*pzi)));
-    //    return ((((heavisidei)-(zi/L))/(temperature)));
-
 
     /**
      * Returns the profile for the current configuration.
@@ -142,13 +123,12 @@ public class MeterForceDensityAnisotropic implements IDataSource, DataSourceInde
             int i = (int) (ri/dz);
             int j = (int) ((costhetai+1)/2*thetaphinumberofbins);
             int k = (int) (phii*thetaphinumberofbins/(2*Math.PI));
-            // f harmonic = (r - rlat) / sigmaSq
             for (int a = 0; a<D; a++) {
                 ytemporary[i][j][k][a] += forces[atom.getLeafIndex()].getX(a);
-                ytemporary[i][j][k][D+1+a] += forces[atom.getLeafIndex()].getX(a) + rivector.getX(a)/sigmaSq;
+                ytemporary[i][j][k][D+1+a] += forces[atom.getLeafIndex()].getX(a) + kspring * rivector.getX(a);
             }
             ytemporary[i][j][k][D] += forces[atom.getLeafIndex()].dot(rivector);
-            ytemporary[i][j][k][2*D+1] += forces[atom.getLeafIndex()].dot(rivector) + rivector.squared()/sigmaSq;
+            ytemporary[i][j][k][2*D+1] += forces[atom.getLeafIndex()].dot(rivector) + kspring * rivector.squared();
         }
 
         int n=0;
