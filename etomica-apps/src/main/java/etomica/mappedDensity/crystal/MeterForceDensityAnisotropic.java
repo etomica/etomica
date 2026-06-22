@@ -148,7 +148,7 @@ public class MeterForceDensityAnisotropic implements IDataSource, DataSourceInde
                 ytemporary[i][j][k][D+1+a] += forces[atom.getLeafIndex()].getX(a) + rivector.getX(a)/sigmaSq;
             }
             ytemporary[i][j][k][D] += forces[atom.getLeafIndex()].dot(rivector);
-            ytemporary[i][j][k][2*D] += forces[atom.getLeafIndex()].dot(rivector) + rivector.squared()/sigmaSq;
+            ytemporary[i][j][k][2*D+1] += forces[atom.getLeafIndex()].dot(rivector) + rivector.squared()/sigmaSq;
         }
 
         int n=0;
@@ -158,12 +158,13 @@ public class MeterForceDensityAnisotropic implements IDataSource, DataSourceInde
         for (int i = 0; i < rnumberofbins; i++)   {
             double Rbinstart=i*dz;
             double Rbinend=(i+1)*dz;
+            double dV = ((dphi * dcostheta) * (Rbinend * Rbinend * Rbinend - Rbinstart * Rbinstart * Rbinstart) / 3);
 
             for (int j = 0; j < thetaphinumberofbins; j++) {
 
                 for (int k = 0; k < thetaphinumberofbins; k++) {
                     for (int l = 0; l < 2*(D+1); l++) {
-                        y[n] = ytemporary[i][j][k][l] / numAtoms / ((dphi * dcostheta) * (Rbinend * Rbinend * Rbinend - Rbinstart * Rbinstart * Rbinstart) / 3);
+                        y[n] = ytemporary[i][j][k][l] / numAtoms / dV;
                         n = n + 1;
                     }
                 }

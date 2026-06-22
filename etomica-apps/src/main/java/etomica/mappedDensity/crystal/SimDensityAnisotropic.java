@@ -330,7 +330,7 @@ public class SimDensityAnisotropic extends Simulation {
                     }
                     int [] rho=new int[] {i,j,k};
                     int [] rhoF=new int[] {i,j,k,sim.getSpace().D()};
-                    int [] rhoF2=new int[] {i,j,k,2*sim.getSpace().D()};
+                    int [] rhoF2=new int[] {i,j,k,2*sim.getSpace().D()+1};
 //                    if(!Double.isNaN(xHMA)) System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+", "+p+", "+" "+(data.getValue(rho)-p)+", "+dataunc.getValue(rho)+", "+(xHMA-p)+", "+uHMA+"},");
                     if(!Double.isNaN(xHMA)) System.out.println("{"+rdata.getValue(i)+", "+thetadata.getValue(j)+", "+phidata.getValue(k)+" "+data.getValue(rho)+", "+dataunc.getValue(rho)+", "+dataForce.getValue(rhoF)+", "+datauncForce.getValue(rhoF)+", "+dataForce.getValue(rhoF2)+", "+datauncForce.getValue(rhoF2)+"},");
                 }
