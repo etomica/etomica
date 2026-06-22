@@ -145,7 +145,7 @@ public class MeterForceDensityAnisotropic implements IDataSource, DataSourceInde
             // f harmonic = (r - rlat) / sigmaSq
             for (int a = 0; a<D; a++) {
                 ytemporary[i][j][k][a] += forces[atom.getLeafIndex()].getX(a);
-                ytemporary[i][j][k][D+a] += forces[atom.getLeafIndex()].getX(a) + rivector.getX(a)/sigmaSq;
+                ytemporary[i][j][k][D+1+a] += forces[atom.getLeafIndex()].getX(a) + rivector.getX(a)/sigmaSq;
             }
             ytemporary[i][j][k][D] += forces[atom.getLeafIndex()].dot(rivector);
             ytemporary[i][j][k][2*D] += forces[atom.getLeafIndex()].dot(rivector) + rivector.squared()/sigmaSq;
