@@ -6,10 +6,14 @@ package etomica.virial.mcmove;
 
 import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBoxStep;
+import etomica.molecule.CenterOfMass;
 import etomica.molecule.IMoleculeList;
+import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.space1d.Vector1D;
 import etomica.util.random.IRandom;
 import etomica.virial.BoxCluster;
+import etomica.virial.cluster.ClusterWeightAbs;
 
 
 /**
@@ -68,6 +72,7 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
 
     //note that total energy is calculated
     public boolean doTrial() {
+        if (false) return false;
         uOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 //        if (uOld == 0) {
 //            throw new RuntimeException("oops, initial configuration unhappy");
@@ -89,6 +94,10 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
                 }
                 else {
                     translationVectors[tv].setRandomCube(random);
+//                    translationVectors[tv].setX(1, 0);
+//                    translationVectors[tv].setX(0, 0);
+//                    translationVectors[tv].setX(2, 0);
+
                     translationVectors[tv].TE(stepSize);
                 }
             }
@@ -96,8 +105,12 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
                 atom.getPosition().PE(translationVectors[tv]);
             });
         }
+
         ((BoxCluster)box).trialNotify();
         uNew = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
+        double clusterNew = ((ClusterWeightAbs)((BoxCluster)box).getSampleCluster()).getSubCluster().value((BoxCluster)box);
+//        System.out.println("clusterNew: " + clusterNew + " v: " + moleculeList.get(1).getChildList().get(0).getPosition());
+
         return true;
     }
 	
@@ -113,6 +126,9 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
         if (((BoxCluster)box).getSampleCluster().value((BoxCluster)box) == 0) {
             throw new RuntimeException("oops oops, reverted to illegal configuration");
         }
+
+//
+
     }
 
     public void acceptNotify() {

@@ -129,7 +129,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
             for (int j=i+1; j<pointCount; j++) {
                 if (box.getCPairSet().getr2(i,j)>maxR2) maxR2 = box.getCPairSet().getr2(i,j);
                 if (box.getCPairSet().getr2(i,j) > minR2) {
-                    if (false && box.getCPairSet().getr2(i,j) > 2*minR2) debugme=true;
+//                    if ( box.getCPairSet().getr2(i,j) > 400) debugme=true;
                     flipit=true;
                 }
             }

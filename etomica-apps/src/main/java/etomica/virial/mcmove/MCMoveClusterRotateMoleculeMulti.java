@@ -35,6 +35,8 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
     protected final RotationTensor rotationTensor;
     protected boolean doLattice;
     protected int[] rotationCenters;
+    public int startMolecule;
+    public boolean first = true;
 
     public MCMoveClusterRotateMoleculeMulti(IRandom random, Box box) {
         super();
@@ -83,8 +85,25 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
             r.PE(box.getBoundary().centralImage(r));
         }
     }
-
+//    public int[] nTimespointedX = new int[3];
+//    public int total = 0;
     public boolean doTrial() {
+//        if(!first) {return false;}
+        if (false) return false;
+//        first = false;
+//        total++;
+//        int nX = 0;
+//        if (Math.abs(box.getLeafList().get(4).getPosition().getX(0) - 4)> 0.5) {
+//            nX++;
+//        }
+//        if (Math.abs(box.getLeafList().get(1).getPosition().getX(0))> 0.5) {
+//            nX++;
+//        }
+//        nTimespointedX[nX]++;
+
+//        if (total % 100000 == 0) {
+//            System.out.println(box.getIndex() + " " + ((double)nTimespointedX[0])/total + " " +((double)nTimespointedX[1])/total + " "+ ((double)nTimespointedX[2])/total);
+//        }
         wOld = ((BoxCluster)box).getSampleCluster().value((BoxCluster)box);
 //        if (uOld == 0) {
 //            throw new RuntimeException("oops, illegal initial configuration");
@@ -95,7 +114,7 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
             trialCount = relaxInterval;
         }
         IMoleculeList moleculeList = box.getMoleculeList();
-        for (int i = 0; i<moleculeList.size(); i++) {
+        for (int i = startMolecule; i<moleculeList.size(); i++) {
             IMolecule molecule = moleculeList.get(i);
             if (doLattice) {
                 if (i==0) continue;
@@ -115,10 +134,11 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
                     theta[j] = (2 * random.nextDouble() - 1.0) * stepSize;
                 }
                 rotationAxis[j] = random.nextInt(3);
+//                rotationAxis[j] = 1;
+//                theta[j] = Math.PI;
             }
-
             rotationTensor.setAxial(rotationAxis[j],theta[j]);
-
+//            System.out.println("rotationTensor: " + rotationTensor + "theta: " + theta[j] + "sin (theta):" + Math.sin(theta[j]) + "cos(theta):" + Math.cos(theta[j]));
             doTransform(molecule);
 
             if (doRelax && relaxAction != null) {
@@ -145,7 +165,11 @@ public class MCMoveClusterRotateMoleculeMulti extends MCMoveBoxStep {
     }
 
     public double getChi(double temperature) {
+//        System.out.println(box.getIndex() + " " + wNew +" "+wOld);
+//        if(box.getIndex() == 1) {
+//        System.exit(0);}
         return wNew/wOld;
+//        return 0;
     }
     
     public void acceptNotify() {

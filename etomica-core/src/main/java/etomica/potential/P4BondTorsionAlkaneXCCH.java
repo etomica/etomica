@@ -78,7 +78,7 @@ public class P4BondTorsionAlkaneXCCH implements IPotentialBondTorsion {
     public double u(double cosphi) {
         double cos2phi = 2 * cosphi * cosphi - 1;
         double cos3phi = cosphi * (2 * cos2phi - 1);
-        return a0 + a1 * (1 + cosphi) + a2 * (1 - cos2phi) + a3 * (1 - cos3phi);
+        return a0 + a1 * (1 + cosphi) + a2 * (1 - cos2phi) + a3 * (1 + cos3phi);
         //original:   return a0 + a1*(1+cosphi) + a2*(1-cos2phi) + a3*(1+cos3phi);
 
     }

@@ -4,6 +4,7 @@ package etomica.potential;
 
 import etomica.atom.AtomType;
 import etomica.space.Space;
+import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
 
 /**
@@ -15,11 +16,18 @@ import etomica.species.SpeciesManager;
 public class P2PotentialGroupBuilder {
 
     public static PotentialMoleculePair P2PotentialGroupBuilder(Space space, SpeciesManager sm, ModelParams MP1, ModelParams MP2){
-        boolean debug = false;
+        if(MP2 == null) MP2 = MP1;
 
         PotentialMoleculePair potentialGroup = new PotentialMoleculePair(space, sm);
-        double sigmaHC = 0.1;
-        if(MP2 == null) MP2 = MP1;
+        return buildPotential(potentialGroup, MP1, MP2);
+
+
+    }
+
+    private static PotentialMoleculePair buildPotential(PotentialMoleculePair p, ModelParams MP1, ModelParams MP2){
+        double sigmaHC = 0.3;
+        boolean debug = false;
+
 
         for(int i = 0; i < MP1.atomTypes.length; i++){
             int s = MP1 == MP2 ? i : 0;
@@ -48,7 +56,7 @@ public class P2PotentialGroupBuilder {
                 P2LennardJones p2LJ = null;
                 if(MP1.epsilon[i] != 0 && MP2.epsilon[j] != 0) {
                     p2LJ = new P2LennardJones(sigmaij, epsilonij);
-                    potentialGroup.setAtomPotential(MP1.atomTypes[i], MP2.atomTypes[j], p2LJ);
+                    p.setAtomPotential(MP1.atomTypes[i], MP2.atomTypes[j], p2LJ);
                     if(debug) {System.out.println("Added p2LJ");}
                 }
 
@@ -66,28 +74,31 @@ public class P2PotentialGroupBuilder {
                     }
                     IPotential2 p2 = p2ES;
                     if (p2LJ != null) p2 = new P2SoftSphericalSum(p2LJ, p2ES);
-                    potentialGroup.setAtomPotential(MP1.atomTypes[i], MP2.atomTypes[j], p2);
+                    p.setAtomPotential(MP1.atomTypes[i], MP2.atomTypes[j], p2);
                     if(debug) {System.out.println("p2ES");}
                 }
                 if(debug) {System.out.println();}
             }
         }
-        return potentialGroup;
+        return p;
     }
 
     public static class ModelParams {
 
-        protected AtomType[] atomTypes;
-        protected double[] sigma;
-        protected double[] epsilon;
-        protected double[] charge;
+        protected final AtomType[] atomTypes;
+        protected final double[] sigma;
+        protected final double[] epsilon;
+        protected final double[] charge;
+        protected final ISpecies species;
 
-        public ModelParams(AtomType[] atomTypes, double[] sigma, double[] epsilon, double[] charge){
+        public ModelParams(AtomType[] atomTypes, double[] sigma, double[] epsilon, double[] charge, ISpecies species){
             this.atomTypes = atomTypes;
             this.sigma = sigma;
             this.epsilon = epsilon;
             this.charge = charge;
+            this.species = species;
         }
+
     }
 
 }

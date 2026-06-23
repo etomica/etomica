@@ -52,7 +52,7 @@ public class GraphMap {
 
   private static final int defaultBorder = 10;
   private int defaultGutter = 10;
-  private int clusterDim = 80;
+  private int clusterDim = 200;
   private int clusterDimOut = clusterDim + 2 * defaultGutter;
   private boolean doIncludeCoefficients = false;
 
