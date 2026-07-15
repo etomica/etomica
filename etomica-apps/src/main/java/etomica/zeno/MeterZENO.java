@@ -4,6 +4,7 @@
 package etomica.zeno;
 
 import etomica.action.IAction;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -28,6 +29,7 @@ public class MeterZENO implements IAction {
     protected Tensor VMinus;
     protected long hits;
     protected long totalWalks;
+    protected final double atomRadius = 0.5;
 
     public MeterZENO(Box box, IRandom random, double[] sigmaByType) {
         this.box = box;
@@ -103,10 +105,31 @@ public class MeterZENO implements IAction {
         double meanPolarizability = polarizabililtyTensor.trace() / 3.0;
         System.out.println("mean polarizability: " + meanPolarizability);
         double intrinsicViscosityConventional = q_eta * meanPolarizability / this.box.getLeafList().size();
-        double volume = 4.1887902047863905 * Math.pow(0.5, 3.0) * this.box.getLeafList().size();
+        // ZENO volume computed from interior walker
+        double volume = computeVolume();
         double intrinsicConductivity = meanPolarizability / volume;
+        // std product uncertainty
         double intrinsicViscosity = q_eta * intrinsicConductivity;
         return intrinsicViscosity;
+    }
+
+    // returns volume occupied by atoms
+    public double computeVolume() {
+        double excludedVolume = 0;
+        for (IAtom a : box.getLeafList()) {
+            double rad1 = atomRadius;
+            for (int j = a.getLeafIndex()+1; j<box.getLeafList().size(); j++) {
+                double r2 = a.getPosition().Mv1Squared(box.getLeafList().get(j).getPosition());
+                double rad2 = atomRadius;
+                double sigma = rad1+rad2;
+                double sigma2 = sigma*sigma;
+                if (r2 > sigma2) continue;
+                double d = Math.sqrt(r2);
+                excludedVolume += Math.PI/(12*d) * Math.pow(sigma - d, 2) * (d*d + 2*d*sigma - 3*Math.pow(rad1-rad2, 2));
+            }
+        }
+        double nominalVolume = 4.0/3.0 * Math.PI * Math.pow(atomRadius, 3) * box.getLeafList().size();
+        return nominalVolume - excludedVolume;
     }
 
     public double getHydrodynamicRadius() {
