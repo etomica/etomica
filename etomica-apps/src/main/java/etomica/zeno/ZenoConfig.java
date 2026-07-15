@@ -4,7 +4,6 @@
 package etomica.zeno;
 
 import etomica.atom.AtomType;
-import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
@@ -47,16 +46,9 @@ public class ZenoConfig {
         sim.box().setNMolecules(species, 1);
         new ConfigurationFile(params.confFile).initializeCoordinates(sim.box());
 
-        double r2Max = 0;
-
-        for(IAtom a : sim.box().getLeafList()) {
-            r2Max = Math.max(r2Max, a.getPosition().squared());
-        }
-
-        double boundingSphereRadius = (Math.sqrt(r2Max) + (double)0.5F) * 1.00001;
 //        boundingSphereRadius = 36.660339;
         double[] sigma = new double[]{1};
-        MeterZENO meterIntrinsicViscosity = new MeterZENO(sim.box(), sim.getRandom(), boundingSphereRadius, sigma);
+        MeterZENO meterIntrinsicViscosity = new MeterZENO(sim.box(), sim.getRandom(), sigma);
         meterIntrinsicViscosity.setNumWalks(1000000L);
         meterIntrinsicViscosity.actionPerformed();
         double viscosity = meterIntrinsicViscosity.getIntrinsicViscosity();

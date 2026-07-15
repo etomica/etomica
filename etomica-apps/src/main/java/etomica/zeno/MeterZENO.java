@@ -29,13 +29,14 @@ public class MeterZENO implements IAction {
     protected long hits;
     protected long totalWalks;
 
-    public MeterZENO(Box box, IRandom random, double boundingSphereRadius, double[] sigmaByType) {
+    public MeterZENO(Box box, IRandom random, double[] sigmaByType) {
         this.box = box;
         this.random = random;
-        this.boundingSphereRadius = boundingSphereRadius;
-        this.shellThickness = 0.000037;
-//        boundingSphereCenter = Vector.of(-5.397237 , -0.857112 , -13.018178);
-        boundingSphereCenter = new Vector3D();
+        BoundingSphereGenerator.BoundingSphere bs  = BoundingSphereGenerator.getBoundingSphere(box);
+        boundingSphereCenter = bs.center;
+        this.boundingSphereRadius = bs.radius;
+        this.shellThickness = 0.000001 * bs.radius;
+
         this.walker = new WalkerExterior(box, sigmaByType, random, boundingSphereRadius, boundingSphereCenter, this.shellThickness);
         this.KPlus = new Vector3D();
         this.KMinus = new Vector3D();
