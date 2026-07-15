@@ -101,6 +101,7 @@ public class MeterZENO implements IAction {
         Tensor polarizabililtyTensor = this.computePolarizability();
         System.out.println("polarizability tensor\n" + polarizabililtyTensor);
         double q_eta = this.computePadeApproximant(polarizabililtyTensor);
+        // ZENO assumes that error in q_eta is q_eta * 0.015
         System.out.println("q_eta: " + q_eta);
         double meanPolarizability = polarizabililtyTensor.trace() / 3.0;
         System.out.println("mean polarizability: " + meanPolarizability);
@@ -125,6 +126,8 @@ public class MeterZENO implements IAction {
                 double sigma2 = sigma*sigma;
                 if (r2 > sigma2) continue;
                 double d = Math.sqrt(r2);
+                // Google says so
+                // https://mathematica.stackexchange.com/questions/73282/how-i-calculate-the-volume-of-multiple-intersecting-spheres
                 excludedVolume += Math.PI/(12*d) * Math.pow(sigma - d, 2) * (d*d + 2*d*sigma - 3*Math.pow(rad1-rad2, 2));
             }
         }
@@ -133,32 +136,29 @@ public class MeterZENO implements IAction {
     }
 
     public double getHydrodynamicRadius() {
-        double t = (double)this.hits / (double)this.totalWalks;
+        double t = hits / (double)this.totalWalks;
         return t * this.boundingSphereRadius;
     }
 
     public Tensor computePolarizability() {
-        double t = (double)this.hits / (double)this.totalWalks;
-        System.out.println("t "+t);
+        double t = hits / (double)this.totalWalks;
         Vector u = new Vector3D();
-        u.Ev1Mv2(this.KPlus, this.KMinus);
-        u.TE(1.0 / this.totalWalks);
-        System.out.println("u "+u);
+        u.Ev1Mv2(KPlus, KMinus);
+        u.TE(1.0 / totalWalks);
         Tensor v = new Tensor3D();
-        v.E(this.VPlus);
-        v.PE(this.VMinus);
-        v.TE(1.0 / this.totalWalks);
-        System.out.println("v\n"+v);
+        v.E(VPlus);
+        v.PE(VMinus);
+        v.TE(1.0 / totalWalks);
         Tensor w = new Tensor3D();
-        w.E(this.VPlus);
-        w.ME(this.VMinus);
-        w.TE(1.0 / this.totalWalks);
-        System.out.println("w\n"+w);
+        w.E(VPlus);
+        w.ME(VMinus);
+        w.TE(1.0 / totalWalks);
         Tensor polarizabilityTensor = new Tensor3D();
 
         for(int row = 0; row < 3; ++row) {
             for(int col = 0; col < 3; ++col) {
-                double element = 37.69911184307752 * this.boundingSphereRadius * this.boundingSphereRadius * (w.component(row, col) - u.getX(row) * v.component(row, col) / t);
+                double element = 12 * Math.PI * boundingSphereRadius * boundingSphereRadius *
+                        (w.component(row, col) - u.getX(row) * v.component(row, col) / t);
                 polarizabilityTensor.setComponent(row, col, element);
             }
         }
@@ -168,7 +168,7 @@ public class MeterZENO implements IAction {
         pt.transpose();
         polarizabilityTensor.PE(pt);
         polarizabilityTensor.TE(0.5);
-        double l = 1.0;
+        double l = 1.0; // length scale number
         polarizabilityTensor.TE(Math.pow(l, 3.0));
         return polarizabilityTensor;
     }
