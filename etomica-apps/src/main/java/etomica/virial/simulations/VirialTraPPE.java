@@ -70,13 +70,13 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.ethaneEH, ChemForm.ethane};
-            params.nPoints = 3; //B order
-            params.temperature = 1000;
-            params.diagram = "5c";
+            params.chemForm = new ChemForm[]{ChemForm.NH3};
+            params.nPoints = 2; //B order
+            params.temperature = 210;
+            params.diagram = "BC";
             params.numSteps = 10000000;
             params.refFrac = -1;
-            params.types = new int[]{1, 1, 0};
+//            params.types = new int[]{1, 1, 0};
 //            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
             params.dorefpref = false;
             params.doChainRef = true;
@@ -404,14 +404,15 @@ public class VirialTraPPE {
 
         if(anyPolar && !anyFlex && nPoints==2) {
             // Setting up Flipping rigid, polar
-            System.out.println("Performing Flipping");
+            int minFlipDistance = 3;
+            System.out.println("Performing Flipping at "+ minFlipDistance +"A");
             ((ClusterWheatleySoftDerivatives) targetClusterRigid).setTolerance(0);
             final int precision = -3*(int)Math.log10(BDtol);
             targetClusterBDRigid = new ClusterWheatleySoftDerivativesBD(nPoints,fTarget,precision,nDer);
             targetClusterBDRigid.setTemperature(temperature);
             ((ClusterWheatleySoftDerivatives) targetClusterRigid).setDoCaching(false);
             targetClusterBDRigid.setDoCaching(false);
-            targetClusterRigid = new ClusterCoupledFlippedMultivalue(targetClusterRigid, targetClusterBDRigid, space, 3, nDer, BDtol);
+            targetClusterRigid = new ClusterCoupledFlippedMultivalue(targetClusterRigid, targetClusterBDRigid, space, minFlipDistance, nDer, BDtol);
         }
         else if (anyFlex && nPoints==2 && anyPolar){
             //flipping for flexible polar B2
@@ -453,7 +454,9 @@ public class VirialTraPPE {
 
             }
             if (targetClusterRigid instanceof ClusterCoupledFlippedMultivalue) {
-                ((ClusterCoupledFlippedMultivalue) targetClusterRigid).setBDAccFrac(BDAccFrac, sim.getRandom());
+                ((ClusterCoupledFlippedMultivalue) targetClusterRigid).setBDAccFrac(BDAccFrac);
+                ((ClusterCoupledFlippedMultivalue) targetClusterRigid).setRandom(sim.getRandom());
+
                 ((ClusterCoupledFlippedMultivalue) targetClusterRigid).FlipAccFrac = 1;
 
             } else {
