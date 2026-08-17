@@ -68,14 +68,17 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
     }
 
     public ClusterAbstract makeCopy() {
+        ClusterCoupledFlippedMultivalue c = null;
         if (wrappedClusterBD==null){
-            return new ClusterCoupledFlippedMultivalue((ClusterAbstractMultivalue)wrappedCluster.makeCopy(),null, space, minFlipDistance, nDer, tol);
+            c =  new ClusterCoupledFlippedMultivalue((ClusterAbstractMultivalue)wrappedCluster.makeCopy(),null, space, minFlipDistance, nDer, tol);
         }
         else {
-            return new ClusterCoupledFlippedMultivalue((ClusterAbstractMultivalue) wrappedCluster.makeCopy(), (ClusterAbstractMultivalue) wrappedClusterBD.makeCopy(), space, minFlipDistance, nDer, tol);
+            c =  new ClusterCoupledFlippedMultivalue((ClusterAbstractMultivalue) wrappedCluster.makeCopy(), (ClusterAbstractMultivalue) wrappedClusterBD.makeCopy(), space, minFlipDistance, nDer, tol);
         }
+        c.setRandom(random);
+        return c;
     }
-
+    public void setRandom(IRandom rng){random = rng;}
     public int pointCount() {
         return wrappedCluster.pointCount();
     }
@@ -84,7 +87,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         return wrappedCluster;
     }
 
-    public void setBDAccFrac(double p, IRandom rng ){ BDAccFrac = p; random = rng;}
+    public void setBDAccFrac(double p ){ BDAccFrac = p;}
 
     public boolean valueIsBD() {
         return valueBD;
@@ -129,7 +132,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
             for (int j=i+1; j<pointCount; j++) {
                 if (box.getCPairSet().getr2(i,j)>maxR2) maxR2 = box.getCPairSet().getr2(i,j);
                 if (box.getCPairSet().getr2(i,j) > minR2) {
-                    if (false && box.getCPairSet().getr2(i,j) > 2*minR2) debugme=true;
+//                    if ( box.getCPairSet().getr2(i,j) > 400) debugme=true;
                     flipit=true;
                 }
             }
@@ -151,8 +154,8 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
 
         double[] varr = new double[(1<<n)+1];
         varr[1] = Double.NaN;
-        boolean doBD = random == null|| random.nextDouble()<BDAccFrac;
-        boolean doFLip = random == null || random.nextDouble()<FlipAccFrac;
+        boolean doBD =  random.nextDouble()<BDAccFrac;
+        boolean doFLip = random.nextDouble()<FlipAccFrac;
 
         if ( flipit && !doFLip){
             value[0]=0;
@@ -279,6 +282,7 @@ public class ClusterCoupledFlippedMultivalue implements ClusterAbstractMultivalu
         for (int m = 0; m < value.length; m++) {
             value[m] /= a;
         }
+        if(debugme) System.out.println(value[0]);
         return value[0];
     }
 

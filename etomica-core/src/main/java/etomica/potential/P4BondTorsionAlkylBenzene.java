@@ -1,0 +1,231 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+package etomica.potential;
+
+import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
+import etomica.atom.IAtom;
+import etomica.atom.IAtomList;
+import etomica.box.Box;
+import etomica.box.RandomPositionSourceRectangular;
+import etomica.space.Boundary;
+import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.space3d.Space3D;
+import etomica.util.random.IRandom;
+import etomica.util.random.RandomNumberGenerator;
+
+/**
+ * Torsion potential.
+ * Jorgensen, W. L., Madura, J. D. and Swenson, C. J.
+ * J. Am. chem. Soc., 106, 6638-6646 (1984)
+ *
+ * @author Andrew Schultz
+ */
+public class P4BondTorsionAlkylBenzene implements IPotentialBondTorsion {
+
+    private final double e0;
+    private final double acos;
+    private final double asin;
+
+    public P4BondTorsionAlkylBenzene(Space space, double e0, double e1) {
+        dr21 = space.makeVector();
+        dr23 = space.makeVector();
+        dr34 = space.makeVector();
+        this.e0 = e0;
+        this.acos = Math.cos(e1/2);
+        this.asin = Math.sin(e1/2);
+        v1 = space.makeVector();
+        v2 = space.makeVector();
+        gtmp = space.makeVector();
+
+        gradient = new Vector[4];
+        for (int i=0; i<4; i++) {
+            gradient[i] = space.makeVector();
+        }
+    }
+
+    public double energy(IAtomList atomSet) {
+        IAtom atom0 = atomSet.get(0);
+        IAtom atom1 = atomSet.get(1);
+        IAtom atom2 = atomSet.get(2);
+        IAtom atom3 = atomSet.get(3);
+        dr21.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
+        dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+        dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
+        
+        boundary.nearestImage(dr21);
+        boundary.nearestImage(dr23);
+        boundary.nearestImage(dr34);
+
+        double dr23Sq = dr23.squared();
+        dr21.PEa1Tv1(-dr21.dot(dr23) / dr23Sq, dr23);
+        dr34.PEa1Tv1(-dr34.dot(dr23) / dr23Sq, dr23);
+
+        double cosphi = dr21.dot(dr34) / Math.sqrt(dr21.squared() * dr34.squared());
+        return u(cosphi);
+    }
+
+    @Override
+    public double u(double costheta) {
+        double cosSQtheta = costheta * costheta;
+        double sum = costheta*acos - Math.sqrt(1-(cosSQtheta))*asin;
+        return 2*e0*(1 - (sum)*sum);
+    }
+
+    public double getRange() {
+        return Double.POSITIVE_INFINITY;
+    }
+
+    public Vector[] gradient(IAtomList atoms) {
+        IAtom atom0 = atoms.get(0);
+        IAtom atom1 = atoms.get(1);
+        IAtom atom2 = atoms.get(2);
+        IAtom atom3 = atoms.get(3);
+        dr21.Ev1Mv2(atom0.getPosition(), atom1.getPosition());
+        dr23.Ev1Mv2(atom2.getPosition(), atom1.getPosition());
+        dr34.Ev1Mv2(atom3.getPosition(), atom2.getPosition());
+        
+        boundary.nearestImage(dr21);
+        boundary.nearestImage(dr23);
+        boundary.nearestImage(dr34);
+        
+        double dr23Sq = dr23.squared();
+        double dr23dotdr21odr23Sq = dr23.dot(dr21)/dr23Sq;
+        double dr23dotdr34odr23Sq = dr23.dot(dr34)/dr23Sq;
+        
+        v1.E(dr21);
+        v1.PEa1Tv1(-dr21.dot(dr23)/dr23Sq, dr23);
+        v2.E(dr34);
+        v2.PEa1Tv1(-dr23dotdr34odr23Sq, dr23);
+
+        double v1Sq = v1.squared();
+        double v2Sq = v2.squared();
+        double v1dotv2 = v1.dot(v2);
+        double v1v2 = Math.sqrt(v1Sq*v2Sq);
+        if (v1v2/dr23Sq < 1e-7) {
+            // either 123 or 234 are nearly colinear; evaluating gradient is
+            // hard.  let's go shopping
+            gradient[0].E(0);
+            gradient[1].E(0);
+            gradient[2].E(0);
+            gradient[3].E(0);
+            return gradient;
+        }
+        double v1v2_3 = v1v2*v1v2*v1v2;
+        
+        double cosphi = v1dotv2 / v1v2;
+
+        double dUdcosphi = dUdcosphi(cosphi);
+
+        gradient[0].Ea1Tv1(1.0 / v1v2, v2);
+        gradient[0].PEa1Tv1(-v1dotv2 * v2Sq / v1v2_3, v1);
+        gradient[0].TE(dUdcosphi);
+
+        // d(v1dotv2)/dr1
+        gtmp.Ev1Pv2(dr21, dr23);
+        gtmp.TE(dr23dotdr34odr23Sq);
+        gtmp.ME(dr34);
+        gtmp.PEa1Tv1(dr23dotdr21odr23Sq, dr34);
+        gtmp.PEa1Tv1(-2 * dr23dotdr21odr23Sq * dr23dotdr34odr23Sq, dr23);
+        gtmp.TE(1.0 / v1v2);
+        gradient[1].E(gtmp);
+
+        // d(v1^2)/dr1
+        gtmp.Ev1Pv2(dr21, dr23);
+        gtmp.TE(2.0 * dr21.dot(dr23) / dr23Sq);
+        gtmp.PEa1Tv1(-2.0, dr21);
+        gtmp.PEa1Tv1(-2.0 * dr23dotdr21odr23Sq * dr23dotdr21odr23Sq, dr23);
+        gtmp.TE(-0.5 * v1dotv2 * v2Sq / v1v2_3);
+        gradient[1].PE(gtmp);
+
+        // d(v2^2)/dr1
+        gtmp.Ea1Tv1(2*dr23dotdr34odr23Sq, dr34);
+        gtmp.PEa1Tv1(-2*dr23dotdr34odr23Sq*dr23dotdr34odr23Sq, dr23);
+        gtmp.TE(-0.5*v1dotv2*v1Sq/v1v2_3);
+        gradient[1].PE(gtmp);
+        gradient[1].TE(dUdcosphi);
+
+        gradient[3].Ea1Tv1(1.0/v1v2, v1);
+        gradient[3].PEa1Tv1(-v1dotv2*v1Sq/v1v2_3, v2);
+        gradient[3].TE(dUdcosphi);
+
+        gradient[2].Ea1Tv1(-1, gradient[0]);
+        gradient[2].PEa1Tv1(-1, gradient[1]);
+        gradient[2].PEa1Tv1(-1, gradient[3]);
+
+        return gradient;
+    }
+
+    public double dUdcosphi(double cosphi) {
+        double[] u = {0}, du = {0};
+        udu(cosphi, u, du);
+        return du[0];
+    }
+
+    @Override
+    public void udu(double costheta, double[] u, double[] du) {
+        costheta = Math.min(Math.max(costheta, -1), 1);
+        double cosSQtheta = costheta * costheta;
+        double sum = costheta*acos - Math.sqrt(1-(cosSQtheta))*asin;
+
+        // a0 + a1*(1+cos(phi)) + a2*(1-cos2phi) + a3*(1+cos3phi)
+        u[0] = 2*e0*(1 - (sum)*sum);
+        if(Double.isNaN(u[0])){
+            throw new RuntimeException();
+        }
+//        du[0] = 12 * a3 * cosSQtheta - 4 * a2 * costheta + a1 - 3 * a3;
+    }
+
+    protected final Vector dr21, dr23, dr34;
+    protected final Vector v1, v2;
+    protected final Vector gtmp;
+    protected Boundary boundary;
+    protected final Vector[] gradient;
+    
+    public static void main(String[] args) {
+        Space space = Space3D.getInstance();
+        P4BondTorsionAlkylBenzene potential = new P4BondTorsionAlkylBenzene(space, 10, 10);
+        IRandom random = new RandomNumberGenerator();
+        Box box = new Box(new BoundaryRectangularNonperiodic(space), space);
+        RandomPositionSourceRectangular positionSource = new RandomPositionSourceRectangular(space, random);
+        positionSource.setBox(box);
+        Atom atom0 = new Atom(space);
+        Atom atom1 = new Atom(space);
+        Atom atom2 = new Atom(space);
+        Atom atom3 = new Atom(space);
+        AtomArrayList atoms = new AtomArrayList(4);
+        atoms.add(atom0);
+        atoms.add(atom1);
+        atoms.add(atom2);
+        atoms.add(atom3);
+        int n = 40;
+        Vector gradient = space.makeVector();
+        Vector dr = space.makeVector();
+        for (int i=0; i<n; i++) {
+            atom0.getPosition().E(positionSource.randomPosition());
+            atom1.getPosition().E(positionSource.randomPosition());
+            atom2.getPosition().E(positionSource.randomPosition());
+            atom3.getPosition().E(positionSource.randomPosition());
+            
+            double U = potential.energy(atoms);
+
+            int iRand = random.nextInt(4);
+            IAtom atom = atoms.get(iRand);
+            gradient.E(potential.gradient(atoms)[iRand]);
+            
+            dr.setRandomSphere(random);
+            dr.TE(0.0001);
+            double expectedDeltaU = gradient.dot(dr);
+            
+            atom.getPosition().PE(dr);
+            
+            double newU = potential.energy(atoms);
+            
+            System.out.println(expectedDeltaU+" "+(newU-U)+" "+(expectedDeltaU-newU+U));
+        }
+    }
+}

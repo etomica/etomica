@@ -14,7 +14,7 @@ import etomica.util.random.IRandom;
 
 /**
  * Implements Langevin dynamics using the BAOAB algorithm.
- * originally developed by Leimkuhler and Matthews, Appl. Math. Res. eXpress 2013, 34–56 (2013)
+ * originally developed by Leimkuhler and Matthews, Appl. Math. Res. eXpress 2013, 34-56 (2013)
  * and Leimkuhler and Matthews, J. Chem. Phys. 138, 174102 (2013)
  *
  * code adapted from https://github.com/Allen-Tildesley/examples/blob/master/bd_nvt_lj.f90

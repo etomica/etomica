@@ -153,7 +153,7 @@ public class VirialH2OGCPMD {
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, speciesWater, nPoints, temperature, refCluster, targetCluster);
         if(seed!=null)sim.setRandom(new RandomMersenneTwister(seed));
         if(targetCluster instanceof ClusterCoupledFlippedMultivalue) {
-            ((ClusterCoupledFlippedMultivalue) targetCluster).setBDAccFrac(BDAccFrac,sim.getRandom());
+            ((ClusterCoupledFlippedMultivalue) targetCluster).setBDAccFrac(BDAccFrac);
         }
         sim.setExtraTargetClusters(primes);
 
