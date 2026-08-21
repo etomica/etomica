@@ -972,11 +972,13 @@ public class VirialjackCell {
             //new
             if(params.sigmaHSRef <= 0){
                 double[] xVals = histogram.xValues();
-                double cumulative = 0;
+                double width=histogram.getDeltaX();
+
+                double cumulativeArea  = 0;
                 double percentile70 = xVals[xVals.length-1];
                 for(int i=0;i<h.length;i++){
-                    cumulative += h[i];
-                    if(cumulative >= 0.70){
+                    cumulativeArea += width*h[i];
+                    if(cumulativeArea >= 0.70){
                         percentile70 = xVals[i];
                         break;
                     }
