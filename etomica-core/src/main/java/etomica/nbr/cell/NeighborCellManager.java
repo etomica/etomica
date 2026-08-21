@@ -109,8 +109,8 @@ public class NeighborCellManager implements NeighborManagerCell {
 
     @Override
     public NeighborIterator makeNeighborIterator() {
-       // return new NeighborIteratorCell(this, bondingInfo, isPureAtoms, box);
-        return new NeighborIteratorCellFaster(this,box);
+       return new NeighborIteratorCell(this, bondingInfo, isPureAtoms, box);
+
     }
 
     protected void addBoxListener() {

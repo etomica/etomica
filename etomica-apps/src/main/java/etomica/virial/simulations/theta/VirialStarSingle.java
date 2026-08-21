@@ -15,6 +15,11 @@ import etomica.data.AccumulatorAverageFixed;
 import etomica.data.DataPumpListener;
 import etomica.data.DataSourceCountSteps;
 import etomica.data.meter.MeterRadiusGyration;
+import etomica.data.IData;
+
+
+import etomica.data.meter.MeterRadiusGyrationComponents;
+import etomica.data.types.DataVector;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
@@ -39,6 +44,7 @@ import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.virial.mcmove.MCMoveClusterAngle;
+import etomica.virial.mcmove.MCMoveClusterAngleMulti;
 import etomica.virial.mcmove.MCMoveClusterStretch;
 import etomica.virial.simulations.theta.MCMoveClusterShuffle;
 
@@ -57,11 +63,11 @@ public class VirialStarSingle {
        if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.armLength = 32;
-            params.numArms = 20;
+            params.armLength = 4;
+            params.numArms = 4;
             params.temperature = 1.5;
             params.numSteps = 10000;
-            params.coreSigma = 2.0;  //new
+            params.coreSigma = 1.0;  //new
             params.epsCore = 1.0;// new
             params.ideal = false;
         }
@@ -189,11 +195,41 @@ public class VirialStarSingle {
 
         //MCMoveClusterAngle angleMove = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
         //new
-        MCMoveClusterAngle angleMove = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1,
-                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength)); angleMove.setBox(sim.box());
-        integrator.getMoveManager().addMCMove(angleMove);
+        MCMoveClusterAngle angleMoveInner=null;
+        if (armLength>2){
+             angleMoveInner = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1,
+                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength,2, (armLength+1)/2));
+        angleMoveInner.setBox(sim.box());
+        integrator.getMoveManager().addMCMove(angleMoveInner,0.1);}
+        MCMoveClusterAngle angleMoveOuter=new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1,
+                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, (armLength+1) / 2 + 1, armLength));
 
-        MCMoveClusterShuffle shuffleMove = null;
+        angleMoveOuter.setBox(sim.box());
+        angleMoveOuter.setFixedCOM(false);
+        integrator.getMoveManager().addMCMove(angleMoveOuter, 0.1);
+        MCMoveClusterAngleMulti angleMoveMultiInner=null;
+        if (armLength>2) {
+            angleMoveMultiInner = new MCMoveClusterAngleMulti(pc, space, bonding, sim.getRandom(), 1,
+                    new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, (armLength+1) / 2), 5);
+
+            angleMoveMultiInner.setBox(sim.box());
+
+            angleMoveMultiInner.setFixedCOM(false);
+
+            integrator.getMoveManager().addMCMove(angleMoveMultiInner, 0.4);
+        }
+
+        MCMoveClusterAngleMulti angleMoveMultiOuter = new MCMoveClusterAngleMulti(pc, space, bonding, sim.getRandom(), 1,
+                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, (armLength+1) / 2 + 1, armLength), 10);
+        angleMoveMultiOuter.setBox(sim.box());
+
+        angleMoveMultiOuter.setFixedCOM(false);
+
+        integrator.getMoveManager().addMCMove(angleMoveMultiOuter, 0.4);
+
+
+
+        /*MCMoveClusterShuffle shuffleMove = null;
         if (armLength > 6 ) {
             shuffleMove = new MCMoveClusterShuffle(pc, space, sim.getRandom());
             shuffleMove.setExcludedAtom(0);
@@ -203,7 +239,7 @@ public class VirialStarSingle {
             integrator.getMoveManager().addMCMove(shuffleMove);
             ((MCMoveStepTracker) shuffleMove.getTracker()).setAcceptanceTarget(0.3);
 
-        }
+        }*/
 
 
         if (false) {
@@ -288,14 +324,26 @@ public class VirialStarSingle {
 
         long t2 = System.nanoTime();
         System.out.println("equilibration finished: "+(t2-t1)/1e9);
-        System.out.println("Angle move step size    " + angleMove.getStepSize());
-        if (shuffleMove!=null) System.out.println("Shuffle move step size    "+shuffleMove.getStepSize());
+        if(angleMoveInner!=null) System.out.println("Angle move step size Inner   " + angleMoveInner.getStepSize());
+        System.out.println("Angle move step size  Outer  " + angleMoveOuter.getStepSize());
+        if(angleMoveMultiInner!=null) System.out.println("Angle move step size MultiInner   " + angleMoveMultiInner.getStepSize());
+        System.out.println("Angle move step size MultiOuter   " + angleMoveMultiOuter.getStepSize());
+       // if (shuffleMove!=null) System.out.println("Shuffle move step size    "+shuffleMove.getStepSize());
 
         integrator.getMoveManager().setEquilibrating(false);
         MeterRadiusGyration meterRg = new MeterRadiusGyration(sim.box());
+        MeterRadiusGyrationComponents componentsRg= new MeterRadiusGyrationComponents(sim.box());
         AccumulatorAverageFixed accRg = new AccumulatorAverageFixed(steps/1000);
+        AccumulatorAverageFixed accComponents = new AccumulatorAverageFixed(steps/1000);
         DataPumpListener pumpRg = new DataPumpListener(meterRg, accRg, 10);
+        DataPumpListener pumpcomponentsRg = new DataPumpListener(componentsRg,accComponents,10);
+
+        MeterArmProfile meterProfile = new MeterArmProfile(sim.box(), numArms, armLength);
+        AccumulatorAverageFixed accProfile = new AccumulatorAverageFixed(steps / 1000);
+        DataPumpListener pumpProfile = new DataPumpListener(meterProfile, accProfile, 10);
+        integrator.getEventManager().addListener(pumpProfile);
         integrator.getEventManager().addListener(pumpRg);
+        integrator.getEventManager().addListener(pumpcomponentsRg);
         XYZWriter xyzWriter = new XYZWriter(sim.box());
         xyzWriter.setFileName("star.xyz");
         xyzWriter.setIsAppend(true);
@@ -305,17 +353,57 @@ public class VirialStarSingle {
 
         System.out.println();
 
-        System.out.println("Angle move acceptance " + angleMove.getTracker().acceptanceProbability());
-        if (shuffleMove!=null) System.out.println("Shuffle move acceptance " + shuffleMove.getTracker().acceptanceProbability());
+        if(angleMoveInner!=null) System.out.println("Angle move acceptance Inner   " + angleMoveInner.getTracker().acceptanceProbability());
+        System.out.println("Angle move acceptance  Outer  " + angleMoveOuter.getTracker().acceptanceProbability());
+        if(angleMoveMultiInner!=null) System.out.println("Angle move acceptance MultiInner   " + angleMoveMultiInner.getTracker().acceptanceProbability());
+        System.out.println("Angle move acceptance MultiOuter   " + angleMoveMultiOuter.getTracker().acceptanceProbability());
+
+
+        //if (shuffleMove!=null) System.out.println("Shuffle move acceptance " + shuffleMove.getTracker().acceptanceProbability());
         System.out.println();
 
         double avgRg = accRg.getData(accRg.AVERAGE).getValue(0);
         double errRg = accRg.getData(accRg.ERROR).getValue(0);
         double corRg = accRg.getData(accRg.BLOCK_CORRELATION).getValue(0);
 
+        DataVector componentsavgRg = (DataVector) accComponents.getData(accComponents.AVERAGE);
+        DataVector componentserrRg = (DataVector) accComponents.getData(accComponents.ERROR);
+        DataVector componentscorRg = (DataVector) accComponents.getData(accComponents.BLOCK_CORRELATION);
+
+
+        //System.out.println("componentsRg2: "+componentsavgRg+" componentserr: "+componentserrRg+" componentscor: "+componentscorRg);
+        double componentsRg2x= componentsavgRg.x.getX(0);
+        double componentsRg2y= componentsavgRg.x.getX(1);
+        double componentsRg2z= componentsavgRg.x.getX(2);
+        double componentserrx= componentserrRg.x.getX(0);
+        double componentserry= componentserrRg.x.getX(1);
+        double componentserrz= componentserrRg.x.getX(2);
+        double componentscorx= componentscorRg.x.getX(0);
+        double componentscory= componentscorRg.x.getX(1);
+        double componentscorz= componentscorRg.x.getX(2);
+
+        System.out.println("componentsRg2x: "+componentsRg2x+" componentsRg2y: "+componentsRg2y+" componentsRg2z: "+componentsRg2z
+                +" componentserrx: "+componentserrx+" componentserry: "+componentserry+" componentserrz: "+componentserrz
+                +" componentscorx: "+componentscorx+" componentscory: "+componentscory+" componentscorz: "+componentscorz);
+
+
+
         System.out.println("Rg2: "+avgRg+"   err: "+errRg+"  cor: "+corRg);
         System.out.println("Core sigma: " + params.coreSigma + "  Core epsilon: " + params.epsCore);
         System.out.println("Rg: " + Math.sqrt(avgRg) + "   err: " + errRg/(2*Math.sqrt(avgRg)));
+        IData avgProfile = accProfile.getData(accProfile.AVERAGE);
+        IData errProfile = accProfile.getData(accProfile.ERROR);
+        IData corProfile = accProfile.getData(accProfile.BLOCK_CORRELATION);
+
+        System.out.println("Arm radial profile r(i): monomer index i (1=closest to core, armLength=tip)");
+        System.out.println("i, r_avg, r_err, r_cor");
+        for (int k = 1; k <= armLength; k++) {
+            System.out.printf("%d, %.6f, %.6f, %.6f%n",
+                    k,
+                    avgProfile.getValue(k - 1),
+                    errProfile.getValue(k - 1),
+                    corProfile.getValue(k - 1));
+        }
         //new add
         long t3 = System.nanoTime();
         // NOW write to CSV (file I/O shouldn't be included in simulation timing)
@@ -324,11 +412,12 @@ public class VirialStarSingle {
 
         try (FileWriter fw = new FileWriter(outputFile, true)) {
             if (!fileExists) {
-                fw.write("numArms,armLength,coreSigma,epsCore,ideal,temperature,Rg2,Rg2_err,Rg,Rg_err,correlation,numSteps\n");
+                fw.write("numArms,armLength,coreSigma,epsCore,ideal,temperature,Rg2,Rg2_err,Rg,Rg_err,correlation," +
+                        "Rg2x,Rg2x_err,Rg2x_cor,Rg2y,Rg2y_err,Rg2y_cor,Rg2z,Rg2z_err,Rg2z_cor,numSteps\n");
             }
 
             String idealStr = params.ideal ? "IDEAL" : String.format("%.2f", params.temperature);
-            fw.write(String.format("%d,%d,%.2f,%.2f,%s,%s,%.8f,%.8f,%.8f,%.8f,%.8f,%d%n",
+            fw.write(String.format("%d,%d,%.2f,%.2f,%s,%s,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%d%n",
                     params.numArms,
                     params.armLength,
                     params.coreSigma,
@@ -340,12 +429,38 @@ public class VirialStarSingle {
                     Math.sqrt(avgRg),
                     errRg/(2*Math.sqrt(avgRg)),
                     corRg,
+                    componentsRg2x, componentserrx, componentscorx,
+                    componentsRg2y, componentserry, componentscory,
+                    componentsRg2z, componentserrz, componentscorz,
                     params.numSteps));
             System.out.println("Results written to: " + outputFile);
         } catch (Exception e) {
             System.err.println("Warning: Could not write to results.csv: " + e.getMessage());
         }
-
+        // ADDED: separate profile.csv — one row per arm bead index per run
+        // columns: numArms, armLength, coreSigma, epsCore, temperature, i, r_avg, r_err, r_cor
+        String profileFile = System.getProperty("user.dir") + "/profile.csv";
+        boolean profileFileExists = new java.io.File(profileFile).exists();
+        try (FileWriter fw = new FileWriter(profileFile, true)) {
+            if (!profileFileExists) {
+                fw.write("numArms,armLength,coreSigma,epsCore,temperature,i,r_avg,r_err,r_cor\n");
+            }
+            for (int k = 1; k <= armLength; k++) {
+                fw.write(String.format("%d,%d,%.2f,%.2f,%.4f,%d,%.8f,%.8f,%.8f%n",
+                        numArms,
+                        armLength,
+                        params.coreSigma,
+                        params.epsCore,
+                        temperature,
+                        k,
+                        avgProfile.getValue(k - 1),
+                        errProfile.getValue(k - 1),
+                        corProfile.getValue(k - 1)));
+            }
+            System.out.println("Profile written to: " + profileFile);
+        } catch (Exception e) {
+            System.err.println("Warning: Could not write to profile.csv: " + e.getMessage());
+        }
         System.out.println("time: "+(t3-t2)/1e9);
     }
 

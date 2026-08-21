@@ -87,9 +87,9 @@ public class VirialjackCell {
 
 
             params.nPoints = 4;
-            params.armLength = 2;
+            params.armLength = 3;
             params.coreSigma = 1;
-            params.numArms = 6;
+            params.numArms = 4;
             params.temperature = 5;
             params.numSteps = 10000000L;
             params.boxLength = 50;
@@ -147,9 +147,9 @@ public class VirialjackCell {
         double epsCM = Math.sqrt(epsC * epsM);      // Berthelot
 
         TruncationFactory tf = new TruncationFactorySimple(params.rc);
-        IPotential2 p2CoreCore = P2LennardJones.makeTruncated(sigC, epsC, tf);
+        IPotential2 p2CoreCore = new P2LennardJones(sigC, epsC);
         IPotential2 p2MonoMono = P2LennardJones.makeTruncated(sigM, epsM, tf);
-        IPotential2 p2CoreMono = P2LennardJones.makeTruncated(sigCM, epsCM, tf);
+        IPotential2 p2CoreMono = new P2LennardJones(sigCM, epsCM);
 
 
         // Mayer functions
@@ -268,7 +268,7 @@ public class VirialjackCell {
         sim.setBondingInfo(bondingInfo);
         sim.setIntraPairPotentials(pTargetInTarget.getAtomPotentials());
         sim.setOverlapClusters(refCluster.makeCopy(), targetInReferenceCluster);
-        sim.setRandom(new RandomMersenneTwister(3));
+       // sim.setRandom(new RandomMersenneTwister(3));
         sim.setPotentialComputeFactory(new SimulationVirialOverlap2.PotentialComputeFactory() {
             @Override
             public PotentialCompute makePotentialCompute(SpeciesManager sm, BoxCluster box) {
@@ -288,12 +288,12 @@ public class VirialjackCell {
 
         sim.box[0].getBoundary().setBoxSize(Vector.of(params.boxLength, params.boxLength, params.boxLength));
         sim.box[1].getBoundary().setBoxSize(Vector.of(params.boxLength, params.boxLength, params.boxLength));
-        NeighborCellManager targetCellManager = new NeighborCellManager(sm, sim.box[1], 2, bondingInfo);/*{
+        NeighborCellManagerStar targetCellManager = new NeighborCellManagerStar(sm, sim.box[1], 2, bondingInfo,typeCore);/*{
             public NeighborIterator makeNeighborIterator() {
                 return new NeighborIteratorCellFaster(this,sim.box[1]);
             }
         };*/
-        NeighborCellManager referenceCellManager = new NeighborCellManager(sm, sim.box[0], 2, bondingInfo);/*{
+        NeighborCellManagerStar referenceCellManager = new NeighborCellManagerStar(sm, sim.box[0], 2, bondingInfo,typeCore);/*{
             public NeighborIterator makeNeighborIterator() {
                 return new NeighborIteratorCellFaster(this,sim.box[0]);
             }
@@ -381,14 +381,14 @@ public class VirialjackCell {
         angleMoves = new MCMoveClusterAngle[4];
        if (armLength>2) {
            angleMoves[0] = new MCMoveClusterAngle(pc0, space, bonding, sim.getRandom(), 1,
-                   new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, armLength / 2));
+                   new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2,(armLength+1)/2));
            angleMoves[0].setBox(sim.box[0]);
            angleMoves[0].setConstraintMap(constraintMap);
            angleMoves[0].setFixedCOM(false);
            sim.integrators[0].getMoveManager().addMCMove(angleMoves[0], 0.1);
 
            angleMoves[1] = new MCMoveClusterAngle(pc1, space, bonding, sim.getRandom(), 1,
-                   new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, armLength / 2));
+                   new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, (armLength+1)/2));
            angleMoves[1].setBox(sim.box[1]);
            angleMoves[1].setConstraintMap(constraintMap);
            angleMoves[0].setCellManager(referenceCellManager);
@@ -398,13 +398,13 @@ public class VirialjackCell {
        }
 
         angleMoves[2] = new MCMoveClusterAngle(pc0, space, bonding, sim.getRandom(), 1,
-                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, armLength / 2 + 1, armLength));
+                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, (armLength+1) / 2 + 1, armLength));
         angleMoves[2].setBox(sim.box[0]);
         angleMoves[2].setConstraintMap(constraintMap);
         angleMoves[2].setFixedCOM(false);
         sim.integrators[0].getMoveManager().addMCMove(angleMoves[2], 0.1);
         angleMoves[3] = new MCMoveClusterAngle(pc1, space, bonding, sim.getRandom(), 1,
-                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, armLength / 2 + 1, armLength));
+                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, (armLength+1) / 2 + 1, armLength));
         angleMoves[3].setBox(sim.box[1]);
         angleMoves[3].setConstraintMap(constraintMap);
         angleMoves[2].setCellManager(referenceCellManager);
@@ -416,7 +416,7 @@ public class VirialjackCell {
         MCMoveClusterAngleMulti angleMovesMulti0=null;
         if (armLength >2) {
              angleMovesMulti1 = new MCMoveClusterAngleMulti(pc1, space, bonding, sim.getRandom(), 1,
-                    new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, armLength / 2), 5);
+                    new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, (armLength+1) / 2), 5);
 
             angleMovesMulti1.setBox(sim.box[1]);
             angleMovesMulti1.setConstraintMap(constraintMap);
@@ -433,7 +433,7 @@ public class VirialjackCell {
         //new
       if (armLength>2) {
            angleMovesMulti0 = new MCMoveClusterAngleMulti(pc0, space, bonding, sim.getRandom(), 1,
-                  new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, armLength / 2), 5);
+                  new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, (armLength+1) / 2), 5);
 
           angleMovesMulti0.setBox(sim.box[0]);
           angleMovesMulti0.setConstraintMap(constraintMap);
@@ -443,7 +443,7 @@ public class VirialjackCell {
       }
 
         MCMoveClusterAngleMulti angleMovesMulti0outer = new MCMoveClusterAngleMulti(pc0, space, bonding, sim.getRandom(), 1,
-                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, armLength / 2 + 1, armLength), 10);
+                new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, (armLength+1) / 2 + 1, armLength), 10);
         angleMovesMulti0outer.setBox(sim.box[0]);
         angleMovesMulti0outer.setConstraintMap(constraintMap);
         angleMovesMulti0outer.setFixedCOM(false);

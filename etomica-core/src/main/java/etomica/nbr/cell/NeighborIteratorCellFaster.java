@@ -1,11 +1,14 @@
 package etomica.nbr.cell;
 
+import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.potential.compute.NeighborIterator;
 import etomica.space.Space;
 import etomica.space.Vector;
+
+import java.util.ArrayList;
 
 public class NeighborIteratorCellFaster implements NeighborIterator {
 
@@ -16,16 +19,26 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
     private final Space space;
     private final boolean handleOutOfBox;
     public static boolean doDebug;
+    public final AtomType nocelltype;
+    public final ArrayList<IAtom> nocellatoms ;
 
 
 
-    public NeighborIteratorCellFaster(NeighborCellManager cellManager, Box box) {
+
+    public NeighborIteratorCellFaster(NeighborCellManager cellManager, Box box,AtomType nocelltype) {
         this.cellManager = cellManager;
+        this.nocelltype= nocelltype;
 
 
         this.box = box;
         this.space = box.getSpace();
         this.handleOutOfBox = cellManager.isHandleOutOfBox();
+        this.nocellatoms = new ArrayList<>();
+        for(IAtom a:box.getLeafList()){
+            if(a.getType()==nocelltype){
+                nocellatoms.add(a);
+            }
+        }
     }
 
 
@@ -34,14 +47,28 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
     public void iterUpNeighbors(int iAtom, NeighborConsumer consumer) {
 
         IAtomList atoms = box.getLeafList();
+        IAtom atom1 = atoms.get(iAtom);
+        Vector rij = space.makeVector();
+        if(atom1.getType()==nocelltype){
+
+            Vector ri = atom1.getPosition();
+            for (int j = 0; j < atoms.size(); j++) {
+               IAtom atom2 = atoms.get(j);
+               if (atom2.getType()!=nocelltype || j>iAtom) {
+                   rij.Ev1Mv2(atom2.getPosition(), ri);
+                   box.getBoundary().nearestImage(rij);
+                   consumer.accept(atom2, rij, 0);
+               }
+            }
+            return;
+        }
         Vector[] boxOffsets = cellManager.getBoxOffsets();
         int[] atomCell = cellManager.getAtomCell();
         int[] cellNextAtom = cellManager.getCellNextAtom();
         int[] cellOffsets = cellManager.getCellOffsets();
         int[] wrapMap = cellManager.getWrapMap();
         int[] cellLastAtom = cellManager.getCellLastAtom();
-        IAtom atom1 = atoms.get(iAtom);
-        Vector rij = space.makeVector();
+
         int debugAtom1= 276;
         int debugAtom2= 274;
 
@@ -169,7 +196,16 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
         int[] cellLastAtom = cellManager.getCellLastAtom();
         IAtom atom1 = atoms.get(iAtom);
         Vector rij = space.makeVector();
+        if(atom1.getType()!=nocelltype){
 
+            Vector ri = atom1.getPosition();
+            for (IAtom atom2:nocellatoms) {
+                rij.Ev1Mv2(atom2.getPosition(), ri);
+                box.getBoundary().nearestImage(rij);
+                consumer.accept(atom2, rij, 0);
+
+            }
+        }
         int iCell = atomCell[iAtom];
         for (int j = cellLastAtom[iCell]; j != iAtom; j = cellNextAtom[j]) {
             IAtom atom2 = atoms.get(j);
@@ -309,6 +345,28 @@ public class NeighborIteratorCellFaster implements NeighborIterator {
         IAtom atom1 = atoms.get(iAtom);
         int iCell = atomCell[iAtom];
         Vector rij = space.makeVector();
+        if(atom1.getType()==nocelltype){
+
+            Vector ri = atom1.getPosition();
+            for (int j = 0; j < atoms.size(); j++) {
+                IAtom atom2 = atoms.get(j);
+                if ( j!=iAtom) {
+                    rij.Ev1Mv2(atom2.getPosition(), ri);
+                    box.getBoundary().nearestImage(rij);
+                    consumer.accept(atom2, rij, 0);
+                }
+            }
+            return;
+        }
+
+
+        Vector ri = atom1.getPosition();
+        for (IAtom atom2:nocellatoms) {
+            rij.Ev1Mv2(atom2.getPosition(), ri);
+            box.getBoundary().nearestImage(rij);
+            consumer.accept(atom2, rij, 0);
+
+        }
 
         for (int j = cellLastAtom[iCell]; j > -1; j = cellNextAtom[j]) {
             if (j == iAtom) {
