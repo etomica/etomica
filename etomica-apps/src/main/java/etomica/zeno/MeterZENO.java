@@ -4,6 +4,7 @@
 package etomica.zeno;
 
 import etomica.action.IAction;
+import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.space.Tensor;
 import etomica.space.Vector;
@@ -28,14 +29,16 @@ public class MeterZENO implements IAction {
     protected Tensor VMinus;
     protected long hits;
     protected long totalWalks;
+    protected final double atomRadius = 0.5;
 
-    public MeterZENO(Box box, IRandom random, double boundingSphereRadius, double[] sigmaByType) {
+    public MeterZENO(Box box, IRandom random, double[] sigmaByType) {
         this.box = box;
         this.random = random;
-        this.boundingSphereRadius = boundingSphereRadius;
-        this.shellThickness = 0.000037;
-//        boundingSphereCenter = Vector.of(-5.397237 , -0.857112 , -13.018178);
-        boundingSphereCenter = new Vector3D();
+        BoundingSphereGenerator.BoundingSphere bs  = BoundingSphereGenerator.getBoundingSphere(box);
+        boundingSphereCenter = bs.center;
+        this.boundingSphereRadius = bs.radius;
+        this.shellThickness = 0.000001 * bs.radius;
+
         this.walker = new WalkerExterior(box, sigmaByType, random, boundingSphereRadius, boundingSphereCenter, this.shellThickness);
         this.KPlus = new Vector3D();
         this.KMinus = new Vector3D();
@@ -98,43 +101,64 @@ public class MeterZENO implements IAction {
         Tensor polarizabililtyTensor = this.computePolarizability();
         System.out.println("polarizability tensor\n" + polarizabililtyTensor);
         double q_eta = this.computePadeApproximant(polarizabililtyTensor);
+        // ZENO assumes that error in q_eta is q_eta * 0.015
         System.out.println("q_eta: " + q_eta);
         double meanPolarizability = polarizabililtyTensor.trace() / 3.0;
         System.out.println("mean polarizability: " + meanPolarizability);
         double intrinsicViscosityConventional = q_eta * meanPolarizability / this.box.getLeafList().size();
-        double volume = 4.1887902047863905 * Math.pow(0.5, 3.0) * this.box.getLeafList().size();
+        // ZENO volume computed from interior walker
+        double volume = computeVolume();
         double intrinsicConductivity = meanPolarizability / volume;
+        // std product uncertainty
         double intrinsicViscosity = q_eta * intrinsicConductivity;
         return intrinsicViscosity;
     }
 
+    // returns volume occupied by atoms
+    public double computeVolume() {
+        double excludedVolume = 0;
+        for (IAtom a : box.getLeafList()) {
+            double rad1 = atomRadius;
+            for (int j = a.getLeafIndex()+1; j<box.getLeafList().size(); j++) {
+                double r2 = a.getPosition().Mv1Squared(box.getLeafList().get(j).getPosition());
+                double rad2 = atomRadius;
+                double sigma = rad1+rad2;
+                double sigma2 = sigma*sigma;
+                if (r2 > sigma2) continue;
+                double d = Math.sqrt(r2);
+                // Google says so
+                // https://mathematica.stackexchange.com/questions/73282/how-i-calculate-the-volume-of-multiple-intersecting-spheres
+                excludedVolume += Math.PI/(12*d) * Math.pow(sigma - d, 2) * (d*d + 2*d*sigma - 3*Math.pow(rad1-rad2, 2));
+            }
+        }
+        double nominalVolume = 4.0/3.0 * Math.PI * Math.pow(atomRadius, 3) * box.getLeafList().size();
+        return nominalVolume - excludedVolume;
+    }
+
     public double getHydrodynamicRadius() {
-        double t = (double)this.hits / (double)this.totalWalks;
+        double t = hits / (double)this.totalWalks;
         return t * this.boundingSphereRadius;
     }
 
     public Tensor computePolarizability() {
-        double t = (double)this.hits / (double)this.totalWalks;
-        System.out.println("t "+t);
+        double t = hits / (double)this.totalWalks;
         Vector u = new Vector3D();
-        u.Ev1Mv2(this.KPlus, this.KMinus);
-        u.TE(1.0 / this.totalWalks);
-        System.out.println("u "+u);
+        u.Ev1Mv2(KPlus, KMinus);
+        u.TE(1.0 / totalWalks);
         Tensor v = new Tensor3D();
-        v.E(this.VPlus);
-        v.PE(this.VMinus);
-        v.TE(1.0 / this.totalWalks);
-        System.out.println("v\n"+v);
+        v.E(VPlus);
+        v.PE(VMinus);
+        v.TE(1.0 / totalWalks);
         Tensor w = new Tensor3D();
-        w.E(this.VPlus);
-        w.ME(this.VMinus);
-        w.TE(1.0 / this.totalWalks);
-        System.out.println("w\n"+w);
+        w.E(VPlus);
+        w.ME(VMinus);
+        w.TE(1.0 / totalWalks);
         Tensor polarizabilityTensor = new Tensor3D();
 
         for(int row = 0; row < 3; ++row) {
             for(int col = 0; col < 3; ++col) {
-                double element = 37.69911184307752 * this.boundingSphereRadius * this.boundingSphereRadius * (w.component(row, col) - u.getX(row) * v.component(row, col) / t);
+                double element = 12 * Math.PI * boundingSphereRadius * boundingSphereRadius *
+                        (w.component(row, col) - u.getX(row) * v.component(row, col) / t);
                 polarizabilityTensor.setComponent(row, col, element);
             }
         }
@@ -144,7 +168,7 @@ public class MeterZENO implements IAction {
         pt.transpose();
         polarizabilityTensor.PE(pt);
         polarizabilityTensor.TE(0.5);
-        double l = 1.0;
+        double l = 1.0; // length scale number
         polarizabilityTensor.TE(Math.pow(l, 3.0));
         return polarizabilityTensor;
     }
