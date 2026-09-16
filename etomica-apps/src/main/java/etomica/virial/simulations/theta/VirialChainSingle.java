@@ -13,7 +13,6 @@ import etomica.data.DataPumpListener;
 import etomica.data.IData;
 import etomica.data.meter.MeterRadiusGyration;
 import etomica.data.types.DataGroup;
-import etomica.graphics.ColorSchemeRandom;
 import etomica.graphics.DisplayBox;
 import etomica.graphics.DisplayBoxCanvasG3DSys;
 import etomica.graphics.SimulationGraphic;
@@ -35,6 +34,7 @@ import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 import etomica.util.collections.IntArrayList;
 import etomica.virial.mcmove.MCMoveClusterAngle;
+import etomica.virial.mcmove.MCMoveClusterStretch;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -194,6 +194,7 @@ public class VirialChainSingle {
         MCMoveClusterAngle angleMove1 = null;
         MCMoveClusterReptate reptateMove = null;
         MCMoveClusterShuffle shuffleMove = null;
+        MCMoveClusterStretch stretchMove = null;
         if (kBend < Double.POSITIVE_INFINITY) {
             angleMove1 = new MCMoveClusterAngle(pc, space, bonding, sim.getRandom(), 1);
             angleMove1.setBox(sim.box());
@@ -208,8 +209,14 @@ public class VirialChainSingle {
             integrator.getMoveManager().addMCMove(shuffleMove);
             ((MCMoveStepTracker) shuffleMove.getTracker()).setAcceptanceTarget(0.3);
         }
+        if (eFENE > 0) {
+            stretchMove = new MCMoveClusterStretch(pc, space, bonding, sim.getRandom(), 0.01);
+            stretchMove.setBox(sim.box());
+            integrator.getMoveManager().addMCMove(stretchMove);
+            ((MCMoveStepTracker)stretchMove.getTracker()).setNoisyAdjustment(true);
+        }
 
-        if (false) {
+        if (true) {
             ActivityIntegrate ai = new ActivityIntegrate(integrator);
             sim.getController().addActivity(ai, Long.MAX_VALUE, 10);
 
@@ -234,6 +241,9 @@ public class VirialChainSingle {
         System.out.println("equilibration finished");
         System.out.println("Angle move step size    " + angleMove1.getStepSize());
         System.out.println("Shuffle move step size    "+shuffleMove.getStepSize());
+        if (stretchMove!=null) {
+            System.out.println("Stretch move step size    "+stretchMove.getStepSize());
+        }
 
         integrator.getMoveManager().setEquilibrating(false);
 
