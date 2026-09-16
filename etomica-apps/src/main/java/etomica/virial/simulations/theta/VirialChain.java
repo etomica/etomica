@@ -29,8 +29,8 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesManager;
 import etomica.units.Pixel;
-import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.*;
+import etomica.units.dimensions.Dimension;
 import etomica.util.Constants.CompassDirection;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -104,6 +104,11 @@ public class VirialChain {
         SpeciesManager sm = new SpeciesManager.Builder().addSpecies(species).build();
 
         PotentialMoleculePair pTarget = new PotentialMoleculePair(space, sm);
+        PotentialMoleculePair pIntra = pTarget;
+        if (params.epsilonAB != 1) {
+            // pIntra won't actually get invoked, it just holds on to the intra LJ potential
+            pIntra = new PotentialMoleculePair(space, sm);
+        }
         System.out.println(nSpheres+"-mer chain B"+nPoints+" at T = "+temperature);
         System.out.println("Bond length: "+bondLength+"  with eFENE "+eFENE);
         if (kBend == Double.POSITIVE_INFINITY) System.out.println("Rigid bond angles");
@@ -111,8 +116,24 @@ public class VirialChain {
         else System.out.println("Bond angle bend constant: "+kBend);
         if (rc>0 && rc<Double.POSITIVE_INFINITY) System.out.println("LJ truncated at "+rc+" with "+params.truncation);
         else System.out.println("LJ untruncated");
-        IPotential2 p2 = new P2LennardJones(1, 1);
+        if (params.epsilonAB != 1) {
+            System.out.println("epsilonAB: "+params.epsilonAB);
+            if (nPoints != 2) {
+                System.out.println("Setting epsilonAB for B2 makes sense, but not so much for higher coefficients");
+            }
+        }
+
+
+        IPotential2 p2Intra = new P2LennardJones(1, 1);
+        IPotential2 p2 = p2Intra;
+        if (params.epsilonAB != 1) {
+            p2 = new P2LennardJones(1, params.epsilonAB);
+        }
         if (rc > 0 && rc < Double.POSITIVE_INFINITY) {
+            if (params.epsilonAB != 1) {
+                // this code only truncates inter.  we should probably truncate both
+                throw new RuntimeException("We can't handle truncated potentials with different intra and inter molecular potentials");
+            }
             if (params.truncation == TruncationChoice.SIMPLE) {
                 p2 = new P2SoftSphericalTruncated(p2, rc);
             }
@@ -216,7 +237,7 @@ public class VirialChain {
         sim.setExtraTargetClusters(targetDiagrams);
         sim.setDoWiggle(false);
         sim.setBondingInfo(bondingInfo);
-        sim.setIntraPairPotentials(pTarget.getAtomPotentials());
+        sim.setIntraPairPotentials(pIntra.getAtomPotentials());
         sim.init();
         System.out.println("random seeds: "+ Arrays.toString(sim.getRandomSeeds()));
 
@@ -258,6 +279,8 @@ public class VirialChain {
         steps /= 1000;
 
         pTarget.setAtomPotential(type, type, p2);
+        // this is redundant if epsilonAB=1, but causes no trouble
+        pIntra.setAtomPotential(type, type, p2Intra);
 
         sim.integratorOS.setNumSubSteps(1000);
 
@@ -537,5 +560,7 @@ public class VirialChain {
         public int nDer = 0;
         public TargetChoice targetChoice = TargetChoice.NORMAL;
         public String fFile = null;
+        // if epsilonAB is not 1, then it will be used for all intermolecular interactions
+        public double epsilonAB = 1;
     }
 }
