@@ -70,13 +70,13 @@ public class VirialTraPPE {
             ParseArgs.doParseArgs(params, args);
         } else {
             // Customize Interactive Parameters Here
-            params.chemForm = new ChemForm[]{ChemForm.NH3};
-            params.nPoints = 2; //B order
-            params.temperature = 210;
-            params.diagram = "BC";
+            params.chemForm = new ChemForm[]{ChemForm.propane, ChemForm.propan1ol};
+            params.nPoints = 3; //B order
+            params.temperature = 500;
+            params.diagram = "5c";
             params.numSteps = 10000000;
             params.refFrac = -1;
-//            params.types = new int[]{1, 1, 0};
+            params.types = new int[]{0, 0, 1};
 //            params.seed = new int[]{-1447067683, 1567187654, 2071898483, 448845791};
             params.dorefpref = false;
             params.doChainRef = true;
@@ -244,7 +244,6 @@ public class VirialTraPPE {
         MayerMix fTarget = new MayerMix(potentials);
 
         //flex moves
-        int nSpheres = TPList[0].species.getAtomTypes().size();
         boolean isFlex = TPList[0].isFlex && (params.diagram == null|| !params.diagram.equals("BC"));
 
         System.out.println("isFlex = " + isFlex);
@@ -776,8 +775,7 @@ public class VirialTraPPE {
                 System.out.println("Angle move acceptance "+ mcMoveAngle1.getTracker().acceptanceRatio() + " " + mcMoveAngle.getTracker().acceptanceRatio());
             }
             if (mcMoveTorsion!=null) {
-                for (int i=0; i<TPList[0].a.length; i++) {
-                System.out.println("Torsion move acceptance "+mcMoveTorsion.getTracker().acceptanceRatio());}
+                System.out.println("Torsion move acceptance "+mcMoveTorsion.getTracker().acceptanceRatio());
             }
 
             System.out.println("final reference step frequency "+sim.integratorOS.getIdealRefStepFraction());
