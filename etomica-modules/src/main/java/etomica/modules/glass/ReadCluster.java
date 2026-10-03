@@ -2,8 +2,8 @@ package etomica.modules.glass;
 
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGeneratorUnix;
 
 public class ReadCluster {
     public static void main(String[] args) {
@@ -17,7 +17,7 @@ public class ReadCluster {
             ParseArgs.doParseArgs(params, args);
         }
         long t1 = System.nanoTime();
-        DataClusterer dataClusterer = new DataClusterer(params.nClusters, new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray()));
+        DataClusterer dataClusterer = new DataClusterer(params.nClusters, new RandomMersenneTwister(IRandom.getRandSeedArray()));
         dataClusterer.setClusterNeighborDistance(params.neighborClusterDistance);
         DataClusterReader.readClusterFile(dataClusterer, params.filename, params.interval);
         long t2 = System.nanoTime();

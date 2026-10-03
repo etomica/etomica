@@ -107,7 +107,9 @@ public class ConformationMinimized implements IConformation {
                 xStep[3*(i-1)+j] = 0.01;
             }
         }
-        sd.minimize(guess, xStep, tol, 10000);
+        if (pc != null) {
+            sd.minimize(guess, xStep, tol, 10000);
+        }
         Vector com = CenterOfMass.position(box, m);
         coords = new Vector[atoms.size()];
         for (int i = 0; i<coords.length; i++) {

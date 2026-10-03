@@ -3,12 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.math.geometry;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import etomica.space.Vector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Representation of a mathematical polyhedron, a 3-dimensional polytope. Contains
@@ -35,7 +34,6 @@ public abstract class Polyhedron extends Polytope {
     /**
      * Returns all faces defined by the polyhedron.
      */
-    @JsonIgnore
     public Polygon[] getFaces() {
         return faces;
     }

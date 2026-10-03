@@ -13,7 +13,6 @@ import etomica.species.ISpecies;
 import etomica.species.SpeciesManager;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGeneratorUnix;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +47,7 @@ public class Simulation {
     public Simulation(Space space, SpeciesManager speciesManager) {
         this.space = space;
         boxes = new ArrayList<>();
-        seeds = RandomNumberGeneratorUnix.getRandSeedArray();
+        seeds = IRandom.getRandSeedArray();
         random = new RandomMersenneTwister(seeds);
         eventManager = new SimulationEventManager(this);
         controller = new Controller();

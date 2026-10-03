@@ -67,8 +67,7 @@ public abstract class ColorScheme {
 
       final ColorSchemeByType ct = new ColorSchemeByType();
       final ColorSchemeTemperature ctemp = new ColorSchemeTemperature(0,5);
-      final ColorSchemeColliders ccld = new ColorSchemeColliders();
-      sim.integrator.addCollisionListener(ccld);
+      final ColorSchemeColliders ccld = new ColorSchemeColliders(sim.integrator);
       final ColorSchemeRandom rand = new ColorSchemeRandom(sim.box, sim.getRandom());
 
       IAction act = new IAction() {

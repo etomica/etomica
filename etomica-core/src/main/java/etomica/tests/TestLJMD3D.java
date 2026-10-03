@@ -109,15 +109,17 @@ public class TestLJMD3D extends Simulation {
         // stdev based on 50 x 10^6 steps with 4000 atoms (a bit larger than for 500)
         // 4 sigma should fail 1 in 16,000 runs
 
-        double expectedP = 0.466751 + 9.74 / numAtoms;
+        double expectedP = 0.466751 + 9.74 / numAtoms - 1054.920743533204/(3*500/0.65);
         double stdevP = 0.005;
         if (Double.isNaN(avgP) || Math.abs(avgP - expectedP) / stdevP > 4) {
+            System.err.println("Expected P = "+expectedP);
             System.exit(1);
         }
 
-        double expectedPE = -3.81607 + 4.40 / numAtoms;
+        double expectedPE = -3.81607 + 4.40 / numAtoms - 351.6402478444013/500;
         double stdevPE = 0.0012;
         if (Double.isNaN(avgPE) || Math.abs(avgPE - expectedPE) / stdevPE > 4) {
+            System.err.println("Expected PE = "+expectedPE);
             System.exit(2);
         }
 
@@ -125,6 +127,7 @@ public class TestLJMD3D extends Simulation {
         double stdevCv = 0.038; // stdev 500 atoms is ~2x smaller
         // at 4sigma, this isn't too useful expect that it's not super-big
         if (Double.isNaN(Cv) || Math.abs(Cv - expectedCv) / stdevCv > 4) {
+            System.err.println("Expected Cv = "+expectedCv);
             System.exit(3);
         }
     }

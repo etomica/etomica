@@ -25,12 +25,18 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
     protected Vector[] translationVectors;
     protected int[] constraintMap;
     protected int startMolecule;
+    protected boolean doLattice;
 
     public MCMoveClusterMoleculeMulti(IRandom random, Box box) {
         super();
         this.random = random;
         setBox(box);
         setStartMolecule(1);
+    }
+
+    public void setDoLattice(boolean doLattice) {
+        this.doLattice = doLattice;
+        if (doLattice) setStepSizeMin(Math.max(1,stepSizeMin));
     }
 
     public void setBox(Box p) {
@@ -70,8 +76,21 @@ public class MCMoveClusterMoleculeMulti extends MCMoveBoxStep {
         for(int i = startMolecule; i<moleculeList.size(); i++) {
             int tv = constraintMap[i];
             if (tv == i) {
-                translationVectors[tv].setRandomCube(random);
-                translationVectors[tv].TE(stepSize);
+                if (doLattice) {
+                    int nSteps = (int)Math.floor(stepSize) + (random.nextDouble() < (stepSize - Math.floor(stepSize)) ? 1 : 0);
+                    translationVectors[tv].E(0);
+                    double[] v = new double[translationVectors[tv].getD()];
+                    for (int j=0; j<nSteps; j++) {
+                        int d = random.nextInt(translationVectors[tv].getD());
+                        int dx = random.nextInt(2) * 2 - 1;
+                        v[d] += dx;
+                    }
+                    translationVectors[tv].E(v);
+                }
+                else {
+                    translationVectors[tv].setRandomCube(random);
+                    translationVectors[tv].TE(stepSize);
+                }
             }
             moleculeList.get(i).getChildList().forEach(atom -> {
                 atom.getPosition().PE(translationVectors[tv]);

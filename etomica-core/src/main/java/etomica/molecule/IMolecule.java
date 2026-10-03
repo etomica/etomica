@@ -7,11 +7,12 @@ package etomica.molecule;
 
 import etomica.atom.IAtomList;
 import etomica.species.ISpecies;
+import etomica.util.Statefull;
 
 /**
  * Interface for an IMolecule
  */
-public interface IMolecule {
+public interface IMolecule extends Statefull {
 
     /**
      * Returns this IMolecule's index, which is its place in the list of

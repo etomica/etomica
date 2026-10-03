@@ -63,6 +63,5 @@ public class ActionZeroMomentum implements IAction {
                 System.out.println("Net momentum per leaf atom is " + momentum + " but I expected it to be 0");
             }
         }
-        momentum.E(0);
     }
 }

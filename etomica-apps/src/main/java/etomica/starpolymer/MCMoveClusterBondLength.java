@@ -6,6 +6,7 @@ package etomica.starpolymer;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeSource;
@@ -52,12 +53,18 @@ public class MCMoveClusterBondLength extends MCMoveBoxStep {
     public MCMoveClusterBondLength(PotentialCompute potentialMaster,
                                    IRandom random, double stepSize, int armLength, Space _space) {
         super();
+        this.random = random;
         moleculeSource = new MoleculeSourceRandomMolecule();
         ((MoleculeSourceRandomMolecule) moleculeSource).setRandomNumberGenerator(random);
         this.space = _space;
         this.armLength = armLength;
         translateVector = _space.makeVector();
         this.potentialMaster = potentialMaster;
+    }
+
+    public void setBox(Box box) {
+        super.setBox(box);
+        moleculeSource.setBox(box);
     }
 
     public void setSpecies(ISpecies newSpecies) {
@@ -108,6 +115,7 @@ public class MCMoveClusterBondLength extends MCMoveBoxStep {
         dr = -dr;
 //        System.out.println("rejecting bond length move");
         doTransform();
+        ((BoxCluster) box).rejectNotify();
     }
 
     public double getChi(double temperature) {
@@ -120,7 +128,7 @@ public class MCMoveClusterBondLength extends MCMoveBoxStep {
 
     @Override
     public void acceptNotify() {
-
+        ((BoxCluster) box).acceptNotify();
     }
 
     @Override

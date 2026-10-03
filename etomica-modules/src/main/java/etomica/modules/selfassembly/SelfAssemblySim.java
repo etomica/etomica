@@ -9,8 +9,7 @@ import etomica.atom.AtomLeafAgentManager;
 import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.box.Box;
-import etomica.config.ConfigurationLatticeRandom;
-import etomica.config.ConformationLinear;
+import etomica.config.*;
 import etomica.data.meter.MeterTemperature;
 import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMD;
@@ -23,9 +22,13 @@ import etomica.potential.compute.PotentialComputePairGeneral;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.Space;
+import etomica.space.Vector;
+import etomica.space2d.Space2D;
+import etomica.space3d.Space3D;
 import etomica.species.SpeciesBuilder;
 import etomica.species.SpeciesGeneral;
 import etomica.species.SpeciesGeneralMutable;
+import etomica.units.Degree;
 import etomica.units.Kelvin;
 
 import java.util.ArrayList;
@@ -34,7 +37,7 @@ import java.util.List;
 public class SelfAssemblySim extends Simulation {
 
     public final PotentialMasterBonding pcBonding;
-    public final ConfigurationLatticeRandom config;
+    public final ConfigurationLattice config;
     public IntegratorHard integratorHard;
     public java.awt.Component display;
     public Box box;
@@ -79,7 +82,7 @@ public class SelfAssemblySim extends Simulation {
         sigAB2 = 1.0;
         epsAB2 = Kelvin.UNIT.toSim(defaultEps);
 
-        sigB1B1 = 1.5;
+        sigB1B1 = 1.0;
         epsB1B1 = Kelvin.UNIT.toSim(defaultEps);
 
         sigB1B2 = 1.0;
@@ -93,8 +96,14 @@ public class SelfAssemblySim extends Simulation {
         box = this.makeBox(new BoundaryRectangularPeriodic(space, space.D() == 2 ? 60 : 20));
         box.setNMolecules(speciesA, nA);
         box.setNMolecules(speciesB, nB);
-        config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
-        config.initializeCoordinates(box);
+ //       config = new ConfigurationLatticeRandom(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space, random);
+        // Redefine no-species initializer to invoke for each species, so that polymer are placed on their own lattice
+        config = new ConfigurationLattice(space.D() == 2 ? new LatticeOrthorhombicHexagonal(space) : new LatticeCubicFcc(space), space) {
+            public void initializeCoordinates(Box box1) {
+                initializeCoordinates(box1, speciesA);
+                initializeCoordinates(box1, speciesB);
+            }
+        };
 
         pcBonding = new PotentialMasterBonding(getSpeciesManager(), box);
 
@@ -129,6 +138,7 @@ public class SelfAssemblySim extends Simulation {
 
         activityIntegrate = new ActivityIntegrate(integratorHard, Long.MAX_VALUE, true);
         getController().addActivity(activityIntegrate);
+        config.initializeCoordinates(box);
     }
 
     public int getNA() {
@@ -194,10 +204,13 @@ public class SelfAssemblySim extends Simulation {
     }
 
     public SpeciesGeneral makeSpeciesB(int nB1, int nB2) {
+        double bondL = 0.70;
+        ConformationPackedCube confPC = new ConformationPackedCube(space,bondL);
+
         return new SpeciesBuilder(space)
                 .addCount(typeB1, nB1)
                 .addCount(typeB2, nB2)
-                .withConformation(new ConformationLinear(space, 0.501))
+                .withConformation(confPC)
                 .setDynamic(true)
                 .build();
     }

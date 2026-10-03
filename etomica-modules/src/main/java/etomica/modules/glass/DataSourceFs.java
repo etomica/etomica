@@ -14,20 +14,24 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
 /**
- * Computes the excess kurtosis (alpha2) for the distribution of displacements
+ * Computes the incoherent scatting function (Fs).
  */
-public class DataSourceFs implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
+public class DataSourceFs implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent, Statefull {
 
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
-    protected DataFunction data;
+    protected DataFunction data, errData;
     protected DataFunction.DataInfoFunction dataInfo;
-    protected double[] fsSum;
+    protected double[] fsSum, fsSum2;
     protected final DataTag tTag, tag;
     protected long[] nSamples;
     protected Vector dr, q;
@@ -37,7 +41,7 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
     public DataSourceFs(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
         Space space = configStorage.getBox().getSpace();
-        fsSum = new double[0];
+        fsSum = fsSum2 = new double[0];
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
@@ -64,8 +68,10 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
 
     public void reallocate(int n) {
         fsSum = Arrays.copyOf(fsSum, n);
+        fsSum2 = Arrays.copyOf(fsSum2, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
+        errData = new DataFunction(new int[]{n});
         tData = new DataDoubleArray(new int[]{n});
         tDataInfo = new DataDoubleArray.DataInfoDoubleArray("t", Time.DIMENSION, new int[]{n});
         dataInfo = new DataFunction.DataInfoFunction("Fs(t)", Null.DIMENSION, this);
@@ -73,8 +79,7 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
 
         double[] t = tData.getData();
         if (t.length > 0) {
-            double[] savedTimes = configStorage.getSavedTimes();
-            double dt = savedTimes[0] - savedTimes[1];
+            double dt = configStorage.getDeltaT();
             for (int i = 0; i < t.length; i++) {
                 t[i] = dt * (1L << i);
             }
@@ -85,6 +90,7 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
     public IData getData() {
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
+        double[] yErr = errData.getData();
         int nAtoms = configStorage.getSavedConfig(0).length;
         if(type != null){
             Box box = configStorage.getBox();
@@ -92,7 +98,9 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
         }
 
         for (int i = 0; i < fsSum.length; i++) {
-            y[i] = fsSum[i] / (nAtoms * nSamples[i]) ; // Why subtract "-1" ?
+            long M = nAtoms * nSamples[i];
+            y[i] = fsSum[i] / M;
+            yErr[i] = Math.sqrt((fsSum2[i]/M - y[i]*y[i]) / (M - 1));
         }
         return data;
     }
@@ -126,7 +134,9 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
                     IAtom jAtom = atoms.get(j);
                     if (type == null || jAtom.getType() == type) {
                         dr.Ev1Mv2(positions[j], iPositions[j]);
-                        fsSum[i] += Math.cos(q.dot(dr));
+                        double c = Math.cos(q.dot(dr));
+                        fsSum[i] += c;
+                        fsSum2[i] += c*c;
                     }
                 }
                 nSamples[i]++;
@@ -152,5 +162,24 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
     @Override
     public DataTag getIndependentTag() {
         return tTag;
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(fsSum.length+"\n");
+        for (int i=0; i<fsSum.length; i++) {
+            fw.write(fsSum[i]+" "+nSamples[i]+"\n");
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        int n = Integer.parseInt(br.readLine());
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            String[] bits = br.readLine().split(" ");
+            fsSum[i] = Double.parseDouble(bits[0]);
+            nSamples[i] = Long.parseLong(bits[1]);
+        }
     }
 }

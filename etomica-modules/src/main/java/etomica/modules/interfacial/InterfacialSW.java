@@ -7,6 +7,7 @@ package etomica.modules.interfacial;
 
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.AtomType;
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -49,6 +50,7 @@ public class InterfacialSW extends Simulation {
     public final P2HardGeneric p2TailTail, p2Tail, p2HeadTail;
     public final P2HardGeneric p2Bond;
     public final P2HardGeneric p2Ghost, p2GhostHead, p2GhostTail;
+    public final ConfigurationPerturbed config;
 
     public InterfacialSW(Space _space) {
         super(_space);
@@ -80,11 +82,11 @@ public class InterfacialSW extends Simulation {
         ghostType = speciesGhost.getAtomType(0);
 
         //instantiate several potentials for selection in combo-box
-        P2HardGeneric p2SW = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, true);
+        P2HardGeneric p2SW = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, false);
         potentialMaster.setPairPotential(leafType, leafType, p2SW);
-        p2Head = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, true);
+        p2Head = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, false);
         potentialMaster.setPairPotential(leafType, headType, p2Head);
-        p2HeadHead = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, true);
+        p2HeadHead = new P2HardGeneric(new double[]{1.0, 1.5}, new double[]{Double.POSITIVE_INFINITY, -1.0}, false);
         potentialMaster.setPairPotential(headType, headType, p2HeadHead);
 
         p2TailTail = new P2HardGeneric(new double[]{1.0}, new double[]{Double.POSITIVE_INFINITY}, true);
@@ -116,6 +118,16 @@ public class InterfacialSW extends Simulation {
                     }
                 }
                 return super.collisionTime(r12, v12, collisionState, cd2);
+            }
+
+            public int getState(IAtom atom1, IAtom atom2, Vector r12) {
+                if (fixOverlap) return 1;
+                return super.getState(atom1, atom2, r12);
+            }
+
+            public double u(double r2) {
+                if (fixOverlap) return 0;
+                return super.u(r2);
             }
         };
 
@@ -168,11 +180,14 @@ public class InterfacialSW extends Simulation {
         }
         box.getBoundary().setBoxSize(dim);
         box.setNMolecules(species, N);
+        ConfigurationLattice configLattice;
         if (space.D() == 2) {
-            new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space).initializeCoordinates(box);
+            configLattice = new ConfigurationLattice(new LatticeOrthorhombicHexagonal(space), space);
         } else {
-            new ConfigurationLattice(new LatticeCubicFcc(space), space).initializeCoordinates(box);
+            configLattice = new ConfigurationLattice(new LatticeCubicFcc(space), space);
         }
+        config = new ConfigurationPerturbed(configLattice, random, 0.01);
+        config.initializeCoordinates(box);
     }
 
     public static void main(String[] args) {

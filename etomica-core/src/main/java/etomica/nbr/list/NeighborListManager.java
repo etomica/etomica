@@ -106,6 +106,10 @@ public class NeighborListManager implements NeighborManager, NeighborManager.Nei
 
     public void init() {
         if (pairPotentials == null) return;
+        for (IAtom atom : box.getLeafList()) {
+            Vector ri = atom.getPosition();
+            ri.PE(box.getBoundary().centralImage(ri));
+        }
         cellManager.init();
         for (int i = 0; i < numAtomTypes; i++) {
             maxR2Unsafe[i] = maxR2[i] = 1e100;

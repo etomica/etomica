@@ -13,11 +13,11 @@ import etomica.space.Vector;
  * 
  * @author Andrew Schultz
  */
-public class P3AtomicSum implements Potential3Soft {
+public class P3AtomicSum implements IPotential3 {
 
-    protected final Potential3Soft[] p;
+    protected final IPotential3[] p;
 
-    public P3AtomicSum(Potential3Soft[] p) {
+    public P3AtomicSum(IPotential3[] p) {
         this.p = p;
     }
 
@@ -31,10 +31,10 @@ public class P3AtomicSum implements Potential3Soft {
     }
 
     @Override
-    public double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3) {
+    public double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3, double[] virial) {
         double sum = 0;
         for (int i=0; i<p.length; i++) {
-            sum += p[i].u(dr12, dr13, dr23, atom1, atom2, atom3);
+            sum += p[i].u(dr12, dr13, dr23, atom1, atom2, atom3, virial);
         }
         return sum;
     }

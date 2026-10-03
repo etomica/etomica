@@ -4,19 +4,11 @@
 
 package etomica.normalmode;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
-
-import javax.swing.BorderFactory;
-import javax.swing.JFormattedTextField;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 /**
  * 
@@ -42,28 +34,28 @@ public class SoftSphereSolidEOSCalculator extends JPanel implements PropertyChan
 		
 		//Create the text fields and set them up.
 		densityField = new JFormattedTextField(densityFormat);
-		densityField.setValue(new Double(density));
+		densityField.setValue(density);
 		densityField.setColumns(10);
 		densityField.addPropertyChangeListener("value", this);
 		
 		temperatureField = new JFormattedTextField(temperatureFormat);
-		temperatureField.setValue(new Double(temperature));
+		temperatureField.setValue(temperature);
 		temperatureField.setColumns(10);
 		temperatureField.addPropertyChangeListener("value", this);
 		
 		bAField = new JFormattedTextField(bAFormat);
-		bAField.setValue(new Double(quantity[0]));
+		bAField.setValue(quantity[0]);
 		bAField.setColumns(10);
 		bAField.setEditable(false);
 //		paymentField.setForeground(Color.red);
 		
 		ZField = new JFormattedTextField(ZFormat);
-		ZField.setValue(new Double(quantity[1]));
+		ZField.setValue(quantity[1]);
 		ZField.setColumns(10);
 		ZField.setEditable(false);
 		
 		bUField = new JFormattedTextField(bUFormat);
-		bUField.setValue(new Double(quantity[2]));
+		bUField.setValue(quantity[2]);
 		bUField.setColumns(10);
 		bUField.setEditable(false);
 		
@@ -110,9 +102,9 @@ public class SoftSphereSolidEOSCalculator extends JPanel implements PropertyChan
 		} 
 	
 		double[] quantity = getAllQuantity(FCC, n, temperature, density);
-		bAField.setValue(new Double(quantity[0]));
-		ZField.setValue(new Double(quantity[1]));
-		bUField.setValue(new Double(quantity[2]));
+		bAField.setValue(quantity[0]);
+		ZField.setValue(quantity[1]);
+		bUField.setValue(quantity[2]);
 	}
 	
 	/**

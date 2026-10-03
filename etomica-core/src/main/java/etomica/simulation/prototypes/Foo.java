@@ -12,7 +12,6 @@ import etomica.units.Kelvin;
 import etomica.units.dimensions.Null;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGeneratorUnix;
 
 public class Foo {
     public static void main(String[] args) {
@@ -20,7 +19,7 @@ public class Foo {
         long steps = 100000;
         Vector v = new Vector3D();
         double mass = 120;
-        IRandom random = new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray());
+        IRandom random = new RandomMersenneTwister(IRandom.getRandSeedArray());
         AccumulatorAverageFixed acc = new AccumulatorAverageFixed(1);
         double temperatureK = 500;
         double temperature = Kelvin.UNIT.toSim(temperatureK);

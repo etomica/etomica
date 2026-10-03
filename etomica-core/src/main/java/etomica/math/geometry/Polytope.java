@@ -4,7 +4,6 @@
 
 package etomica.math.geometry;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import etomica.space.Space;
 import etomica.space.Vector;
 
@@ -140,7 +139,6 @@ public abstract class Polytope implements Shape, java.io.Serializable {
      * Number of vertices in the polytrope. A vertex is a point where D edges
      * meet.
      */
-    @JsonIgnore
     public final int getVertexCount() {
         return vertices.length;
     }
@@ -148,7 +146,6 @@ public abstract class Polytope implements Shape, java.io.Serializable {
     /**
      * The space defining the vectors used to represent the vertices.
      */
-    @JsonIgnore
     public Space getEmbeddedSpace() {
         return embeddedSpace;
     }

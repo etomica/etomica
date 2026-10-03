@@ -27,7 +27,7 @@ public class IntegratorMC extends IntegratorBox {
     protected final IRandom random;
     protected final EventManager<MCMoveEvent> moveEventManager;
     private final MCMoveEvent trialEvent, trialFailedEvent;
-    private final MCMoveEvent acceptedEvent, rejectedEvent;
+    private final MCMoveTrialCompletedEvent acceptedEvent, rejectedEvent;
     protected MCMoveManager moveManager;
 
     /**
@@ -95,6 +95,7 @@ public class IntegratorMC extends IntegratorBox {
             move.getTracker().updateCounts(false, chi);
             move.rejectNotify();
             //notify listeners of outcome
+            rejectedEvent.chi = chi;
             moveEventManager.fireEvent(rejectedEvent);
         } else {
             if (dodebug) {
@@ -103,6 +104,7 @@ public class IntegratorMC extends IntegratorBox {
             move.getTracker().updateCounts(true, chi);
             move.acceptNotify();
             currentPotentialEnergy += move.energyChange();
+            acceptedEvent.chi = chi;
             //notify listeners of outcome
             moveEventManager.fireEvent(acceptedEvent);
         }

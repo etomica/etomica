@@ -15,7 +15,6 @@ import etomica.units.dimensions.Quantity;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 import etomica.util.random.RandomNumberGenerator;
-import etomica.util.random.RandomNumberGeneratorUnix;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,7 +77,7 @@ public class AccumulatorAverageCollapsingLog extends DataAccumulator implements 
      *           should be 2 (standard deviation) or 3 (stdev + skew).
      */
     public AccumulatorAverageCollapsingLog(int nMoments) {
-        this(new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray()), nMoments);
+        this(new RandomMersenneTwister(IRandom.getRandSeedArray()), nMoments);
         initialSeed = random.nextInt(1<<30);
     }
 

@@ -13,12 +13,16 @@ import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DataSourceMSD implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
+public class DataSourceMSD implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent, Statefull {
 
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
@@ -67,8 +71,7 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
         dataInfo.addTag(tag);
         double[] t = tData.getData();
         if (t.length > 0) {
-            double[] savedTimes = configStorage.getSavedTimes();
-            double dt = savedTimes[0] - savedTimes[1];
+            double dt = configStorage.getDeltaT();
             for (int i = 0; i < t.length; i++) {
                 t[i] = dt * (1L << i);
             }
@@ -154,6 +157,31 @@ public class DataSourceMSD implements IDataSource, ConfigurationStorage.Configur
     @Override
     public DataTag getIndependentTag() {
         return tTag;
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(getClass().getName()+"\n");
+        fw.write(""+msdSum.length+"\n");
+        for (int i=0; i<msdSum.length; i++) {
+            fw.write(msdSum[i]+" "+msd2Sum[i]+" "+msdSumBlock[i]+" "+nSamples[i]+"\n");
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        if (!br.readLine().equals(getClass().getName())) {
+            throw new RuntimeException("oops");
+        }
+        int n = Integer.parseInt(br.readLine());
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            String[] bits = br.readLine().split(" ");
+            msdSum[i] = Double.parseDouble(bits[0]);
+            msd2Sum[i] = Double.parseDouble(bits[1]);
+            msdSumBlock[i] = Double.parseDouble(bits[2]);
+            nSamples[i] = Long.parseLong(bits[3]);
+        }
     }
 
     public interface MSDSink {

@@ -174,6 +174,7 @@ public class MultiharmonicGraphicMC extends SimulationGraphic {
         energyPlot.getPlot().setTitle("Average energy");
 
         duPlot.getPlot().setTitle("Energy Difference (A-B)");
+        duPlot.setXLabel("Energy Difference");
 
         final DisplayPlotXChart uPlot = new DisplayPlotXChart();
         final double yMax = 2.0;

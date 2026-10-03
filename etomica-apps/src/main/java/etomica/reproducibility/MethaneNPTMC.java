@@ -84,7 +84,6 @@ public class MethaneNPTMC extends Simulation {
 
         mcMoveAtom = new MCMoveAtom(random, potentialMaster, box);
         integrator.getMoveManager().addMCMove(mcMoveAtom);
-//        integrator.getMoveManager().setFrequency(mcMoveAtom, 1);
 
         if (pressure >= 0) {
             mcMoveVolume = new MCMoveVolume(integrator, random, pressure);
@@ -101,8 +100,6 @@ public class MethaneNPTMC extends Simulation {
             ParseArgs.doParseArgs(params, args);
         } else {
             // modify parameters here for interactive testing
-            params.numAtoms = 900;
-            params.steps = 120 * 1000 * params.numAtoms;
         }
 
         double temperatureK = params.temperatureK;
@@ -115,7 +112,7 @@ public class MethaneNPTMC extends Simulation {
         // TraPPE says CH4 is 16.04
         Unit dUnit = new SimpleUnit(Null.DIMENSION, 1/(16.04/Constants.AVOGADRO*1e24), "Density", "g/cm^3", false);
 
-        if (true) {
+        if (false) {
             SimulationGraphic graphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             ((DiameterHashByType)graphic.getDisplayBox(sim.box()).getDiameterHash()).setDiameter(sim.species().getLeafType(), 3.73);
 
@@ -162,6 +159,7 @@ public class MethaneNPTMC extends Simulation {
         }
 
         long steps = params.steps;
+        long equilibration = params.equilibration;
         int interval = 10;
         int blocks = 100;
         long blockSize = Math.max(steps / (interval * blocks), 1);
@@ -175,7 +173,7 @@ public class MethaneNPTMC extends Simulation {
 
         // equilibration
         long t1 = System.currentTimeMillis();
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps / 10));
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, equilibration));
         System.out.println("equilibration finished\n");
         sim.integrator.getMoveManager().setEquilibrating(false);
         sim.mcMoveVolume.getTracker().reset();
@@ -216,9 +214,9 @@ public class MethaneNPTMC extends Simulation {
         double cor = dataPE.getValue(accPE.BLOCK_CORRELATION.index);
 
         DataGroup dataDensity = (DataGroup) accDensity.getData();
-        double avgDensity = dataDensity.getValue(accPE.AVERAGE.index);
-        double errDensity = dataDensity.getValue(accPE.ERROR.index);
-        double corDensity = dataDensity.getValue(accPE.BLOCK_CORRELATION.index);
+        double avgDensity = dataDensity.getValue(accDensity.AVERAGE.index);
+        double errDensity = dataDensity.getValue(accDensity.ERROR.index);
+        double corDensity = dataDensity.getValue(accDensity.BLOCK_CORRELATION.index);
 
         System.out.println("energy avg: " + avg + "  err: " + err + "  cor: " + cor);
         System.out.println("density avg: " + avgDensity + "  err: " + errDensity + "  cor: " + corDensity);
@@ -227,10 +225,11 @@ public class MethaneNPTMC extends Simulation {
     }
 
     public static class SimParams extends ParameterBase {
-        public long steps = 100000000;
+        public int numAtoms = 900;
+        public long steps = numAtoms*1000*120;
+        public long equilibration = numAtoms*1000*50;
         public double density = 0.01;
         public double temperatureK = 140;
-        public int numAtoms = 1000;
         public double rc = 14;
         public double pressureKPa = 1318;
         public boolean shift = false;

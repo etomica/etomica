@@ -94,18 +94,4 @@ public class DipoleBox extends Simulation {
         }
     }
 
-    public static class Applet extends javax.swing.JApplet {
-
-        public void init() {
-            Space space = Space3D.getInstance();
-            DipoleBox sim = new DipoleBox(space, 864, 0.01);
-            sim.getController().setSleepPeriod(10);
-            SimulationGraphic graphic = new SimulationGraphic(sim, "Rigid", 1);
-            graphic.getDisplayBox(sim.box).setPixelUnit(new Pixel(30));
-
-            getContentPane().add(graphic.getPanel());
-        }
-
-        private static final long serialVersionUID = 1L;
-    }
 }

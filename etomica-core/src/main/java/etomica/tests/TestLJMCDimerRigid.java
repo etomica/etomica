@@ -52,7 +52,7 @@ public class TestLJMCDimerRigid extends Simulation {
         species = new SpeciesBuilder(space)
                 .addCount(AtomType.simpleFromSim(this), moleculeSize)
                 .setDynamic(true)
-                .withConformation(new ConformationChainLinear(space, 1, new double[]{Degree.UNIT.toSim(45), Degree.UNIT.toSim(45), 0}))
+                .withConformation(new ConformationChainLinear(space, 1, new double[]{Degree.UNIT.toSim(45), Degree.UNIT.toSim(45)}))
                 .build();
         addSpecies(species);
 

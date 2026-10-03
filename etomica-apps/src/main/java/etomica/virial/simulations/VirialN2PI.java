@@ -135,7 +135,7 @@ public class VirialN2PI {
         if (nPoints == 3 && nonAdditive) {
             final P3NitrogenHellmannNonAdditive p3N2NonAdditive = new P3NitrogenHellmannNonAdditive(space);
             if (p3N2HellmannA) p3N2NonAdditive.parametersB = false;
-            final Potential3Soft p3 = p3N2NonAdditive;
+            final IPotential3 p3 = p3N2NonAdditive;
             P3MolecularMonatomic p3N2Molecular = new P3MolecularMonatomic(space, p3);
             MayerFunctionMolecularThreeBody f3Tar = new MayerFunctionMolecularThreeBody(p3N2Molecular);
             MayerFunctionNonAdditive [] m1 = new MayerFunctionNonAdditive[]{null,null,null,f3Tar};

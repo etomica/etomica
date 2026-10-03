@@ -224,7 +224,7 @@ public class PotentialComputePair implements PotentialCompute {
                 uAtom[j] += 0.5 * uij;
                 double duij = u012[1];
                 virialTot += duij;
-                if (doForces) {
+                if (doForces && duij != 0) {
                     rij.TE(duij / r2);
                     forces[finalI].PE(rij);
                     forces[j].ME(rij);

@@ -180,7 +180,7 @@ public class PotentialMaster implements PotentialCompute {
         uAtom[jAtom] += 0.5 * uij;
         double duij = u012[1];
         virialTot += duij;
-        if (doForces) {
+        if (doForces && duij != 0) {
             dr.TE(duij / r2);
             forces[iAtom].PE(dr);
             forces[jAtom].ME(dr);

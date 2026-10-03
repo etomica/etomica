@@ -5,6 +5,7 @@ package etomica.modules.glass;
 
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.data.ConfigurationStorage;
 import etomica.graphics.ColorScheme;
 import etomica.space.Space;
 import etomica.space.Vector;

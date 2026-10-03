@@ -613,6 +613,10 @@ public class NeighborCellManager implements NeighborManager {
         return wrapMap;
     }
 
+    public int getNumCellOffsets() {
+        return numCellOffsets;
+    }
+
     public int[] getCellLastAtom() {
         return cellLastAtom;
     }

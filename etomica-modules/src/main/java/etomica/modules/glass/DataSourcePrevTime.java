@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.modules.glass;
 
+import etomica.data.ConfigurationStorage;
 import etomica.data.DataSourceScalar;
 import etomica.units.dimensions.Time;
 

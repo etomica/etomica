@@ -8,7 +8,7 @@ import etomica.atom.IAtomOriented;
 import etomica.chem.elements.Hydrogen;
 import etomica.chem.elements.Oxygen;
 import etomica.potential.IPotential2;
-import etomica.potential.Potential3Soft;
+import etomica.potential.IPotential3;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.OrientationFull3D;
@@ -107,7 +107,7 @@ public class P2H2OSzalewiczSC extends P2WaterSzalewicz {
         return new P2H2OSzalewiczSC.P2H2OSzalewiczSC3(temperature, comp);
     }
 
-    public static class P2H2OSzalewiczSC3 extends P2H2OSzalewiczSC implements Potential3Soft {
+    public static class P2H2OSzalewiczSC3 extends P2H2OSzalewiczSC implements IPotential3 {
         public P2H2OSzalewiczSC3(double temperature, Component comp) {
             super(temperature, 3);
             setComponent(comp);
@@ -119,7 +119,7 @@ public class P2H2OSzalewiczSC extends P2WaterSzalewicz {
         }
 
         @Override
-        public double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3) {
+        public double u(Vector dr12, Vector dr13, Vector dr23, IAtom atom1, IAtom atom2, IAtom atom3, double[] virial) {
             Vector zero = space.makeVector();
             return energy(new IAtom[]{atom1, atom2, atom3}, new Vector[]{zero, dr12, dr13});
         }

@@ -22,17 +22,20 @@ public class MCMoveClusterAtomHSChain extends MCMoveBoxStep {
     protected final IRandom random;
     protected final double sigma;
     protected int[] seq;
+    protected InsertionPositionSource positionSource;
     protected boolean forceInBox;
 
     public MCMoveClusterAtomHSChain(IRandom random, Box box, double sigma) {
         super();
         this.random = random;
         this.sigma = sigma;
+        positionSource = new RandomPositionSphere(box.getSpace(), random);
         setBox(box);
     }
 
-    public void setForceInBox(boolean forceInBox) {
-        this.forceInBox = forceInBox;
+    public void setPositionSource(InsertionPositionSource positionSource) {
+        this.positionSource = positionSource;
+
     }
 
     public boolean doTrial() {
@@ -55,31 +58,9 @@ public class MCMoveClusterAtomHSChain extends MCMoveBoxStep {
 
         for (int i = 1; i<n; i++) {
             Vector pos = leafAtoms.get(seq[i]).getPosition();
-            boolean insideBox = false;
-            while(!insideBox) {
-                pos.setRandomInSphere(random);
-                double sig = getSigma(seq[i - 1], seq[i]);
-                if (sig < 0) {
-                    // we want to force the position to be in the well (between 1 and sigma)
-                    sig = -sig;
-                    while (pos.squared() < 1 / (sig * sig)) {
-                        pos.setRandomInSphere(random);
-                    }
-                }
-                pos.TE(sig);
-                insideBox = true;
-                if (forceInBox) {
-                    for (int j = 0; j < pos.getD(); j++) {
-                        if (Math.abs(pos.getX(j)) > box.getBoundary().getBoxSize().getX(j) / 2) {
-                            insideBox = false;
-                            break;
-                        }
-                    }
-                }
-                if (insideBox) {
-                    pos.PE(leafAtoms.get(seq[i - 1]).getPosition());
-                }
-            }
+            double sig = getSigma(seq[i - 1], seq[i]);
+            pos.E(positionSource.position(sig));
+            pos.PE(leafAtoms.get(seq[i - 1]).getPosition());
         }
 
         ((BoxCluster)box).trialNotify();
@@ -105,5 +86,14 @@ public class MCMoveClusterAtomHSChain extends MCMoveBoxStep {
     @Override
     public double energyChange() {
         return 0;
+    }
+
+    /**
+     * Interface capable of providing a random position for use in this move (or others) to
+     * insert an atom next to another.  The returned vector is used as the displacement vector
+     * from the previous atom.
+     */
+    public interface InsertionPositionSource {
+        Vector position(double scale);
     }
 }

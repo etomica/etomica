@@ -7,7 +7,7 @@ package etomica.species;
 import etomica.atom.AtomType;
 import etomica.chem.elements.Carbon;
 import etomica.chem.elements.Hydrogen;
-import etomica.config.ConformationChainZigZag2;
+import etomica.config.ConformationChainZigZag;
 import etomica.space.Vector;
 import etomica.space3d.Space3D;
 
@@ -29,12 +29,12 @@ public class SpeciesAlkane {
         return makeBuilder(numCarbons, ch3Type, ch2Type, bondL, bondTheta).build();
     }
 
-    public static ConformationChainZigZag2 makeConformation() {
+    public static ConformationChainZigZag makeConformation() {
         return makeConformation(nominalBondL, nominalBondTheta);
     }
 
-    public static ConformationChainZigZag2 makeConformation(double bondL, double bondTheta) {
-        return new ConformationChainZigZag2(
+    public static ConformationChainZigZag makeConformation(double bondL, double bondTheta) {
+        return new ConformationChainZigZag(
                 Space3D.getInstance(),
                 Vector.of(bondL, 0, 0),
                 Vector.of(-bondL * Math.cos(bondTheta), bondL * Math.sin(bondTheta), 0)
@@ -53,7 +53,7 @@ public class SpeciesAlkane {
     }
 
     public static SpeciesBuilder makeBuilder(int numCarbons, AtomType ch3Type, AtomType ch2Type, double bondL, double bondTheta) {
-        ConformationChainZigZag2 conf = makeConformation(bondL, bondTheta);
+        ConformationChainZigZag conf = makeConformation(bondL, bondTheta);
         return new SpeciesBuilder(Space3D.getInstance())
                 .addCount(ch3Type, 1)
                 .addCount(ch2Type, Math.max(numCarbons - 2, 0))

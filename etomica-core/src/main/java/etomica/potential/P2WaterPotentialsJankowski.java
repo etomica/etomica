@@ -21,6 +21,9 @@ import etomica.units.Mole;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
 
+import java.io.BufferedReader;
+import java.io.Writer;
+
 public class P2WaterPotentialsJankowski implements IPotential2 {
     
     protected static final int nsitemax = 8;
@@ -28,8 +31,8 @@ public class P2WaterPotentialsJankowski implements IPotential2 {
     protected static final int ntypemax = 6;
     protected static final int maxpar1 = 18, maxpar2 = 84;
     protected static final double[] c = new double[1000], values = new double[100];
-    protected static final double [][] param = new double [maxpar1][ntypemax];
-    protected static final double [][][] parab = new double [maxpar2][ntypemax][ntypemax];
+    protected static final double[][] param = new double[maxpar1][ntypemax];
+    protected static final double[][][] parab = new double[maxpar2][ntypemax][ntypemax];
     protected static final int nsitea = 8, nsiteb = 8, ntpot = 124161, idonl = 1, iopt = 1, iweight = 315;
     protected static final int iasdone = 1, linp = 5, lout = 7, ipr = 0, isyst = 2, npowers = 3;
     protected static final double tolf = 0.10E-2, tolr = 0.20E+03, anoise = 0.10E-08, timlim = 880000;
@@ -2032,6 +2035,12 @@ public class P2WaterPotentialsJankowski implements IPotential2 {
 
             public void copyCoordinatesFrom(IAtom atom) {
             }
+
+            public void saveState(Writer fw) {
+            }
+
+            public void restoreState(BufferedReader br) {
+            }
         };
 
         comB.Ea1Tv1(mO,b1[0]);
@@ -2106,6 +2115,12 @@ public class P2WaterPotentialsJankowski implements IPotential2 {
             }
 
             public void copyCoordinatesFrom(IAtom atom) {
+            }
+
+            public void saveState(Writer fw) {
+            }
+
+            public void restoreState(BufferedReader br) {
             }
         };
 

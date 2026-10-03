@@ -11,10 +11,14 @@ import etomica.space.Space;
 import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
-public class DataSourceQ4 implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
+public class DataSourceQ4 implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent, Statefull {
 
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
@@ -79,8 +83,7 @@ public class DataSourceQ4 implements IDataSource, ConfigurationStorage.Configura
 
         double[] t = tData.getData();
         if (t.length > 0) {
-            double[] savedTimes = configStorage.getSavedTimes();
-            double dt = savedTimes[0] - savedTimes[1];
+            double dt = configStorage.getDeltaT();
             for (int i = 0; i < t.length; i++) {
                 t[i] = dt * (1L << i);
             }
@@ -174,6 +177,26 @@ public class DataSourceQ4 implements IDataSource, ConfigurationStorage.Configura
 
     public MeterChi4 makeChi4Meter() {
         return new MeterChi4();
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(Q4sum.length+"\n");
+        for (int i=0; i<Q4sum.length; i++) {
+            fw.write(Q4sum[i]+" "+Q4sum2[i]+" "+nSamples[i]+"\n");
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        int n = Integer.parseInt(br.readLine());
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            String[] bits = br.readLine().split(" ");
+            Q4sum[i] = Double.parseDouble(bits[0]);
+            Q4sum2[i] = Double.parseDouble(bits[1]);
+            nSamples[i] = Long.parseLong(bits[2]);
+        }
     }
 
     public class MeterChi4 implements IDataSource {

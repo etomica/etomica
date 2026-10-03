@@ -25,7 +25,7 @@ public class IntegratorManagerMC extends Integrator {
     protected final EventManager<MCMoveEvent> eventManager;
     protected final IRandom random;
     private final MCMoveEvent trialEvent;
-    private final MCMoveEvent acceptedEvent, rejectedEvent;
+    private final MCMoveTrialCompletedEvent acceptedEvent, rejectedEvent;
     protected double globalMoveProbability;
     protected MCMoveManager moveManager;
     protected final List<Integrator> integrators;
@@ -160,12 +160,14 @@ public class IntegratorManagerMC extends Integrator {
             //reject
             move.rejectNotify();
             //notify listeners of outcome
+            rejectedEvent.chi = chi;
             eventManager.fireEvent(rejectedEvent);
             move.getTracker().updateCounts(false, chi);
         } else {
             //accept
             move.acceptNotify();
             //notify listeners of outcome
+            acceptedEvent.chi = chi;
             eventManager.fireEvent(acceptedEvent);
             move.getTracker().updateCounts(true, chi);
         }

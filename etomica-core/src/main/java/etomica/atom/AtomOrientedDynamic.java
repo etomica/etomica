@@ -10,6 +10,10 @@ import etomica.space.Vector;
 import etomica.space3d.Orientation3D;
 import etomica.space3d.OrientationFull3D;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
+
 public class AtomOrientedDynamic extends AtomLeafDynamic implements
         IAtomOrientedKinetic {
 
@@ -33,7 +37,7 @@ public class AtomOrientedDynamic extends AtomLeafDynamic implements
         else {
             iOrientation = space.makeOrientation();
         }
-        angularVelocity = space.makeVector();  //XXX wrong! see https://rheneas.eng.buffalo.edu/bugzilla/show_bug.cgi?id=128
+        angularVelocity = space.makeVector();  //XXX wrong! angular velocity for 2D is a 1D vector
     }
 
     public Vector getAngularVelocity() {
@@ -48,5 +52,36 @@ public class AtomOrientedDynamic extends AtomLeafDynamic implements
         super.copyCoordinatesFrom(atom);
         iOrientation.E(((IAtomOriented) atom).getOrientation());
         angularVelocity.E(((IAtomOrientedKinetic) atom).getAngularVelocity());
+    }
+
+    public void saveState(Writer fw) throws IOException {
+        super.saveState(fw);
+        int D = position.getD();
+        fw.write("" + angularVelocity.getX(0));
+        for (int i = 1; i < D; i++) fw.write(" " + angularVelocity.getX(i));
+        Vector direction = iOrientation.getDirection();
+        for (int i = 0; i < D; i++) fw.write(" " + direction.getX(i));
+        if (iOrientation instanceof OrientationFull3D) {
+            direction = ((OrientationFull3D) iOrientation).getSecondaryDirection();
+            for (int i = 0; i < D; i++) fw.write(" " + direction.getX(i));
+        }
+        fw.write("\n");
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        super.restoreState(br);
+        String[] bits = br.readLine().split(" ");
+        int D = position.getD();
+        for (int i = 0; i < D; i++) angularVelocity.setX(i, Double.parseDouble(bits[i]));
+        Vector direction = iOrientation.getDirection();
+        for (int i = 0; i < D; i++) direction.setX(i, Double.parseDouble(bits[3 + i]));
+        if (iOrientation instanceof OrientationFull3D) {
+            Vector secondaryDirection = ((OrientationFull3D) iOrientation).getSecondaryDirection();
+            for (int i = 0; i < D; i++) secondaryDirection.setX(i, Double.parseDouble(bits[6 + i]));
+            ((OrientationFull3D) iOrientation).setDirections(direction, secondaryDirection);
+        } else {
+            iOrientation.setDirection(direction);
+        }
     }
 }

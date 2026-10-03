@@ -99,6 +99,14 @@ public class TensorND implements Tensor {
         }
     }
 
+    @Override
+    public void diagE(double a) {
+        this.E(0.0);
+        for(int i=0; i<dim; i++) {
+            x[i][i] = a;
+        }
+    }
+
     public void assignTo(Vector[] v) {
         for(int i=0; i<dim; i++){
             for(int j=0; j<dim; j++){

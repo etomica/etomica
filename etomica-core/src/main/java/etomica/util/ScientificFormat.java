@@ -29,11 +29,7 @@
 //package rplante.text;
 package etomica.util;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.FieldPosition;
-import java.text.NumberFormat;
-import java.text.ParsePosition;
+import java.text.*;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -153,8 +149,8 @@ public class ScientificFormat extends NumberFormat {
 	// remove quoted material
 	Object[] fmtquotes = extractQuotedStrings(pattern);
 	String pat = (String) fmtquotes[0];
-	Vector quoteds = (Vector) fmtquotes[1];
-	Vector qpos = (Vector) fmtquotes[2];
+	Vector<String> quoteds = (Vector<String>) fmtquotes[1];
+	Vector<Integer> qpos = (Vector<Integer>) fmtquotes[2];
 
 	// get exponential part of pattern
 	p = pat.indexOf('^');
@@ -165,7 +161,7 @@ public class ScientificFormat extends NumberFormat {
 	try {
 	    sub = pat.substring(p+1).trim();
 	    pat = pat.substring(0, p).trim();
-	    if (sub != null && sub.length() > 0) {
+	    if (sub.length() > 0) {
 		if (sub.indexOf('.') >= 0) throw new 
 		    IllegalArgumentException("Bad formatting string: " +
 					     "integer exponents only");
@@ -178,7 +174,7 @@ public class ScientificFormat extends NumberFormat {
 						       "portion: " + epat);
 		}
 	    }
-	} catch (StringIndexOutOfBoundsException ex) { }
+	} catch (StringIndexOutOfBoundsException ignored) { }
 
 	// get the max-width part of pattern
 	p = pat.indexOf(':');
@@ -190,14 +186,14 @@ public class ScientificFormat extends NumberFormat {
 	try {
 	    sub = pat.substring(p+1).trim();
 	    pat = pat.substring(0, p).trim();
-	    if (sub != null && sub.length() > 0) 
-		maxwidth = Integer.parseInt(sub);
+	    if (sub.length() > 0)
+			maxwidth = Integer.parseInt(sub);
 	} 
 	catch (NumberFormatException ex) {
 	    throw new IllegalArgumentException("Bad formatting string: " +
 					       "bad max-width value");
 	}	
-	catch (StringIndexOutOfBoundsException ex) { }
+	catch (StringIndexOutOfBoundsException ignored) { }
 
 	// Now determine mode
 	p = 1;
@@ -222,14 +218,14 @@ public class ScientificFormat extends NumberFormat {
 		                                   pat);
 	    }
 	}
-	catch (StringIndexOutOfBoundsException ex) { }
+	catch (StringIndexOutOfBoundsException ignored) { }
     }
 
     protected static Object[] extractQuotedStrings(String text) { 
 	Object[] out = new Object[3];
-	Vector qstrs = new Vector();
-	Vector qpos = new Vector();
-	StringBuffer ostr = new StringBuffer();
+	Vector<String> qstrs = new Vector<>();
+	Vector<Integer> qpos = new Vector<>();
+	StringBuilder ostr = new StringBuilder();
 	out[1] = qstrs;
 	out[2] = qpos;
 
@@ -241,9 +237,9 @@ public class ScientificFormat extends NumberFormat {
 	    if (ppos < 0) break;
 
 	    nl += al;
-	    ostr.append(text.substring(ppos, bp-ppos));
+	    ostr.append(text, ppos, bp-ppos);
 	    qstrs.addElement(text.substring(bp, 1+ppos-bp));
-	    qpos.addElement(new Integer(nl));
+	    qpos.addElement(nl);
 	}
 
 	ostr.append(text.substring(ppos));
@@ -253,16 +249,16 @@ public class ScientificFormat extends NumberFormat {
     }
 
     protected static String 
-    replaceQuotedStrings(Vector strings, Vector positions, 
+    replaceQuotedStrings(Vector<String> strings, Vector<Integer> positions,
 			 String input, int start) 
     {
 	if (strings == null || strings.size() == 0) return input;
 
 	int p, b=0;
-	StringBuffer out = new StringBuffer();
+	StringBuilder out = new StringBuilder();
 	int n = Math.min(strings.size(), positions.size());
 	for(int i=0; i < n; i++) {
-	    p = ((Integer) positions.elementAt(i)).intValue() - start;
+	    p = positions.elementAt(i) - start;
 	    if (start >= 0 && p < input.length()) {
 		out.append(input.substring(b, p-b));
 		out.append((String) strings.elementAt(i));
@@ -293,7 +289,7 @@ public class ScientificFormat extends NumberFormat {
      * default width.
      */
     public void setMaxWidth(int width) {
-	maxwidth = (width > 0) ? width : 0;
+	maxwidth = Math.max(width, 0);
     }
 
     public int getMaxWidth() { 
@@ -406,7 +402,7 @@ public class ScientificFormat extends NumberFormat {
     }
 
     public String toPattern() {
-	StringBuffer out = new StringBuffer();
+	StringBuilder out = new StringBuilder();
 
 	if (expmode) out.append("!");
 	else if (flexmode) out.append("~");
@@ -414,9 +410,9 @@ public class ScientificFormat extends NumberFormat {
 
 	out.append(dfmt.toPattern());
 
-	if (flexmode) out.append(":" + maxwidth);
+	if (flexmode) out.append(":").append(maxwidth);
 
-	if (! decmode) out.append("^" + efmt.toPattern());
+	if (! decmode) out.append("^").append(efmt.toPattern());
 
 	return out.toString();
     }
@@ -602,9 +598,9 @@ public class ScientificFormat extends NumberFormat {
 	double val = mantissa.doubleValue() * 
 	    Math.pow(10, expo.doubleValue());
 	if (mantissa instanceof Long && expo instanceof Long) 
-	    out = new Long(Math.round(val));
+	    out = Math.round(val);
 	else 
-	    out = new Double(val);
+	    out = val;
 
 	return out;
     }
@@ -692,7 +688,7 @@ public class ScientificFormat extends NumberFormat {
 
 	ScientificFormat scifmt = new ScientificFormat();
 
-	StringBuffer buf;
+	StringBuilder buf;
 	ParsePosition ppos = new ParsePosition(0);
 	Number num;
 	double value;
@@ -702,7 +698,7 @@ public class ScientificFormat extends NumberFormat {
 	System.out.println("Input\t\tFlexible\tDecimal\tExponential");
 
 	for(int i=0; i < args.length; i++) {
-	    buf = new StringBuffer(args[i]);
+	    buf = new StringBuilder(args[i]);
 
 	    // parse out a number from the input string 
 	    ppos.setIndex(0);

@@ -21,22 +21,24 @@ import etomica.virial.BoxCluster;
  */
 public class MCMoveClusterAtomHSTree extends MCMoveBox {
 
+    protected MCMoveClusterAtomHSChain.InsertionPositionSource positionSource;
     protected final IRandom random;
     protected final double sigma;
     protected int[][] bonds;
     protected int[] degree, a;
     protected int[] inserted;
-    protected boolean forceInBox;
 
     public MCMoveClusterAtomHSTree(IRandom random, Box box, double sigma) {
         super();
         this.random = random;
         this.sigma = sigma;
+        positionSource = new RandomPositionSphere(box.getSpace(), random);
         setBox(box);
     }
 
-    public void setForceInBox(boolean forceInBox) {
-        this.forceInBox = forceInBox;
+    public void setPositionSource(MCMoveClusterAtomHSChain.InsertionPositionSource positionSource) {
+        this.positionSource = positionSource;
+
     }
 
     public void setBox(Box box) {
@@ -119,33 +121,11 @@ public class MCMoveClusterAtomHSTree extends MCMoveBox {
                 }
                 // insert nbr2 around nbr
                 Vector pos = leafAtoms.get(nbr2).getPosition();
-                boolean insideBox = false;
-                while(!insideBox) {
-                    pos.setRandomInSphere(random);
-                    double sig = getSigma(nbr, nbr2);
-                    if (sig < 0) {
-                        // we want to force the position to be in the well (between 1 and sigma)
-                        sig = -sig;
-                        while (pos.squared() < 1 / (sig * sig)) {
-                            pos.setRandomInSphere(random);
-                        }
-                    }
-                    pos.TE(sig);
-                    insideBox = true;
-                    if (forceInBox) {
-                        for (int i = 0; i < pos.getD(); i++) {
-                            if (Math.abs(pos.getX(i)) > box.getBoundary().getBoxSize().getX(i) / 2) {
-                                insideBox = false;
-                                break;
-                            }
-                        }
-                    }
-                    if (insideBox) {
-                        pos.PE(leafAtoms.get(nbr).getPosition());
-                        inserted[numInserted] = nbr2;
-                        numInserted++;
-                    }
-                }
+                double sig = getSigma(nbr, nbr2);
+                pos.E(positionSource.position(sig));
+                pos.PE(leafAtoms.get(nbr).getPosition());
+                inserted[numInserted] = nbr2;
+                numInserted++;
             }
         }
 

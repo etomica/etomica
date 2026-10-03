@@ -17,7 +17,7 @@ import etomica.virial.MayerFunction;
  *
  * @author David Kofke and Andrew Schultz
  */
-public class ClusterChainHS implements ClusterAbstract {
+public class ClusterChainHS implements ClusterAbstract, ClusterWeight {
 
     protected final int n, nf1;
     protected final MayerFunction f;

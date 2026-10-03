@@ -159,7 +159,7 @@ public class VirialHePIGraphic {
 
         final P3CPSNonAdditiveHeSimplified p3Approx = new P3CPSNonAdditiveHeSimplified(space);
         p3Approx.setParameters(temperatureK);
-        final Potential3Soft p3 = calcApprox ? p3Approx : new P3CPSNonAdditiveHe(space);
+        final IPotential3 p3 = calcApprox ? p3Approx : new P3CPSNonAdditiveHe(space);
 
         PotentialMolecule3PI p3Target = new PotentialMolecule3PI(space, p3, beadFac, nPoints+(doFlex?1:0));
         PotentialMolecule3PI.PotentialMolecule3PISkip[] p3TargetSkip = new PotentialMolecule3PI.PotentialMolecule3PISkip[beadFac];

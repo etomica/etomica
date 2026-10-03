@@ -4,9 +4,7 @@
 
 package etomica.veos.bigdecimal ;
 
-import java.lang.* ;
-import java.util.* ;
-import java.math.* ;
+import java.math.BigInteger;
 
 /** Euler totient function.
 * @see <a href="http://oeis.org/A000010">A000010</a> in the OEIS.
@@ -60,7 +58,7 @@ public class EulerPhi
         public static void main(String[] args) throws ArithmeticException
         {
                 EulerPhi a = new EulerPhi() ;
-                int n = (new Integer(args[0])).intValue() ;
+                int n = Integer.parseInt(args[0]);
                 System.out.println("phi("+ n + ") = " + a.at(n)) ;
         }
 } /* EulerPhi */

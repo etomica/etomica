@@ -31,6 +31,7 @@ import etomica.virial.cluster.*;
 import etomica.virial.mcmove.MCMoveClusterAtomHSChainMix;
 import etomica.virial.mcmove.MCMoveClusterAtomHSTreeMix;
 import etomica.virial.mcmove.MCMoveClusterAtomInBox;
+import etomica.virial.mcmove.RandomPositionSphere;
 import etomica.virial.simulations.SimulationVirial;
 import etomica.virial.wheatley.ClusterWheatleyHS;
 
@@ -50,15 +51,15 @@ public class VirialHSMixture {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 6;
+            params.nPoints = 4;
             params.numSteps = 10000000L;
             params.ref = VirialHSParam.CHAIN_TREE;
             params.chainFrac = 0.5;
-            params.q = 0.2;
+            params.q = 1;
             params.nonAdd = 0.0;
-            params.cff = 3;
+            params.cff = 0;
             params.D = 3;
-            params.L = 6;
+            params.L = 2;
         }
         final int nSmall = params.cff;
         final int nPoints = params.nPoints;
@@ -92,7 +93,7 @@ public class VirialHSMixture {
                 int jjj = 0;
                 for (int j = 0; j <= i; j++) {
                     for (int jj = 0; jj <= ((i == j) ? ii : (nTypes[j] - 1)); jj++) {
-                        double x = nonAdd == null ? 0 : nonAdd[i][j];
+                        double x = nonAdd[i][j];
                         pairSigma[jjj][iii] = pairSigma[iii][jjj] = (1 + x) * (sigma[i] + sigma[j]) / 2;
                         jjj++;
                     }
@@ -107,39 +108,32 @@ public class VirialHSMixture {
 
         final ClusterAbstract targetCluster = new ClusterWheatleyHS(nPoints, fTarget);
         targetCluster.setTemperature(1.0);
-        final ClusterAbstract refCluster;
-        double ri;
+        final ClusterWeightUmbrella refCluster;
         if (ref == VirialHSParam.TREE) {
             System.out.println("using a tree reference");
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{ct});
-            ((ClusterWeightUmbrella) refCluster).setWeightCoefficients(new double[]{1.0 / ct.numDiagrams()});
-            ri = 1;
+            refCluster.setWeightCoefficients(new double[]{1.0 / ct.numDiagrams()});
         } else if (ref == VirialHSParam.CHAINS) {
             System.out.println("using a chain reference");
             ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc});
-            ((ClusterWeightUmbrella) refCluster).setWeightCoefficients(new double[]{1.0 / cc.numDiagrams()});
-            ri = 1;
+            refCluster.setWeightCoefficients(new double[]{1.0 / cc.numDiagrams()});
         } else if (ref == VirialHSParam.CHAIN_TREE) {
             System.out.println("using a chain/tree reference (" + chainFrac + " chains)");
             ClusterChainHS cc = new ClusterChainHS(nPoints, fRefPos);
             ClusterSinglyConnected ct = new ClusterSinglyConnected(nPoints, fRefPos);
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc, ct});
-            ((ClusterWeightUmbrella) refCluster).setWeightCoefficients(new double[]{chainFrac / cc.numDiagrams(), (1 - chainFrac) / ct.numDiagrams()});
-            ri = 1;
+            refCluster.setWeightCoefficients(new double[]{chainFrac / cc.numDiagrams(), (1 - chainFrac) / ct.numDiagrams()});
         } else if (ref == VirialHSParam.RANDOM) {
             System.out.println("using random particles in box reference");
             ClusterConstant cc = new ClusterConstant(nPoints, Math.pow(1.0/L, 3.0*(nPoints-1)));
             refCluster = new ClusterWeightUmbrella(new ClusterAbstract[]{cc});
-            ((ClusterWeightUmbrella) refCluster).setWeightCoefficients(new double[]{1.0});
-            ri = 1;
+            refCluster.setWeightCoefficients(new double[]{1.0});
         } else {
             throw new RuntimeException();
         }
 
-        final double refIntegral = ri;
-        System.out.println("reference integral: " + refIntegral);
         refCluster.setTemperature(1.0);
 
         ClusterAbstract[] targetDiagrams = new ClusterAbstract[]{targetCluster};
@@ -156,20 +150,24 @@ public class VirialHSMixture {
         accumulator.setPushInterval(1000000);
 
         sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
+        boolean doL = L < Double.POSITIVE_INFINITY && L > 0;
+        RandomPositionSphere positionSource = doL ? new RandomPositionSphere(space, sim.getRandom(), sim.box().getBoundary())
+                                                  : new RandomPositionSphere(space, sim.getRandom());
         if (ref == VirialHSParam.TREE) {
             MCMoveClusterAtomHSTreeMix mcMoveHS = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), sim.box, pairSigma);
+            mcMoveHS.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         } else if (ref == VirialHSParam.CHAINS) {
             MCMoveClusterAtomHSChainMix mcMoveHS = new MCMoveClusterAtomHSChainMix(sim.getRandom(), sim.box, pairSigma);
-            mcMoveHS.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
+            mcMoveHS.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         } else if (ref == VirialHSParam.CHAIN_TREE) {
             MCMoveClusterAtomHSTreeMix mcMoveHST = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), sim.box, pairSigma);
-            mcMoveHST.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
+            mcMoveHST.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHST);
             sim.integrator.getMoveManager().setFrequency(mcMoveHST, 1 - chainFrac);
             MCMoveClusterAtomHSChainMix mcMoveHSC = new MCMoveClusterAtomHSChainMix(sim.getRandom(), sim.box, pairSigma);
-            mcMoveHSC.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
+            mcMoveHSC.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
             sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
         } else if (ref == VirialHSParam.RANDOM) {
@@ -234,9 +232,9 @@ public class VirialHSMixture {
                     IData avgData = accumulator.getData();
                     double avg = ((DataGroup) avgData).getData(accumulator.AVERAGE.index).getValue(0);
                     double error = ((DataGroup) avgData).getData(accumulator.ERROR.index).getValue(0);
-                    data.x = avg * refIntegral;
+                    data.x = avg;
                     averageBox.putData(data);
-                    data.x = error * Math.abs(refIntegral);
+                    data.x = error;
                     errorBox.putData(data);
 
                     data.x = sim.integrator.getStepCount();
@@ -271,16 +269,10 @@ public class VirialHSMixture {
         double avg = averageData.getValue(0);
         double err = errorData.getValue(0);
 
-
-        System.out.print(String.format("target average: %20.15e error: %9.4e\n", avg, err));
-
-        System.out.println();
-
-        System.out.println(String.format("abs average: %20.15e  error: %9.4e\n", avg * refIntegral, err * Math.abs(refIntegral)));
+        System.out.printf("target average: %20.15e error: %9.4e\n", avg, err);
 
         long t2 = System.currentTimeMillis();
-        System.out.println("time:" + (t2 - t1) / 1000.0);
-        System.out.println("#################################");
+        System.out.println("time: " + (t2 - t1) / 1000.0);
     }
 
 

@@ -1009,6 +1009,8 @@ public class VirialDiagrams {
         }
         else {
 
+            // eXi is actually the grand canonical partition function - 1
+            // it does not include the N=0 term (which is 1)
             Set<Graph> eXi = new HashSet<Graph>();//set of full star diagrams with e bonds
             for (byte i=1; i<n+1; i++) {
                 Graph g = GraphFactory.createGraph(i, BitmapFactory.createBitmap(i,true));
@@ -1084,7 +1086,10 @@ public class VirialDiagrams {
                     System.out.println(g);
                 }
             }
-            
+
+            // mathematically, ln(Xi) = ln(1 + x) = x - x^2/2 + x^3/3 - x^4/4, where is x=Xi-1 is then a small number
+            // however, our eXi and then fXi are actually Xi-1 (because they don't include N=0)
+            // so ln(real Xi) = (our Xi) - (our Xi)^2/2 + ...
             Set<Graph> fXipow = new HashSet<Graph>();
             fXipow.addAll(fXi);
             for (int i=1; i<n+1; i++) {

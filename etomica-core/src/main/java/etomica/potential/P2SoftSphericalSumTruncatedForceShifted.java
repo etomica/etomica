@@ -48,9 +48,8 @@ public class P2SoftSphericalSumTruncatedForceShifted extends P2SoftSphericalSumT
     @Override
     public void setTruncationRadius(double rCut) {
         super.setTruncationRadius(rCut);
-        uShift = -uWrapped(r2Cutoff);
         ufShift = -duWrapped(r2Cutoff) / rCutoff;
-        uShift -= rCutoff * ufShift;
+        uShift = -uWrapped(r2Cutoff) - rCutoff * ufShift;
     }
 
     @Override

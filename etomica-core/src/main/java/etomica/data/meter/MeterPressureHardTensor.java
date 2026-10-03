@@ -4,6 +4,7 @@
 
 package etomica.data.meter;
 
+import etomica.atom.IAtom;
 import etomica.atom.IAtomKinetic;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -29,6 +30,8 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
     private final IDataInfo dataInfo;
     protected final DataTag tag;
     protected final boolean justVirial;
+    protected boolean doNonEquilibrium;
+    protected boolean returned;
 
     public MeterPressureHardTensor(IntegratorHard integrator) {
         this(integrator, false);
@@ -45,6 +48,12 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
         tag = new DataTag();
         dataInfo.addTag(tag);
         virialSum = space.makeTensor();
+        doNonEquilibrium = true;
+        returned = true;
+    }
+
+    public void setDoNonEquilibrium(boolean doNonEquilibrium) {
+        this.doNonEquilibrium = doNonEquilibrium;
     }
 
     public IDataInfo getDataInfo() {
@@ -57,12 +66,16 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
 
     public IData getData() {
         double t = integratorHard.getCurrentTime();
-        data.x.E(0);
+        if (returned) {
+            // once we return a value, we need to zero out for new data
+            data.x.E(0);
+        }
         data.x.PEa1Tt1(-1 / ((t - t0)), virialSum);
         virialSum.E(0);
         t0 = t;
 
         if (justVirial) {
+            returned = true;
             return data;
         }
 
@@ -73,15 +86,28 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
         // velocities
         Box box = integratorHard.getBox();
         IAtomList leafList = box.getLeafList();
-        int nLeaf = leafList.size();
-        for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
-            IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
-            v.Ev1v2(a.getVelocity(), a.getVelocity());
-            v.TE((a.getType().rm()));
-            data.x.PE(v);
+        if (doNonEquilibrium) {
+            // We're using the current velocity tensor with the average virial tensor
+            // We've computed corrections to this within pairCollision
+            Tensor K = box.getSpace().makeTensor();
+            for (IAtom iAtom : leafList) {
+                Vector v = ((IAtomKinetic) iAtom).getVelocity();
+                K.Ev1v2(v, v);
+                K.TE(iAtom.getType().getMass());
+                data.x.PE(K);
+            }
+        }
+        else {
+            // include an average value for the kinetic contribution
+            Vector v = box.getSpace().makeVector();
+            v.E(1);
+            Tensor I = box.getSpace().makeTensor();
+            I.diagE(v);
+            data.x.PEa1Tt1(leafList.size() * integratorHard.getTemperature(), I);
         }
 
         data.x.TE(1.0 / box.getBoundary().volume());
+        returned = true;
 
         return data;
     }
@@ -90,6 +116,52 @@ public class MeterPressureHardTensor implements IDataSource, IntegratorHard.Coll
         v.Ev1v2(r12, r12);
         v.TE(virial / r12.squared());
         virialSum.PE(v);
+
+        if (returned) {
+            // we're starting fresh
+            data.x.E(0);
+            returned = false;
+        }
+
+        if (doNonEquilibrium && !justVirial) {
+            // In getData, we'll estimate the kinetic contributions based on the velocities at the
+            // end of the step. Right now, we need to compute a correction to that estimate based
+            // on how much the velocities changed due to this collision.
+            // Basically, since the beginning of the timestep, we have had the pre-collision
+            // velocities.  So include their contribution, but also subtract off the contribution
+            // from the new velocities (which we will incorrectly include later).
+            // If an atom happens to have multiple collisions in a step, all this stuff will
+            // still work out.
+
+            // FIXME This does depend on getData being called every step because our tCollision here
+            // FIXME is only the time since the start of the current step.
+            Space space = integratorHard.getBox().getSpace();
+            double lastCollisionVirialr2 = virial / r12.squared();
+            Vector dp = space.makeVector();
+            dp.Ea1Tv1(lastCollisionVirialr2, r12);
+
+            Vector dva = space.makeVector();
+            dva.Ea1Tv1(1/atom1.getType().rm(), dp);
+            Vector vOld = space.makeVector();
+            vOld.Ev1Mv2(atom1.getVelocity(), dva);
+
+            Tensor tTmp = space.makeTensor();
+            Tensor tCor = space.makeTensor();
+            tTmp.Ev1v2(vOld, vOld);
+            tCor.PEa1Tt1(atom1.getType().getMass(), tTmp);
+            tTmp.Ev1v2(atom1.getVelocity(), atom1.getVelocity());
+            tCor.PEa1Tt1(-atom1.getType().getMass(), tTmp);
+
+            dva.Ea1Tv1(-1/atom2.getType().rm(), dp);
+            vOld.Ev1Mv2(atom2.getVelocity(), dva);
+
+            tTmp.Ev1v2(vOld, vOld);
+            tCor.PEa1Tt1(atom2.getType().getMass(), tTmp);
+            tTmp.Ev1v2(atom2.getVelocity(), atom2.getVelocity());
+            tCor.PEa1Tt1(-atom2.getType().getMass(), tTmp);
+
+            data.x.PEa1Tt1(tCollision, tCor);
+        }
     }
 
     public IntegratorHard getIntegrator() {

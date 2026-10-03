@@ -6,6 +6,7 @@ package etomica.starpolymer;
 
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
+import etomica.box.Box;
 import etomica.integrator.mcmove.MCMoveBoxStep;
 import etomica.molecule.IMolecule;
 import etomica.molecule.MoleculeSource;
@@ -68,6 +69,11 @@ public class MCMoveClusterRotateArm extends MCMoveBoxStep {
         axis = space.makeVector();
     }
 
+    public void setBox(Box box) {
+        super.setBox(box);
+        moleculeSource.setBox(box);
+    }
+
     public void setSpecies(ISpecies newSpecies) {
         species = newSpecies;
     }
@@ -123,12 +129,14 @@ public class MCMoveClusterRotateArm extends MCMoveBoxStep {
 
     public void acceptNotify() {
 //        System.out.println("accepting rotate");
+        ((BoxCluster) box).acceptNotify();
     }
 
     public void rejectNotify() {
 //        System.out.println("rejecting rotate");
         rotationTensor.invert();
         doTransform();
+        ((BoxCluster) box).rejectNotify();
     }
 
     public double getChi(double temperature) {

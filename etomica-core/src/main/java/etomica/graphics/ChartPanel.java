@@ -10,7 +10,9 @@ import javax.swing.event.PopupMenuListener;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.util.Map;
 
 class ChartPanel extends JPanel {
@@ -24,15 +26,19 @@ class ChartPanel extends JPanel {
         this.oldMarkerSize = this.chart.getStyler().getMarkerSize();
         this.setPreferredSize(new Dimension(chart.getWidth(), chart.getHeight()));
 
-        ToolTips toolTips = chart.getToolTips();
-        if (toolTips != null) {
-            MouseMotionListener mml = toolTips.getMouseMotionListener();
-            if (mml != null) {
-                this.addMouseMotionListener(mml);
+        {
+            // XXX what does this code actually do?  We don't seem to actually have tooltips
+            // These calls disappear in later versions, but it's not even clear what they do.
+            ToolTips toolTips = chart.getToolTips();
+            if (toolTips != null) {
+                MouseMotionListener mml = toolTips.getMouseMotionListener();
+                if (mml != null) {
+                    this.addMouseMotionListener(mml);
+                }
             }
-        }
 
-        this.addMouseMotionListener(chart.getCursor());
+            this.addMouseMotionListener(chart.getCursor());
+        }
 
         this.addMouseWheelListener(e -> {
             if (!e.isShiftDown()) {

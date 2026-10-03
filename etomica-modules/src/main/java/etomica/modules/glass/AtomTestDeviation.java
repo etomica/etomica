@@ -6,6 +6,7 @@ package etomica.modules.glass;
 import etomica.atom.AtomTest;
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.data.ConfigurationStorage;
 import etomica.space.Space;
 import etomica.space.Vector;
 

@@ -13,10 +13,14 @@ import etomica.units.dimensions.CompoundDimension;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
-public class DataSourceStrings implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent {
+public class DataSourceStrings implements IDataSource, ConfigurationStorage.ConfigurationStorageListener, DataSourceIndependent, Statefull {
 
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
@@ -71,8 +75,7 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
         dataInfo.addTag(tag);
         double[] t = tData.getData();
         if (t.length > 0) {
-            double[] savedTimes = configStorage.getSavedTimes();
-            double dt = savedTimes[0] - savedTimes[1];
+            double dt = configStorage.getDeltaT();
             for (int i = 0; i < t.length; i++) {
                 t[i] = dt * (1L << i);
             }
@@ -152,12 +155,12 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
             for (int jj = 0; jj < numAtoms*mobFrac; jj++) {
                 if(ii == jj) continue;
                 int j = (int)dr2[jj][0];
-                Vector rj = oldPositions[j];
-                dr.Ev1Mv2(rj, riOld);
+                Vector rjOld = oldPositions[j];
+                dr.Ev1Mv2(rjOld, riOld);
                 box.getBoundary().nearestImage(dr);
                 if (dr.squared() > nbrMax2) continue;
 
-                dr.Ev1Mv2(ri, rj); //i(t) --> j(0)
+                dr.Ev1Mv2(ri, rjOld); //i(t) --> j(0)
                 box.getBoundary().nearestImage(dr);
                 if(dr.squared() > strTol2) continue;
 
@@ -225,4 +228,22 @@ public class DataSourceStrings implements IDataSource, ConfigurationStorage.Conf
         return tTag;
     }
 
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(nStrings.length+"\n");
+        for (int i=0; i<nStrings.length; i++) {
+            fw.write(nStrings[i]+" "+numAtomInString[i]+"\n");
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        int n = Integer.parseInt(br.readLine());
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            String[] bits = br.readLine().split(" ");
+            nStrings[i] = Long.parseLong(bits[0]);
+            numAtomInString[i] = Long.parseLong(bits[1]);
+        }
+    }
 }

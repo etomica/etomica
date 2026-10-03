@@ -48,11 +48,17 @@ public class MCMoveManager {
      * given MCMove is not an MCMoveBox
      */
     public void addMCMove(MCMove move) {
+        addMCMove(move, 1);
+    }
+
+    public void addMCMove(MCMove move, double frequency) {
         //make sure move wasn't added already
         for (int i=0; i<mcMoveList.size(); i++) {
             if (mcMoveList.get(i).move == move) throw new RuntimeException("move already added");
         }
-        mcMoveList.add(new MCMoveLinker(move));
+        MCMoveLinker l = new MCMoveLinker(move);
+        l.frequency = frequency;
+        mcMoveList.add(l);
 
         MCMoveTracker tracker = move.getTracker();
         if (tracker instanceof MCMoveStepTracker && !isEquilibrating) {

@@ -9,10 +9,14 @@ import etomica.data.types.DataFunction;
 import etomica.integrator.IntegratorMD;
 import etomica.units.dimensions.Null;
 import etomica.units.dimensions.Time;
+import etomica.util.Statefull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 
-public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceIndependent, DataSourceMSD.MSDSink {
+public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceIndependent, DataSourceMSD.MSDSink, Statefull {
 
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
@@ -190,6 +194,38 @@ public class DataSourceMSDcorP implements IDataSink, IDataSource, DataSourceInde
 
     public DataSourceMSDcovP makeCov() {
         return new DataSourceMSDcovP();
+    }
+
+    @Override
+    public void saveState(Writer fw) throws IOException {
+        fw.write(""+step0+" "+msdSum.length+"\n");
+        for (int i=0; i<msdSum.length; i++) {
+            fw.write(msdSum[i]+" "+xSum[i]+" "+xmsdSum[i]+" "+msd2Sum[i]+" "+x2Sum[i]+" "+nSamples[i]+" "+lastSampleMSD[i]+
+                        " "+lastSampleX[i]+" "+blockSumX[i]+" "+nBlockSamplesX[i]+" "+lastStepMSD[i]+" "+lastStepX[i]+"\n");
+        }
+    }
+
+    @Override
+    public void restoreState(BufferedReader br) throws IOException {
+        String[] bits = br.readLine().split(" ");
+        step0 = Long.parseLong(bits[0]);
+        int n = Integer.parseInt(bits[1]);
+        reallocate(n);
+        for (int i=0; i<n; i++) {
+            bits = br.readLine().split(" ");
+            msdSum[i] = Double.parseDouble(bits[0]);
+            xSum[i] = Double.parseDouble(bits[1]);
+            xmsdSum[i] = Double.parseDouble(bits[2]);
+            msd2Sum[i] = Double.parseDouble(bits[3]);
+            x2Sum[i] = Double.parseDouble(bits[4]);
+            nSamples[i] = Long.parseLong(bits[5]);
+            lastSampleMSD[i] = Double.parseDouble(bits[6]);
+            lastSampleX[i] = Double.parseDouble(bits[7]);
+            blockSumX[i] = Double.parseDouble(bits[8]);
+            nBlockSamplesX[i] = Long.parseLong(bits[9]);
+            lastStepMSD[i] = Long.parseLong(bits[10]);
+            lastStepX[i] = Long.parseLong(bits[11]);
+        }
     }
 
     /**

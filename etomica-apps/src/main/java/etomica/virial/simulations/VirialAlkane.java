@@ -205,7 +205,7 @@ public class VirialAlkane {
         }
 
         final SimulationVirialOverlap2 sim = new SimulationVirialOverlap2(space, sm,
-                alkaneFlex ? (nPoints+1) : nPoints,temperature, refCluster, targetCluster);
+                new int[]{alkaneFlex ? (nPoints+1) : nPoints},temperature, refCluster, targetCluster);
         sim.setExtraTargetClusters(targetDiagrams);
         sim.setDoWiggle(nSpheres > 2);
         sim.setBondingInfo(bondingInfo);

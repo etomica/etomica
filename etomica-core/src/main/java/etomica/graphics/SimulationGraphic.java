@@ -123,6 +123,10 @@ public class SimulationGraphic implements SimulationContainer {
         setupDisplayBox(simulation.getIntegrator(), new LinkedList<Box>());
     }
 
+    public DeviceTrioControllerButton getTrioControllerButton() {
+        return dcb;
+    }
+
     public static JFrame makeAndDisplayFrame(JPanel panel, String title) {
         JFrame f = makeFrame(panel);
         f.setTitle(title);

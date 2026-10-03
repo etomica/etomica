@@ -372,8 +372,8 @@ public class PistonCylinderGraphic extends SimulationGraphic {
             scaleSlider.setNMajor(0);
             scaleSlider.setSliderVerticalOrientation(false);
             java.util.Hashtable<Integer, JLabel> scaleLabels = new java.util.Hashtable<Integer, JLabel>();
-            scaleLabels.put(new Integer(10), new JLabel("min", JLabel.CENTER));
-            scaleLabels.put(new Integer(100), new JLabel("max", JLabel.CENTER));
+            scaleLabels.put(10, new JLabel("min", JLabel.CENTER));
+            scaleLabels.put(100, new JLabel("max", JLabel.CENTER));
             scaleSlider.getSlider().setLabelTable(scaleLabels);
         }
 
@@ -818,7 +818,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
                 pc.integrator.setPairPotential(type, type, p2);
                 try {
                     pc.integrator.reset();
-                } catch (ConfigurationOverlapException e) {
+                } catch (ConfigurationOverlapException ignored) {
                 }
 
                 getController().getResetAveragesButton().press();
@@ -912,7 +912,7 @@ public class PistonCylinderGraphic extends SimulationGraphic {
 
     public static void main(String[] args) {
         int D = 2;
-        boolean doRDF = true;
+        boolean doRDF = false;
         boolean doDensityInput = false;
         boolean doConfigButton = false;
         boolean doNMoleculeSlider = false;

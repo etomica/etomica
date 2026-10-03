@@ -79,7 +79,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
     public void addSpecies(ISpecies newSpecies) {
     	if(species.indexOf(newSpecies) == -1) {
     	    species.add(newSpecies);
-    	    allocation.put(newSpecies, new Float(0.5));
+    	    allocation.put(newSpecies, 0.5F);
     	}
     }
 
@@ -106,7 +106,7 @@ public class ConfigurationLatticeWithPlane extends ConfigurationLattice {
     public void setSpeciesAllocation(ISpecies sp, float pct) {
     	if(species.indexOf(sp) != -1 && pct <= 1.0) {
     		allocation.remove(sp);
-    		allocation.put(sp, new Float(pct));
+    		allocation.put(sp, pct);
     	}
     }
 

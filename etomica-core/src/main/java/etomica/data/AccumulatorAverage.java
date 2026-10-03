@@ -4,9 +4,17 @@
 
 package etomica.data;
 
+import etomica.data.types.DataDouble;
+import etomica.data.types.DataDoubleArray;
 import etomica.data.types.DataGroup;
 import etomica.data.types.DataGroup.DataInfoGroup;
 import etomica.units.dimensions.Null;
+import etomica.util.Statefull;
+
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Accumulator that keeps statistics for averaging and error analysis. The
@@ -30,7 +38,7 @@ import etomica.units.dimensions.Null;
  * confidence interval for the overall average is obtained as the standard error
  * of the mean of these block averages.
  */
-public abstract class AccumulatorAverage extends DataAccumulator {
+public abstract class AccumulatorAverage extends DataAccumulator implements Statefull {
 
     public static final StatType MOST_RECENT = new StatType("Latest value", 0);
     public static final StatType AVERAGE = new StatType("Average", 1);
@@ -274,4 +282,31 @@ public abstract class AccumulatorAverage extends DataAccumulator {
         }
     }
 
+    public void saveState(Writer fw) throws IOException {
+        fw.write(""+count+" "+blockCountDown+"\n");
+        fw.write(""+mostRecent.getValue(0));
+        for (int i=1; i<mostRecent.getLength(); i++) {
+            fw.write(" "+mostRecent.getValue(i));
+        }
+        fw.write("\n");
+    }
+
+    public void restoreState(BufferedReader br) throws IOException {
+        String[] bits = br.readLine().split(" ");
+        count = Long.parseLong(bits[0]);
+        blockCountDown = Long.parseLong(bits[1]);
+        bits = br.readLine().split(" ");
+        for (int i=0; i<mostRecent.getLength(); i++) {
+            double x = Double.parseDouble(bits[0]);
+            if (mostRecent instanceof DataDouble && i==0) {
+                ((DataDouble) mostRecent).x = x;
+            }
+            else if (mostRecent instanceof DataDoubleArray) {
+                ((DataDoubleArray)mostRecent).getData()[i] = x;
+            }
+            else {
+                throw new RuntimeException("we only handle DataDouble and DataDoubleArray");
+            }
+        }
+    }
 }

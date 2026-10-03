@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package etomica.config;
+
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
-import etomica.space.Vector;
 import etomica.space.Space;
+import etomica.space.Vector;
 import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Length;
 
@@ -19,17 +20,11 @@ import etomica.units.dimensions.Length;
 
 public class ConformationChainLinear implements IConformation {
     
-    public ConformationChainLinear(Space _space) {
-        this(_space, 0.55);
-    }
-    public ConformationChainLinear(Space _space, double bondLength) {
-    	this(_space, bondLength, new double[] {etomica.units.Degree.UNIT.toSim(45.), 0.0});
-    }
     public ConformationChainLinear(Space _space, double bondLength, double[] initAngles) {
         space = _space;
         this.bondLength = bondLength;
         orientation = space.makeVector();
-        angle = new double[space.D()];
+        angle = new double[space.D()-1];
         for(int i=0; i<initAngles.length; i++) setAngle(i,initAngles[i]);
     }
     public void setBondLength(double b) {
@@ -43,12 +38,12 @@ public class ConformationChainLinear implements IConformation {
     public void setAngle(int i, double t) {//t in radians
         angle[i] = t;
         switch(angle.length) {
-            case 1:
+            case 0:
                 return;
-            case 2:
+            case 1:
                 setOrientation(new etomica.space2d.Vector2D(Math.cos(angle[0]),Math.sin(angle[0])));
                 return;
-            case 3:
+            case 2:
                 setOrientation(new etomica.space3d.Vector3D(Math.sin(angle[1])*Math.cos(angle[0]),
                                                   Math.sin(angle[1])*Math.sin(angle[0]),
                                                   Math.cos(angle[1])));

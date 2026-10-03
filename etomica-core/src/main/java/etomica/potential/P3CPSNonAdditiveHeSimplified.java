@@ -20,7 +20,7 @@ import java.io.IOException;
  *  
  * @author Kate Shaul
  */
-public class P3CPSNonAdditiveHeSimplified implements Potential3Soft {
+public class P3CPSNonAdditiveHeSimplified implements IPotential3 {
 
     public P3CPSNonAdditiveHeSimplified(Space space) {
         drAB = space.makeVector();

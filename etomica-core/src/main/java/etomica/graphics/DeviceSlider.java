@@ -95,6 +95,8 @@ public class DeviceSlider extends Device {
     protected IAction targetAction;
     protected boolean suppressAction = false;
 
+    protected boolean showUnits = true;
+
     public DeviceSlider(Controller controller) {
         this(controller, 0);
     }
@@ -406,7 +408,16 @@ public class DeviceSlider extends Device {
         if (modifyAction != null) {
             doUpdate();
         }
-    }    
+    }
+
+    public boolean isShowUnits() {
+        return showUnits;
+    }
+
+    public void setShowUnits(boolean showUnits) {
+        this.showUnits = showUnits;
+        setLabelDefault();
+    }
     
     public double getValue(){return slider.getDecimalSliderValue();}    
     public void setValue(double d){
@@ -428,7 +439,7 @@ public class DeviceSlider extends Device {
      * Sets the value of a descriptive label using the meter's label and the unit's symbol (abbreviation).
      */
     private void setLabelDefault() {
-        String suffix = (unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
+        String suffix = (showUnits && unit.symbol().length() > 0) ? " ("+unit.symbol()+")" : "";
         if(modifyAction != null) 
             setLabel(Strings.capitalize(modifyAction.getWrappedModifier().getLabel())+suffix);
     }

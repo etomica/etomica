@@ -89,16 +89,18 @@ public class PotentialNonAdditive implements IPotentialMolecular {
             }
             for(int j=i+1; j<nPoints; j++) {
                 moleculeList.add(molecules.get(j));
+                double u12 = una[1][i] + una[1][j];
                 if (size==2) {
-                    una[2][VirialDiagrams.pairId(i,j,nBody)] = p[2].energy(moleculeList);
+                    una[2][VirialDiagrams.pairId(i,j,nBody)] = p[2].energy(moleculeList) - u12;
                 }
                 for (int k=j+1; k<nPoints; k++) {
                     moleculeList.add(molecules.get(k));
+                    double u13 = u12 + una[1][k];
                     double u23 = una[2][VirialDiagrams.pairId(i,j,nBody)] + una[2][VirialDiagrams.pairId(i,k,nBody)] + una[2][VirialDiagrams.pairId(j,k,nBody)];
                     double u33 = 0;
                     if (size==3) {
                         if (u23 < Double.POSITIVE_INFINITY) {
-                            una[3][groupID] = p[3].energy(moleculeList) - u23;
+                            una[3][groupID] = p[3].energy(moleculeList) - u23 - u13;
                         }
                         else {
                             una[3][groupID] = 0;
@@ -113,12 +115,13 @@ public class PotentialNonAdditive implements IPotentialMolecular {
                     }
                     for (int l=k+1; l<nPoints; l++) {
                         moleculeList.add(molecules.get(l));
+                        double u14 = u13 + una[1][l];
                         double u24 = u23 + una[2][VirialDiagrams.pairId(i,l,nBody)] + una[2][VirialDiagrams.pairId(j,l,nBody)] + una[2][VirialDiagrams.pairId(k,l,nBody)];
                         double u34 = u33 + una[3][VirialDiagrams.tripletId(i,j,l,nBody)] + una[3][VirialDiagrams.tripletId(i,k,l,nBody)] + una[3][VirialDiagrams.tripletId(j,k,l,nBody)];
                         double u44 = 0;
                         if (size==4) {
                             if (u24 < Double.POSITIVE_INFINITY) {
-                                una[4][groupID] = p[4].energy(moleculeList) - u34 - u24;
+                                una[4][groupID] = p[4].energy(moleculeList) - u34 - u24 - u14;
                             }
                             else {
                                 una[4][groupID] = 0;
@@ -134,6 +137,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
                         
                         for (int m=l+1; m<nPoints; m++) {
                             moleculeList.add(molecules.get(m));
+                            double u15 = u14 + una[1][m];
                             double u25 = u24 + una[2][VirialDiagrams.pairId(i,m,nBody)] + una[2][VirialDiagrams.pairId(j,m,nBody)] + una[2][VirialDiagrams.pairId(k,m,nBody)]
                                     + una[2][VirialDiagrams.pairId(l,m,nBody)];
                             double u35 = u34 + una[3][VirialDiagrams.tripletId(i,j,m,nBody)] + una[3][VirialDiagrams.tripletId(i,k,m,nBody)] + una[3][VirialDiagrams.tripletId(i,l,m,nBody)]
@@ -143,7 +147,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
                             double u55 = 0;
                             if (size==5) {
                                 if (u25 < Double.POSITIVE_INFINITY) {
-                                    una[5][groupID] = p[5].energy(moleculeList) - u45 - u35 - u25;
+                                    una[5][groupID] = p[5].energy(moleculeList) - u45 - u35 - u25 - u15;
                                 }
                                 else {
                                     una[5][groupID] = 0;
@@ -159,6 +163,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
 
                             for (int mm=m+1; mm<nPoints; mm++) {
                                 moleculeList.add(molecules.get(mm));
+                                double u16 = u15 + una[1][mm];
                                 double u26 = u25 + una[2][VirialDiagrams.pairId(i,mm,nBody)] + una[2][VirialDiagrams.pairId(j,mm,nBody)] + una[2][VirialDiagrams.pairId(k,mm,nBody)]
                                         + una[2][VirialDiagrams.pairId(l,mm,nBody)] + una[2][VirialDiagrams.pairId(m,mm,nBody)];
                                 double u36 = u35 + una[3][VirialDiagrams.tripletId(i,j,mm,nBody)] + una[3][VirialDiagrams.tripletId(i,k,mm,nBody)] + una[3][VirialDiagrams.tripletId(i,l,mm,nBody)]
@@ -173,7 +178,7 @@ public class PotentialNonAdditive implements IPotentialMolecular {
                                                  + una[5][VirialDiagrams.quintId(j,k,l,m,mm,nBody)];
                                 if (size==6) {
                                     if (u26 < Double.POSITIVE_INFINITY) {
-                                        una[6][groupID] = p[6].energy(moleculeList) - u56 - u46 - u36 - u26;
+                                        una[6][groupID] = p[6].energy(moleculeList) - u56 - u46 - u36 - u26 - u16;
                                     }
                                     else {
                                         una[6][groupID] = 0;

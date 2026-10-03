@@ -192,7 +192,7 @@ public interface Vector {
 
     /**
      * Assigns this vector to equal a point chosen randomly in the volume
-     * of a unit sphere.
+     * of a unit sphere (i.e., a sphere of unit radius).
      * @param random the random number generator used to perform the operation
      */
     void setRandomInSphere(IRandom random);
