@@ -18,10 +18,8 @@ import etomica.util.random.IRandom;
 public class MeterZENO implements IAction {
     protected final Box box;
     protected double shellThickness;
-    protected final WalkerExterior walker;
+    protected WalkerExterior walker;
     protected long numWalks;
-    public Vector boundingSphereCenter;
-    public double boundingSphereRadius;
     protected IRandom random;
     protected Vector KPlus;
     protected Vector KMinus;
@@ -30,13 +28,14 @@ public class MeterZENO implements IAction {
     protected long hits;
     protected long totalWalks;
     protected final double atomRadius = 0.5;
+    double[] sigmaByType;
 
     public MeterZENO(Box box, IRandom random, double[] sigmaByType) {
         this.box = box;
         this.random = random;
         BoundingSphereGenerator.BoundingSphere bs  = BoundingSphereGenerator.getBoundingSphere(box);
-        boundingSphereCenter = bs.center;
-        this.boundingSphereRadius = bs.radius;
+        Vector boundingSphereCenter = bs.center;
+        double boundingSphereRadius = bs.radius;
         this.shellThickness = 0.000001 * bs.radius;
 
         this.walker = new WalkerExterior(box, sigmaByType, random, boundingSphereRadius, boundingSphereCenter, this.shellThickness);
@@ -44,6 +43,11 @@ public class MeterZENO implements IAction {
         this.KMinus = new Vector3D();
         this.VPlus = new Tensor3D();
         this.VMinus = new Tensor3D();
+        this.sigmaByType = sigmaByType;
+    }
+
+    public void setBoundingSphere(Vector center, double radius) {
+        this.walker = new WalkerExterior(box, sigmaByType, random, radius, center, this.shellThickness);
     }
 
     public void setNumWalks(long n) {
@@ -51,6 +55,8 @@ public class MeterZENO implements IAction {
     }
 
     protected void recordHit(Vector startPoint, Vector endPoint) {
+        Vector boundingSphereCenter = walker.boundingSphereCenter;
+        double boundingSphereRadius = walker.boundingSphereRadius;
         char[] walkCharges = new char[3];
         Vector KPlusData = new Vector3D();
         Vector KMinusData = new Vector3D();
@@ -59,7 +65,7 @@ public class MeterZENO implements IAction {
         ++this.hits;
 
         for(int dim = 0; dim < 3; ++dim) {
-            double probability = 0.5 + (startPoint.getX(dim) - boundingSphereCenter.getX(dim)) / (2.0 * this.boundingSphereRadius);
+            double probability = 0.5 + (startPoint.getX(dim) - boundingSphereCenter.getX(dim)) / (2.0 * boundingSphereRadius);
             if (probability > this.random.nextDouble()) {
                 walkCharges[dim] = '+';
                 KPlusData.setX(dim, 1.0);
@@ -137,7 +143,7 @@ public class MeterZENO implements IAction {
 
     public double getHydrodynamicRadius() {
         double t = hits / (double)this.totalWalks;
-        return t * this.boundingSphereRadius;
+        return t * walker.boundingSphereRadius;
     }
 
     public Tensor computePolarizability() {
@@ -158,7 +164,7 @@ public class MeterZENO implements IAction {
 
         for(int row = 0; row < 3; ++row) {
             for(int col = 0; col < 3; ++col) {
-                double element = 12 * Math.PI * boundingSphereRadius * boundingSphereRadius *
+                double element = 12 * Math.PI * walker.boundingSphereRadius * walker.boundingSphereRadius *
                         (w.component(row, col) - u.getX(row) * v.component(row, col) / t);
                 polarizabilityTensor.setComponent(row, col, element);
             }

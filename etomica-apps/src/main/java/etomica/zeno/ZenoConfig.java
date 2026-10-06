@@ -4,7 +4,6 @@
 package etomica.zeno;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.action.controller.Activity;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
@@ -13,15 +12,12 @@ import etomica.config.IConformation;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMoleculeRotate;
-import etomica.molecule.CenterOfMass;
-import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
 import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
-import etomica.units.Meter;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -61,9 +57,7 @@ public class ZenoConfig {
 //        boundingSphereRadius = 36.660339;
         double[] sigma = new double[]{1};
         MeterZENO meterIntrinsicViscosity = new MeterZENO(sim.box(), sim.getRandom(), sigma);
-        //meterIntrinsicViscosity.boundingSphereCenter.E(CenterOfMass.position(sim.box(), sim.box().getMoleculeList().get(0)));
-        //meterIntrinsicViscosity.boundingSphereCenter = new Vector3D();
-        meterIntrinsicViscosity.boundingSphereRadius = 4;
+        meterIntrinsicViscosity.setBoundingSphere(new Vector3D(), 4);
         meterIntrinsicViscosity.setNumWalks(100000L);
         //System.out.println("boundingSphereRadius: " + meterIntrinsicViscosity.boundingSphereRadius);
         integrator.getEventManager().addListener(new IntegratorListenerAction(meterIntrinsicViscosity));

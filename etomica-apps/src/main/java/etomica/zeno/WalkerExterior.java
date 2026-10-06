@@ -14,8 +14,8 @@ public class WalkerExterior {
     protected final IRandom random;
     protected final Box box;
     protected final double[] sigmaByType;
-    protected final double boundingSphereRadius;
-    protected final Vector boundingSphereCenter;
+    public final double boundingSphereRadius;
+    public final Vector boundingSphereCenter;
     protected final double shellThickness;
 
     public WalkerExterior(Box box, double[] sigmaByType, IRandom random, double boundingSphereRadius, Vector boundingSphereCenter, double shellThickness) {
