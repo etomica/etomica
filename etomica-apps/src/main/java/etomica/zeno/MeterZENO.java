@@ -20,8 +20,8 @@ public class MeterZENO implements IAction {
     protected double shellThickness;
     protected final WalkerExterior walker;
     protected long numWalks;
-    protected Vector boundingSphereCenter;
-    protected double boundingSphereRadius;
+    public Vector boundingSphereCenter;
+    public double boundingSphereRadius;
     protected IRandom random;
     protected Vector KPlus;
     protected Vector KMinus;
@@ -154,6 +154,7 @@ public class MeterZENO implements IAction {
         w.ME(VMinus);
         w.TE(1.0 / totalWalks);
         Tensor polarizabilityTensor = new Tensor3D();
+        System.out.println("u= "+u+ "v = "+v+  "w= "+w);
 
         for(int row = 0; row < 3; ++row) {
             for(int col = 0; col < 3; ++col) {

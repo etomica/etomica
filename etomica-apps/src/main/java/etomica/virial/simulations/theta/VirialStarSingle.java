@@ -24,10 +24,7 @@ import etomica.graphics.*;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveStepTracker;
-import etomica.potential.IPotential2;
-import etomica.potential.P2LennardJones;
-import etomica.potential.PotentialMasterBonding;
-import etomica.potential.PotentialMoleculePair;
+import etomica.potential.*;
 import etomica.potential.compute.*;
 import etomica.simulation.Simulation;
 import etomica.space.BoundaryRectangularNonperiodic;
@@ -65,11 +62,13 @@ public class VirialStarSingle {
         } else {
             params.armLength = 4;
             params.numArms = 4;
-            params.temperature = 1.5;
-            params.numSteps = 10000;
-            params.coreSigma = 1.0;  //new
+            params.temperature = 3;
+            params.numSteps = 100000;
+            params.coreSigma = 16.0;  //new
             params.epsCore = 1.0;// new
             params.ideal = false;
+            params.rc = 2.5;
+
         }
         int numArms = params.numArms;
         int armLength = params.armLength;
@@ -101,10 +100,17 @@ public class VirialStarSingle {
 
         double sigCM = 0.5*(sigC + sigM);           // Lorentz
         double epsCM = Math.sqrt(epsC * epsM);      // Berthelot
+        TruncationFactory tf = new TruncationFactorySimple(params.rc);
 
-        IPotential2 p2CoreCore = new P2LennardJones(epsC,  sigC);//new
-        IPotential2 p2MonoMono = new P2LennardJones(epsM,  sigM);//new
-        IPotential2 p2CoreMono = new P2LennardJones(epsCM, sigCM);//new
+        //IPotential2 p2CoreCore = new P2LennardJones(epsC,  sigC);//new
+        //IPotential2 p2MonoMono = new P2LennardJones(epsM,  sigM);//new
+       // IPotential2 p2CoreMono = new P2LennardJones(epsCM, sigCM);//new
+
+        double coreRadius = params.coreSigma / 2.0;
+
+        IPotential2 p2CoreCore = new P2ParticleParticle(coreRadius, params.sigmaAtom, params.epsilonAtom, params.density);
+        IPotential2 p2MonoMono = P2LennardJones.makeTruncated(sigM, epsM,tf);
+        IPotential2 p2CoreMono = new P2ParticleSegment(coreRadius, params.sigmaAtom, params.epsilonAtom, params.density);
 
         PotentialMasterBonding.FullBondingInfo bondingInfo = new PotentialMasterBonding.FullBondingInfo(sm) {
             @Override
@@ -337,6 +343,12 @@ public class VirialStarSingle {
         AccumulatorAverageFixed accComponents = new AccumulatorAverageFixed(steps/1000);
         DataPumpListener pumpRg = new DataPumpListener(meterRg, accRg, 10);
         DataPumpListener pumpcomponentsRg = new DataPumpListener(componentsRg,accComponents,10);
+        //new
+        double coreWeight = params.density * (4.0/3.0) * Math.PI * Math.pow(coreRadius, 3);
+        MeterRadiusGyrationComponentsCore componentsRgCore =
+                new MeterRadiusGyrationComponentsCore(sim.box(), typeCore, coreRadius, coreWeight);
+        AccumulatorAverageFixed accComponentsCore = new AccumulatorAverageFixed(steps/1000);
+        DataPumpListener pumpComponentsRgCore = new DataPumpListener(componentsRgCore, accComponentsCore, 10);
 
         MeterArmProfile meterProfile = new MeterArmProfile(sim.box(), numArms, armLength);
         AccumulatorAverageFixed accProfile = new AccumulatorAverageFixed(steps / 1000);
@@ -344,6 +356,8 @@ public class VirialStarSingle {
         integrator.getEventManager().addListener(pumpProfile);
         integrator.getEventManager().addListener(pumpRg);
         integrator.getEventManager().addListener(pumpcomponentsRg);
+        integrator.getEventManager().addListener(pumpComponentsRgCore); //new for core
+
         XYZWriter xyzWriter = new XYZWriter(sim.box());
         xyzWriter.setFileName("star.xyz");
         xyzWriter.setIsAppend(true);
@@ -369,7 +383,23 @@ public class VirialStarSingle {
         DataVector componentsavgRg = (DataVector) accComponents.getData(accComponents.AVERAGE);
         DataVector componentserrRg = (DataVector) accComponents.getData(accComponents.ERROR);
         DataVector componentscorRg = (DataVector) accComponents.getData(accComponents.BLOCK_CORRELATION);
+        //new for core
 
+        DataVector componentsavgRgCore = (DataVector) accComponentsCore.getData(accComponentsCore.AVERAGE);
+        DataVector componentserrRgCore = (DataVector) accComponentsCore.getData(accComponentsCore.ERROR);
+        DataVector componentscorRgCore = (DataVector) accComponentsCore.getData(accComponentsCore.BLOCK_CORRELATION);
+
+        double Rg2xCore = componentsavgRgCore.x.getX(0);
+        double Rg2yCore = componentsavgRgCore.x.getX(1);
+        double Rg2zCore = componentsavgRgCore.x.getX(2);
+        double Rg2Core = Rg2xCore + Rg2yCore + Rg2zCore;   // scalar total
+        double Rg2xCore_err = componentserrRgCore.x.getX(0);
+        double Rg2yCore_err = componentserrRgCore.x.getX(1);
+        double Rg2zCore_err = componentserrRgCore.x.getX(2);
+
+        double Rg2xCore_cor = componentscorRgCore.x.getX(0);
+        double Rg2yCore_cor = componentscorRgCore.x.getX(1);
+        double Rg2zCore_cor = componentscorRgCore.x.getX(2);
 
         //System.out.println("componentsRg2: "+componentsavgRg+" componentserr: "+componentserrRg+" componentscor: "+componentscorRg);
         double componentsRg2x= componentsavgRg.x.getX(0);
@@ -389,8 +419,14 @@ public class VirialStarSingle {
 
 
         System.out.println("Rg2: "+avgRg+"   err: "+errRg+"  cor: "+corRg);
+        System.out.println("Rg2 (core-aware): " + Rg2Core
+                + "   x: " + Rg2xCore + " y: " + Rg2yCore + " z: " + Rg2zCore);//new
         System.out.println("Core sigma: " + params.coreSigma + "  Core epsilon: " + params.epsCore);
         System.out.println("Rg: " + Math.sqrt(avgRg) + "   err: " + errRg/(2*Math.sqrt(avgRg)));
+        System.out.println("Rg2 (core-aware): " + Rg2Core
+                + "   x: " + Rg2xCore + " y: " + Rg2yCore + " z: " + Rg2zCore);//newcore
+
+
         IData avgProfile = accProfile.getData(accProfile.AVERAGE);
         IData errProfile = accProfile.getData(accProfile.ERROR);
         IData corProfile = accProfile.getData(accProfile.BLOCK_CORRELATION);
@@ -413,25 +449,19 @@ public class VirialStarSingle {
         try (FileWriter fw = new FileWriter(outputFile, true)) {
             if (!fileExists) {
                 fw.write("numArms,armLength,coreSigma,epsCore,ideal,temperature,Rg2,Rg2_err,Rg,Rg_err,correlation," +
-                        "Rg2x,Rg2x_err,Rg2x_cor,Rg2y,Rg2y_err,Rg2y_cor,Rg2z,Rg2z_err,Rg2z_cor,numSteps\n");
+                        "Rg2x,Rg2x_err,Rg2x_cor,Rg2y,Rg2y_err,Rg2y_cor,Rg2z,Rg2z_err,Rg2z_cor," +
+                        "Rg2xCore,Rg2yCore,Rg2zCore,Rg2Core,\"Rg2xCore,Rg2xCore_err,Rg2xCore_cor,Rg2yCore,Rg2yCore_err,Rg2yCore_cor,Rg2zCore,Rg2zCore_err,Rg2zCore_cor,Rg2Core,numSteps\n");
+
             }
 
             String idealStr = params.ideal ? "IDEAL" : String.format("%.2f", params.temperature);
-            fw.write(String.format("%d,%d,%.2f,%.2f,%s,%s,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%d%n",
-                    params.numArms,
-                    params.armLength,
-                    params.coreSigma,
-                    params.epsCore,
-                    params.ideal,
-                    idealStr,
-                    avgRg,
-                    errRg,
-                    Math.sqrt(avgRg),
-                    errRg/(2*Math.sqrt(avgRg)),
-                    corRg,
+            fw.write(String.format("%d,%d,%.2f,%.2f,%s,%s,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%d%n",
+                    params.numArms, params.armLength, params.coreSigma, params.epsCore, params.ideal, idealStr,
+                    avgRg, errRg, Math.sqrt(avgRg), errRg/(2*Math.sqrt(avgRg)), corRg,
                     componentsRg2x, componentserrx, componentscorx,
                     componentsRg2y, componentserry, componentscory,
                     componentsRg2z, componentserrz, componentscorz,
+                    Rg2xCore, Rg2yCore, Rg2zCore, Rg2Core,
                     params.numSteps));
             System.out.println("Results written to: " + outputFile);
         } catch (Exception e) {
@@ -476,9 +506,14 @@ public class VirialStarSingle {
         // NEW
         public double coreSigma = 1.0;  // σ_core (also used in LJ)
         public double epsCore   = 1.0;  // ε_core
+        public double rc=4;
 
         // HS reference diameter options (if needed later)
         public boolean useCoreInHSRef = true;
         public double hsExtra = 0.0;
+        //new
+        public double sigmaAtom = 1.0;
+        public double epsilonAtom = 1.0;
+        public double density = 1;
     }
 }

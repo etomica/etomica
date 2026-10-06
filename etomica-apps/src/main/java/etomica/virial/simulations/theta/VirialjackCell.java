@@ -91,7 +91,7 @@ public class VirialjackCell {
             params.coreSigma = 1;
             params.numArms = 4;
             params.temperature = 5;
-            params.numSteps = 10000000L;
+            params.numSteps = 100000L;
             params.boxLength = 50;
             params.sigmaHSRef = 1.5;
             params.rc = 2.5;
@@ -140,16 +140,17 @@ public class VirialjackCell {
         // --- Define LJ using combining rules (Lorentz–Berthelot) ---
         double sigC = params.coreSigma;   // core σ
         double epsC = params.epsCore;     // core ε
-        double sigM = 1;   // mono σ
-        double epsM = 1;     // mono ε
 
-        double sigCM = 0.5 * (sigC + sigM);           // Lorentz
-        double epsCM = Math.sqrt(epsC * epsM);      // Berthelot
+        double sigM = 1;
+        double epsM = 1;
 
         TruncationFactory tf = new TruncationFactorySimple(params.rc);
-        IPotential2 p2CoreCore = new P2LennardJones(sigC, epsC);
+        double coreRadius = params.coreSigma / 2.0;
+
+        IPotential2 p2CoreCore = new P2ParticleParticle(coreRadius, params.sigmaAtom, params.epsilonAtom, params.density);
         IPotential2 p2MonoMono = P2LennardJones.makeTruncated(sigM, epsM, tf);
-        IPotential2 p2CoreMono = new P2LennardJones(sigCM, epsCM);
+        IPotential2 p2CoreMono = new P2ParticleSegment(coreRadius, params.sigmaAtom, params.epsilonAtom, params.density);
+
 
 
         // Mayer functions
@@ -1077,8 +1078,9 @@ public class VirialjackCell {
 
         try (FileWriter fwCsv = new FileWriter(outputFile, true)) {
             if (!fileExists) {
-                fwCsv.write("numArms,armLength,coreSigma,epsCore,temperature,B2,B2_err,correlation,numSteps\n");
-            }
+                //fwCsv.write("numArms,armLength,coreSigma,epsCore,temperature,B2,B2_err,correlation,numSteps\n");
+                fwCsv.write("numArms,armLength,coreSigma,sigmaAtom,epsilonAtom,density,temperature,B2,B2_err,correlation,numSteps\n");}
+
 
             // Get the ratio and error from the simulation
             double[] ratioAndError = sim.dvo.getAverageAndError();
@@ -1092,16 +1094,18 @@ public class VirialjackCell {
             // Get correlation from accumulator[1] (target system)
             double correlation = sim.accumulators[1].getData(sim.accumulators[1].BLOCK_CORRELATION).getValue(0);
 
-            fwCsv.write(String.format("%d,%d,%.2f,%.2f,%.2f,%.8f,%.8f,%.8f,%d\n",
+            fwCsv.write(String.format("%d,%d,%.2f,%.4f,%.4f,%.4f,%.2f,%.8f,%.8f,%.8f,%d\n",
                     params.numArms,
                     params.armLength,
                     params.coreSigma,
-                    params.epsCore,
+                    params.sigmaAtom,
+                    params.epsilonAtom,
+                    params.density,
                     params.temperature,
                     B2,
                     B2_err,
                     correlation,
-                    params.numSteps));
+                    params.numSteps));;
             System.out.println("Results written to: " + outputFile);
         } catch (Exception e) {
             System.err.println("Warning: Could not write to jack_results.csv: " + e.getMessage());
@@ -1128,6 +1132,9 @@ public class VirialjackCell {
         public double coreSigma = 1.0;  // σ_core (also used in LJ)
 
         public double epsCore   = 1.0;  // ε_core
+        public double sigmaAtom = 1.0;
+        public double epsilonAtom = 1.0;
+        public double density = 1;
 
         // HS reference diameter options
         public boolean useCoreInHSRef = true;

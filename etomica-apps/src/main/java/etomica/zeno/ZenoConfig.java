@@ -3,15 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.zeno;
 
+import etomica.action.activity.ActivityIntegrate;
+import etomica.action.controller.Activity;
 import etomica.atom.AtomType;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.IConformation;
+import etomica.integrator.IntegratorListenerAction;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.mcmove.MCMoveMoleculeRotate;
+import etomica.molecule.CenterOfMass;
+import etomica.potential.compute.PotentialCompute;
+import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
+import etomica.units.Meter;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
 
@@ -28,8 +38,8 @@ public class ZenoConfig {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numAtoms = 641;
-            params.confFile = "star";
+            params.numAtoms = 6;
+            params.confFile = "V";
         }
 
         Simulation sim = new Simulation(Space3D.getInstance());
@@ -45,12 +55,21 @@ public class ZenoConfig {
         sim.addBox(new Box(sim.getSpace()));
         sim.box().setNMolecules(species, 1);
         new ConfigurationFile(params.confFile).initializeCoordinates(sim.box());
-
+        MCMoveMoleculeRotate rotate = new MCMoveMoleculeRotate(sim.getRandom(), new PotentialComputeAggregate(),sim.box());
+        IntegratorMC integrator = new IntegratorMC(new PotentialComputeAggregate(),sim.getRandom(),1,sim.box());
+        //integrator.getMoveManager().addMCMove(rotate);
 //        boundingSphereRadius = 36.660339;
         double[] sigma = new double[]{1};
         MeterZENO meterIntrinsicViscosity = new MeterZENO(sim.box(), sim.getRandom(), sigma);
-        meterIntrinsicViscosity.setNumWalks(1000000L);
-        meterIntrinsicViscosity.actionPerformed();
+        //meterIntrinsicViscosity.boundingSphereCenter.E(CenterOfMass.position(sim.box(), sim.box().getMoleculeList().get(0)));
+        //meterIntrinsicViscosity.boundingSphereCenter = new Vector3D();
+        meterIntrinsicViscosity.boundingSphereRadius = 4;
+        meterIntrinsicViscosity.setNumWalks(100000L);
+        //System.out.println("boundingSphereRadius: " + meterIntrinsicViscosity.boundingSphereRadius);
+        integrator.getEventManager().addListener(new IntegratorListenerAction(meterIntrinsicViscosity));
+       // meterIntrinsicViscosity.actionPerformed();
+        ActivityIntegrate ai =new ActivityIntegrate(integrator,1000);
+        sim.getController().runActivityBlocking(ai);
         double viscosity = meterIntrinsicViscosity.getIntrinsicViscosity();
         double hydrodynamicRadius = meterIntrinsicViscosity.getHydrodynamicRadius();
         System.out.println("Intrinsic viscosity: " + viscosity);
