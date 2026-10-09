@@ -9,13 +9,13 @@ import etomica.atom.IAtomList;
 import etomica.box.Box;
 import etomica.config.ConfigurationFile;
 import etomica.config.IConformation;
+import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorListenerAction;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMoleculeRotate;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
-import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.util.ParameterBase;
@@ -34,10 +34,20 @@ public class ZenoConfig {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numAtoms = 6;
-            params.confFile = "V";
+            params.numAtoms = 2;
+            params.confFile = "dumbbell2";
+            params.steps = 1;
+            params.walks = 10000000;
+            params.rotation = false;
+            params.eigen = false;
+            params.sigma = 2;
         }
 
+        System.out.println("config: "+params.confFile);
+        System.out.println("steps: "+params.steps);
+        System.out.println("walks: "+params.walks);
+        System.out.println("rotation: "+(params.rotation ? "on": "off"));
+        System.out.println("eigenvalues for q: "+(params.eigen ? "on" : "off"));
         Simulation sim = new Simulation(Space3D.getInstance());
         AtomType type = AtomType.simpleFromSim(sim);
         ISpecies species = new SpeciesBuilder(sim.getSpace())
@@ -53,16 +63,27 @@ public class ZenoConfig {
         new ConfigurationFile(params.confFile).initializeCoordinates(sim.box());
         MCMoveMoleculeRotate rotate = new MCMoveMoleculeRotate(sim.getRandom(), new PotentialComputeAggregate(),sim.box());
         IntegratorMC integrator = new IntegratorMC(new PotentialComputeAggregate(),sim.getRandom(),1,sim.box());
-        //integrator.getMoveManager().addMCMove(rotate);
+        if (params.rotation) integrator.getMoveManager().addMCMove(rotate);
+        rotate.setStepSize(Math.PI);
 //        boundingSphereRadius = 36.660339;
-        double[] sigma = new double[]{1};
+        double[] sigma = new double[]{params.sigma};
         MeterZENO meterIntrinsicViscosity = new MeterZENO(sim.box(), sim.getRandom(), sigma);
-        meterIntrinsicViscosity.setBoundingSphere(new Vector3D(), 4);
-        meterIntrinsicViscosity.setNumWalks(100000L);
+        WalkerExterior w = meterIntrinsicViscosity.walker;
+        System.out.println("bounding sphere at "+w.boundingSphereCenter+" radius "+w.boundingSphereRadius);
+//        meterIntrinsicViscosity.setBoundingSphere(CenterOfMass.position(sim.box(), sim.box().getMoleculeList().get(0)), 4);
+//        meterIntrinsicViscosity.setBoundingSphere(new Vector3D(0.5,0,0), 1.5);
+        meterIntrinsicViscosity.setEigenvaluesForPade(params.eigen);
+        meterIntrinsicViscosity.setNumWalks(params.walks);
         //System.out.println("boundingSphereRadius: " + meterIntrinsicViscosity.boundingSphereRadius);
         integrator.getEventManager().addListener(new IntegratorListenerAction(meterIntrinsicViscosity));
        // meterIntrinsicViscosity.actionPerformed();
-        ActivityIntegrate ai =new ActivityIntegrate(integrator,1000);
+        ActivityIntegrate ai =new ActivityIntegrate(integrator,params.steps);
+        if (false) {
+            sim.getController().addActivity(ai);
+            SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "ZENO");
+            simGraphic.makeAndDisplayFrame();
+            return;
+        }
         sim.getController().runActivityBlocking(ai);
         double viscosity = meterIntrinsicViscosity.getIntrinsicViscosity();
         double hydrodynamicRadius = meterIntrinsicViscosity.getHydrodynamicRadius();
@@ -75,6 +96,11 @@ public class ZenoConfig {
     public static class ParametersZENOConfig extends ParameterBase {
         public int numAtoms;
         public String confFile;
+        public long steps = 1;
+        public long walks = 1000000;
+        public boolean rotation;
+        public boolean eigen;
+        public double sigma = 1;
     }
 }
 

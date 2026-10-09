@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 package etomica.zeno;
 
+import Jama.EigenvalueDecomposition;
+import Jama.Matrix;
 import etomica.action.IAction;
 import etomica.atom.IAtom;
 import etomica.box.Box;
@@ -18,7 +20,7 @@ import etomica.util.random.IRandom;
 public class MeterZENO implements IAction {
     protected final Box box;
     protected double shellThickness;
-    protected WalkerExterior walker;
+    public WalkerExterior walker;
     protected long numWalks;
     protected IRandom random;
     protected Vector KPlus;
@@ -29,11 +31,12 @@ public class MeterZENO implements IAction {
     protected long totalWalks;
     protected final double atomRadius = 0.5;
     double[] sigmaByType;
+    protected boolean eigenvaluesForPade;
 
     public MeterZENO(Box box, IRandom random, double[] sigmaByType) {
         this.box = box;
         this.random = random;
-        BoundingSphereGenerator.BoundingSphere bs  = BoundingSphereGenerator.getBoundingSphere(box);
+        BoundingSphereGenerator.BoundingSphere bs  = BoundingSphereGenerator.getBoundingSphere(box, sigmaByType);
         Vector boundingSphereCenter = bs.center;
         double boundingSphereRadius = bs.radius;
         this.shellThickness = 0.000001 * bs.radius;
@@ -44,6 +47,10 @@ public class MeterZENO implements IAction {
         this.VPlus = new Tensor3D();
         this.VMinus = new Tensor3D();
         this.sigmaByType = sigmaByType;
+    }
+
+    public void setEigenvaluesForPade(boolean b) {
+        eigenvaluesForPade = b;
     }
 
     public void setBoundingSphere(Vector center, double radius) {
@@ -115,6 +122,7 @@ public class MeterZENO implements IAction {
         // ZENO volume computed from interior walker
         double volume = computeVolume();
         double intrinsicConductivity = meanPolarizability / volume;
+        System.out.println("intrinsic conductivity: "+ intrinsicConductivity);
         // std product uncertainty
         double intrinsicViscosity = q_eta * intrinsicConductivity;
         return intrinsicViscosity;
@@ -160,7 +168,9 @@ public class MeterZENO implements IAction {
         w.ME(VMinus);
         w.TE(1.0 / totalWalks);
         Tensor polarizabilityTensor = new Tensor3D();
-        System.out.println("u= "+u+ "v = "+v+  "w= "+w);
+        System.out.println("u: "+u);
+        System.out.println("v: "+v.component(0,0)+" "+v.component(1,1)+" "+v.component(2,2));
+        System.out.println("w\n"+w);
 
         for(int row = 0; row < 3; ++row) {
             for(int col = 0; col < 3; ++col) {
@@ -181,25 +191,37 @@ public class MeterZENO implements IAction {
     }
 
     public double computePadeApproximant(Tensor polarizabilityTensor) {
-        double alpha1 = polarizabilityTensor.component(0, 0);
-        double alpha2 = polarizabilityTensor.component(1, 1);
-        double alpha3 = polarizabilityTensor.component(2, 2);
-        if (alpha2 < alpha1) {
-            double t = alpha1;
-            alpha1 = alpha2;
-            alpha2 = t;
+        double alpha1 = 0, alpha2 = 0, alpha3 = 0;
+        if (eigenvaluesForPade) {
+            Matrix m = new Matrix(polarizabilityTensor.toArray(), 3);
+            EigenvalueDecomposition eigen = new EigenvalueDecomposition(m);
+            double[] alphas = eigen.getRealEigenvalues();
+            alpha1 = alphas[0];
+            alpha2 = alphas[1];
+            alpha3 = alphas[2];
+            System.out.println(alpha1+" "+alpha2+" "+alpha3);
         }
+        else {
+            alpha1 = polarizabilityTensor.component(0, 0);
+            alpha2 = polarizabilityTensor.component(1, 1);
+            alpha3 = polarizabilityTensor.component(2, 2);
+            if (alpha2 < alpha1) {
+                double t = alpha1;
+                alpha1 = alpha2;
+                alpha2 = t;
+            }
 
-        if (alpha3 < alpha1) {
-            double t = alpha1;
-            alpha1 = alpha3;
-            alpha3 = t;
-        }
+            if (alpha3 < alpha1) {
+                double t = alpha1;
+                alpha1 = alpha3;
+                alpha3 = t;
+            }
 
-        if (alpha3 < alpha2) {
-            double t = alpha2;
-            alpha2 = alpha3;
-            alpha3 = t;
+            if (alpha3 < alpha2) {
+                double t = alpha2;
+                alpha2 = alpha3;
+                alpha3 = t;
+            }
         }
 
         double alpha2_alpha1 = alpha2 / alpha1;

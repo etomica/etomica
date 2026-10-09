@@ -13,7 +13,7 @@ public class BoundingSphereGenerator {
         public double radius;
     }
 
-    public static BoundingSphere getBoundingSphere(Box box) {
+    public static BoundingSphere getBoundingSphere(Box box, double[] sigmaByType) {
         BoundingSphere bs = new BoundingSphere();
         bs.center = box.getSpace().makeVector();
         bs.radius = 0;
@@ -22,7 +22,7 @@ public class BoundingSphereGenerator {
         Vector rMax = box.getSpace().makeVector();
         Vector r = box.getSpace().makeVector();
         for (IAtom a : box.getLeafList()) {
-            double atomRadius = 0.5;
+            double atomRadius = 0.5 * sigmaByType[a.getType().getIndex()];
             r.E(a.getPosition());
             for (int i=0; i<rMin.getD(); i++) {
                 if (r.getX(i) - atomRadius < rMin.getX(i)) rMin.setX(i, r.getX(i) - atomRadius);
@@ -35,31 +35,32 @@ public class BoundingSphereGenerator {
 
         //   edgePoint1 = findFarthestPoint(initialPoint)
 
-        Vector edgePoint1 = findFarthestPoint(box, initialPoint);
-        Vector edgePoint2 = findFarthestPoint(box, edgePoint1);
+        Vector edgePoint1 = findFarthestPoint(box, initialPoint, sigmaByType);
+        Vector edgePoint2 = findFarthestPoint(box, edgePoint1, sigmaByType);
         bs.center.Ev1Pv2(edgePoint1, edgePoint2);
         bs.center.TE(0.5);
-        Vector edgePoint = findFarthestPoint(box, bs.center);
+        Vector edgePoint = findFarthestPoint(box, bs.center, sigmaByType);
         bs.radius = Math.sqrt(edgePoint.Mv1Squared(bs.center));
 
         return bs;
     }
 
-    public static Vector findFarthestPoint(Box box, Vector queryPoint) {
+    public static Vector findFarthestPoint(Box box, Vector queryPoint, double[] sigmaByType) {
         Vector farthestPoint = box.getSpace().makeVector();
         farthestPoint.E(queryPoint);
         Vector aFarthest = box.getSpace().makeVector();
         double maxR2 = 0;
         for (IAtom a : box.getLeafList()) {
             Vector r = a.getPosition();
+            double radius = 0.5 * sigmaByType[a.getType().getIndex()];
             if (r.Mv1Squared(queryPoint) == 0) {
                 aFarthest.E(r);
-                aFarthest.setX(0, aFarthest.getX(0) + 0.5);
+                aFarthest.setX(0, aFarthest.getX(0) + radius);
             }
             else {
                 aFarthest.Ev1Mv2(r, queryPoint);
                 aFarthest.normalize();
-                aFarthest.TE(0.5);
+                aFarthest.TE(radius);
                 aFarthest.PE(r);
             }
             double r2 = aFarthest.Mv1Squared(queryPoint);
