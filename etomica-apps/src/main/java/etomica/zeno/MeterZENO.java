@@ -29,7 +29,6 @@ public class MeterZENO implements IAction {
     protected Tensor VMinus;
     protected long hits;
     protected long totalWalks;
-    protected final double atomRadius = 0.5;
     double[] sigmaByType;
     protected boolean eigenvaluesForPade;
 
@@ -131,11 +130,13 @@ public class MeterZENO implements IAction {
     // returns volume occupied by atoms
     public double computeVolume() {
         double excludedVolume = 0;
+        double nominalVolume = 0;
         for (IAtom a : box.getLeafList()) {
-            double rad1 = atomRadius;
+            double rad1 = 0.5*sigmaByType[a.getType().getIndex()];
+            nominalVolume += rad1*rad1*rad1;
             for (int j = a.getLeafIndex()+1; j<box.getLeafList().size(); j++) {
                 double r2 = a.getPosition().Mv1Squared(box.getLeafList().get(j).getPosition());
-                double rad2 = atomRadius;
+                double rad2 = 0.5*sigmaByType[box.getLeafList().get(j).getType().getIndex()];
                 double sigma = rad1+rad2;
                 double sigma2 = sigma*sigma;
                 if (r2 > sigma2) continue;
@@ -145,7 +146,7 @@ public class MeterZENO implements IAction {
                 excludedVolume += Math.PI/(12*d) * Math.pow(sigma - d, 2) * (d*d + 2*d*sigma - 3*Math.pow(rad1-rad2, 2));
             }
         }
-        double nominalVolume = 4.0/3.0 * Math.PI * Math.pow(atomRadius, 3) * box.getLeafList().size();
+        nominalVolume *= 4.0/3.0 * Math.PI;
         return nominalVolume - excludedVolume;
     }
 
