@@ -14,16 +14,11 @@ import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayPlot;
 import etomica.graphics.SimulationGraphic;
 import etomica.integrator.IntegratorVelocityVerlet;
-import etomica.lattice.crystal.Basis;
-import etomica.lattice.crystal.BasisCubicFcc;
-import etomica.lattice.crystal.Primitive;
-import etomica.lattice.crystal.PrimitiveCubic;
+import etomica.lattice.crystal.*;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.*;
 import etomica.simulation.Simulation;
-import etomica.space.Boundary;
-import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.Space;
+import etomica.space.*;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
@@ -50,16 +45,23 @@ public class SimLJPropsCijFD extends Simulation {
 
         double L = Math.pow(4.0/density, 1.0 / 3.0);
         int n = (int) Math.round(Math.pow(nMol / 4, 1.0 / 3.0));
-        boundary = new BoundaryRectangularPeriodic(space, n * L);
+        primitive = new PrimitiveCubic(space, n * L);
+
+
+        Vector[] cellDim = new Vector[3];
+        cellDim[0] = Vector.of(new double[]{L, 0, 0});
+        cellDim[1] = Vector.of(new double[]{0, L, 0});
+        cellDim[2] = Vector.of(new double[]{0, 0, L});
+        primitive = new PrimitiveGeneral(space, cellDim);
+        nCells = new int[]{n, n, n};
+        boundary = new BoundaryDeformableLattice(primitive, nCells);
+
         box = this.makeBox(boundary);
         box.setNMolecules(species, nMol);
 
-        primitive = new PrimitiveCubic(space, n * L);
-        nCells = new int[]{n, n, n};
-        Basis basisFCC = new BasisCubicFcc();
-        basis = new BasisBigCell(space, basisFCC, nCells);
+        Basis basis = new BasisCubicFcc();
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
+        coordinateDefinition.initializeCoordinates(nCells);
 
         potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 2, rc, BondingInfo.noBonding());
         potentialMaster.doAllTruncationCorrection = false;
@@ -235,13 +237,13 @@ public class SimLJPropsCijFD extends Simulation {
     }
 
     public static class SimLJPropsCijParam extends ParameterBase {
-        public int nMol = 500;
+        public int nMol = 256;
         public double density = 1;
         public long numSteps = 100000;
         public double temperature = 0.1;
         public boolean isGraphic = !true;
         public double rc = 3;
-        public double dt = 0.001;
+        public double dt = 0.005;
         public double gV = 3.096385101500418;
         public double gVV = -0.200069081433023;
 
