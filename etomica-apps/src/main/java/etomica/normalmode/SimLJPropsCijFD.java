@@ -62,14 +62,7 @@ public class SimLJPropsCijFD extends Simulation {
         coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
 
         potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 2, rc, BondingInfo.noBonding());
-
-
-
-        //????
         potentialMaster.doAllTruncationCorrection = false;
-
-
-
 
         integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), dt, temperature, box);
         integrator.setIsothermal(true);
@@ -77,12 +70,11 @@ public class SimLJPropsCijFD extends Simulation {
 
 
         IPotential2 potential = new P2LennardJones();
-        potential = new P2SoftSphericalTruncatedForceShifted(potential, rc);;
+        potential = new P2SoftSphericalTruncatedForceShifted(potential, rc);
 
         AtomType sphereType = species.getLeafType();
         potentialMaster.setPairPotential(sphereType, sphereType, potential);
-
-        potentialMaster.init();
+        potentialMaster.init(); // should not need to do this in MeterSolidHMAFD
         integrator.getEventManager().removeListener(potentialMaster);
         this.getController().addActivity(new ActivityIntegrate(integrator));
         ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
@@ -249,7 +241,7 @@ public class SimLJPropsCijFD extends Simulation {
         public double temperature = 0.1;
         public boolean isGraphic = !true;
         public double rc = 3;
-        public double dt = 0.005;
+        public double dt = 0.001;
         public double gV = 3.096385101500418;
         public double gVV = -0.200069081433023;
 
