@@ -8,10 +8,12 @@ import Jama.Matrix;
 import etomica.action.IAction;
 import etomica.atom.IAtom;
 import etomica.box.Box;
+import etomica.data.DataSourceScalar;
 import etomica.space.Tensor;
 import etomica.space.Vector;
 import etomica.space3d.Tensor3D;
 import etomica.space3d.Vector3D;
+import etomica.units.dimensions.Length;
 import etomica.util.random.IRandom;
 
 /**
@@ -19,7 +21,6 @@ import etomica.util.random.IRandom;
  */
 public class MeterZENO implements IAction {
     protected final Box box;
-    protected double shellThickness;
     public WalkerExterior walker;
     protected long numWalks;
     protected IRandom random;
@@ -38,9 +39,9 @@ public class MeterZENO implements IAction {
         BoundingSphereGenerator.BoundingSphere bs  = BoundingSphereGenerator.getBoundingSphere(box, sigmaByType);
         Vector boundingSphereCenter = bs.center;
         double boundingSphereRadius = bs.radius;
-        this.shellThickness = 0.000001 * bs.radius;
+        double shellThickness = 0.000001 * bs.radius;
 
-        this.walker = new WalkerExterior(box, sigmaByType, random, boundingSphereRadius, boundingSphereCenter, this.shellThickness);
+        this.walker = new WalkerExterior(box, sigmaByType, random, boundingSphereRadius, boundingSphereCenter, shellThickness);
         this.KPlus = new Vector3D();
         this.KMinus = new Vector3D();
         this.VPlus = new Tensor3D();
@@ -53,7 +54,20 @@ public class MeterZENO implements IAction {
     }
 
     public void setBoundingSphere(Vector center, double radius) {
-        this.walker = new WalkerExterior(box, sigmaByType, random, radius, center, this.shellThickness);
+        walker.setBoundingSphere(center, radius);
+    }
+
+    public void resetBoundingSphere() {
+        BoundingSphereGenerator.BoundingSphere bs  = BoundingSphereGenerator.getBoundingSphere(box, sigmaByType);
+        walker.setBoundingSphere(bs.center, bs.radius);
+    }
+
+    public void reset() {
+        KPlus.E(0);
+        KMinus.E(0);
+        VPlus.E(0);
+        VMinus.E(0);
+        hits = 0;
     }
 
     public void setNumWalks(long n) {
@@ -267,6 +281,24 @@ public class MeterZENO implements IAction {
         }
 
         return (delta * A + c * x2 + b * Math.pow(x2, 2.0) + 4.0 * Math.pow(x2, m)) / (6.0 * A + 6.0 * c * x2 / delta + B * Math.pow(x2, 2.0) + 5.0 * Math.pow(x2, m));
+    }
+
+    public MeterHydrodynamicRadius makeMeterHydrodynamicRadius() {
+        return new MeterHydrodynamicRadius();
+    }
+
+    public class MeterHydrodynamicRadius extends DataSourceScalar {
+        public MeterHydrodynamicRadius() {
+            super("hydrodynamic radius", Length.DIMENSION);
+        }
+
+        @Override
+        public double getDataAsScalar() {
+            MeterZENO.this.reset();
+            MeterZENO.this.resetBoundingSphere();
+            MeterZENO.this.actionPerformed();
+            return MeterZENO.this.getHydrodynamicRadius();
+        }
     }
 }
 

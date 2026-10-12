@@ -14,17 +14,21 @@ public class WalkerExterior {
     protected final IRandom random;
     protected final Box box;
     protected final double[] sigmaByType;
-    public final double boundingSphereRadius;
-    public final Vector boundingSphereCenter;
-    protected final double shellThickness;
+    public double boundingSphereRadius;
+    public Vector boundingSphereCenter;
+    protected double shellThickness;
 
     public WalkerExterior(Box box, double[] sigmaByType, IRandom random, double boundingSphereRadius, Vector boundingSphereCenter, double shellThickness) {
         this.box = box;
         this.random = random;
         this.sigmaByType = sigmaByType;
-        this.boundingSphereRadius = boundingSphereRadius;
-        this.boundingSphereCenter = boundingSphereCenter;
-        this.shellThickness = shellThickness;
+        setBoundingSphere(boundingSphereCenter, boundingSphereRadius);
+    }
+
+    public void setBoundingSphere(Vector center, double radius) {
+        boundingSphereCenter = center;
+        boundingSphereRadius = radius;
+        shellThickness = 0.000001 * radius;
     }
 
     public double findNearestPoint(Vector position) {
