@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package etomica.virial;
+package etomica.util.collections;
 
 import java.util.Arrays;
 
@@ -13,7 +13,7 @@ import java.util.Arrays;
  */
 public class IntSet implements Comparable<IntSet> {
     public int[] v;
-    public IntSet(int[] v) {
+    public IntSet(int... v) {
         this.v = v;
     }
     public int hashCode() {
