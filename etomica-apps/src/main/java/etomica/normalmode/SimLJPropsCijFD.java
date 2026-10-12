@@ -26,60 +26,80 @@ import etomica.util.ParseArgs;
 import java.awt.*;
 
 public class SimLJPropsCijFD extends Simulation {
-    public final CoordinateDefinitionLeaf coordinateDefinition;
+    public CoordinateDefinitionLeaf coordinateDefinition, coordinateDefinitionp, coordinateDefinitionm;
     public IntegratorVelocityVerlet integrator;
-    public Box box;
-    public Boundary boundary;
+    public Box box, boxp, boxm;
+    public Boundary boundary, boundaryp, boundarym;
     public int[] nCells;
-    public Basis basis;
-    public Primitive primitive;
-    public PotentialMasterList potentialMaster;
+    public Basis basis, basisp, basism;
+    public Primitive primitive, primitivep, primitivem;
+    public PotentialMasterList potentialMaster, potentialMasterp, potentialMasterm;
     public P2SoftSphericalTruncated potential;
 
     public SpeciesGeneral species;
 
-    public SimLJPropsCijFD(Space _space, int nMol, double density, double temperature, double rc, double dt) {
+    public SimLJPropsCijFD(Space _space, int nMol, double density, double temperature, double rc, double dt, double deV) {
         super(_space);
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
         double L = Math.pow(4.0/density, 1.0 / 3.0);
         int n = (int) Math.round(Math.pow(nMol / 4, 1.0 / 3.0));
-        primitive = new PrimitiveCubic(space, n * L);
-
-
-        Vector[] cellDim = new Vector[3];
-        cellDim[0] = Vector.of(new double[]{L, 0, 0});
-        cellDim[1] = Vector.of(new double[]{0, L, 0});
-        cellDim[2] = Vector.of(new double[]{0, 0, L});
-        primitive = new PrimitiveGeneral(space, cellDim);
-        nCells = new int[]{n, n, n};
-        boundary = new BoundaryDeformableLattice(primitive, nCells);
-
+        boundary = new BoundaryRectangularPeriodic(space, n * L);
         box = this.makeBox(boundary);
         box.setNMolecules(species, nMol);
-
-        Basis basis = new BasisCubicFcc();
+        primitive = new PrimitiveCubic(space, n * L);
+        nCells = new int[]{n, n, n};
+        Basis basisFCC = new BasisCubicFcc();
+        basis = new BasisBigCell(space, basisFCC, nCells);
         coordinateDefinition = new CoordinateDefinitionLeaf(box, primitive, basis, space);
-        coordinateDefinition.initializeCoordinates(nCells);
-
+        coordinateDefinition.initializeCoordinates(new int[]{1, 1, 1});
         potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 2, rc, BondingInfo.noBonding());
         potentialMaster.doAllTruncationCorrection = false;
-
         integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), dt, temperature, box);
         integrator.setIsothermal(true);
         integrator.setThermostatNoDrift(true);
-
-
         IPotential2 potential = new P2LennardJones();
-        potential = new P2SoftSphericalTruncatedForceShifted(potential, rc);
-
+        potential = new P2SoftSphericalTruncated(potential, rc);
         AtomType sphereType = species.getLeafType();
         potentialMaster.setPairPotential(sphereType, sphereType, potential);
         potentialMaster.init(); // should not need to do this in MeterSolidHMAFD
         integrator.getEventManager().removeListener(potentialMaster);
         this.getController().addActivity(new ActivityIntegrate(integrator));
         ((P2SoftSphericalTruncated) potential).setTruncationRadius(0.6 * boundary.getBoxSize().getX(0));
+
+        //box+
+        double densityp = density / (1 + deV);
+        double Lp = Math.pow(4.0/densityp, 1.0 / 3.0);
+        boundaryp = new BoundaryRectangularPeriodic(space, n * Lp);
+        boxp = this.makeBox(boundaryp);
+        boxp.setNMolecules(species, nMol);
+        primitivep = new PrimitiveCubic(space, n * Lp);
+        Basis basisFCCp = new BasisCubicFcc();
+        basisp = new BasisBigCell(space, basisFCCp, nCells);
+        coordinateDefinitionp = new CoordinateDefinitionLeaf(boxp, primitivep, basisp, space);
+        coordinateDefinitionp.initializeCoordinates(new int[]{1, 1, 1});
+        potentialMasterp = new PotentialMasterList(getSpeciesManager(), boxp, 2, rc, BondingInfo.noBonding());
+        potentialMasterp.doAllTruncationCorrection = false;
+        potentialMasterp.setPairPotential(sphereType, sphereType, potential);
+        potentialMasterp.init();
+
+        //box-
+        double densitym = density / (1 - deV);
+        double Lm = Math.pow(4.0/densitym, 1.0 / 3.0);
+        boundarym = new BoundaryRectangularPeriodic(space, n * Lm);
+        boxm = this.makeBox(boundarym);
+        boxm.setNMolecules(species, nMol);
+        primitivem = new PrimitiveCubic(space, n * Lm);
+        Basis basisFCCm = new BasisCubicFcc();
+        basism = new BasisBigCell(space, basisFCCm, nCells);
+        coordinateDefinitionm = new CoordinateDefinitionLeaf(boxm, primitivem, basism, space);
+        coordinateDefinitionm.initializeCoordinates(new int[]{1, 1, 1});
+        potentialMasterm = new PotentialMasterList(getSpeciesManager(), boxm, 2, rc, BondingInfo.noBonding());
+        potentialMasterm.doAllTruncationCorrection = false;
+        potentialMasterm.setPairPotential(sphereType, sphereType, potential);
+        potentialMasterm.init();
+
     }
 
     public void initialize(long initSteps) {
@@ -93,6 +113,8 @@ public class SimLJPropsCijFD extends Simulation {
         int nMol = params.nMol;
         double density = params.density;
         double rc = params.rc;
+        double dbeta = params.dbeta;
+        double deV = params.deV;
         double temperature = params.temperature;
         double dt = params.dt;
         boolean isGraphic = params.isGraphic;
@@ -103,7 +125,7 @@ public class SimLJPropsCijFD extends Simulation {
         System.out.println();
 
 
-        final SimLJPropsCijFD sim = new SimLJPropsCijFD(Space.getInstance(3), nMol, density, temperature, rc, dt);
+        final SimLJPropsCijFD sim = new SimLJPropsCijFD(Space.getInstance(3), nMol, density, temperature, rc, dt, deV);
         sim.integrator.reset();//uLat
 
         System.out.println(" " + nMol + " atoms " + " temperature " + temperature + " rc " + rc);
@@ -123,7 +145,7 @@ public class SimLJPropsCijFD extends Simulation {
         System.out.println(" pLat: " + pLat);
 
 
-        MeterSolidHMAFD meterElastic = new MeterSolidHMAFD(sim.space, new MeterPotentialEnergyFromIntegrator(sim.integrator), sim.potentialMaster, sim.coordinateDefinition, temperature, elasticParams);
+        MeterSolidHMAFD meterElastic = new MeterSolidHMAFD(sim.space, new MeterPotentialEnergyFromIntegrator(sim.integrator), sim.potentialMaster,sim.potentialMasterp,sim.potentialMasterm, sim.boxp, sim.boxm, sim.coordinateDefinition, temperature, elasticParams, dbeta, deV);
 
         if (isGraphic) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -246,6 +268,8 @@ public class SimLJPropsCijFD extends Simulation {
         public double dt = 0.005;
         public double gV = 3.096385101500418;
         public double gVV = -0.200069081433023;
+        public double dbeta = 0.001;
+        public double deV = 0.00001;
 
     }
 }
