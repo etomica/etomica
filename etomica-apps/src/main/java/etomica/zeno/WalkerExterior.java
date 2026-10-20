@@ -17,12 +17,14 @@ public class WalkerExterior {
     public double boundingSphereRadius;
     public Vector boundingSphereCenter;
     protected double shellThickness;
+    protected Shape shape = Shape.SPHERE;
 
-    public WalkerExterior(Box box, double[] sigmaByType, IRandom random, double boundingSphereRadius, Vector boundingSphereCenter, double shellThickness) {
+    public WalkerExterior(Box box, double[] sigmaByType, IRandom random, double boundingSphereRadius, Vector boundingSphereCenter, Shape shape) {
         this.box = box;
         this.random = random;
         this.sigmaByType = sigmaByType;
         setBoundingSphere(boundingSphereCenter, boundingSphereRadius);
+        this.shape = shape;
     }
 
     public void setBoundingSphere(Vector center, double radius) {
@@ -35,13 +37,33 @@ public class WalkerExterior {
         IAtomList atoms = this.box.getLeafList();
         double minDistance = Double.POSITIVE_INFINITY;
 
+        Vector rMin = box.getSpace().makeVector();
+        Vector rMax = box.getSpace().makeVector();
         for(IAtom a : atoms) {
-            double r2 = a.getPosition().Mv1Squared(position);
             double sigma = this.sigmaByType[a.getType().getIndex()];
-            double distance = Math.sqrt(r2) - sigma * 0.5;
-            if (distance < minDistance) {
-                minDistance = distance;
+            double distance;
+            if (shape == Shape.SPHERE) {
+                double r2 = a.getPosition().Mv1Squared(position);
+                distance = Math.sqrt(r2) - sigma * 0.5;
             }
+            else if (shape == Shape.CUBE) {
+                Vector r = a.getPosition();
+                rMax.E(r);
+                rMax.PE(0.5*sigma);
+                rMin.E(r);
+                rMin.PE(-0.5*sigma);
+                double r2 = 0;
+                for (int i=0; i<3; i++) {
+                    double dx = Math.max(rMin.getX(i) - position.getX(i), position.getX(i) - rMax.getX(i));
+                    dx = Math.max(dx, 0);
+                    r2 += dx*dx;
+                }
+                distance = Math.sqrt(r2);
+            }
+            else {
+                throw new RuntimeException("I don't know how to handle shape "+shape);
+            }
+            minDistance = Math.min(distance, minDistance);
         }
 
         return minDistance * minDistance;
@@ -104,6 +126,10 @@ public class WalkerExterior {
         public int numSteps;
         public Vector3D startPoint = new Vector3D();
         public Vector3D endPoint = new Vector3D();
+    }
+
+    public enum Shape {
+        SPHERE, CUBE
     }
 }
 

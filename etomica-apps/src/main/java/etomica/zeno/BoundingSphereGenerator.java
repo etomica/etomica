@@ -13,7 +13,7 @@ public class BoundingSphereGenerator {
         public double radius;
     }
 
-    public static BoundingSphere getBoundingSphere(Box box, double[] sigmaByType) {
+    public static BoundingSphere getBoundingSphere(Box box, double[] sigmaByType, WalkerExterior.Shape shape) {
         BoundingSphere bs = new BoundingSphere();
         bs.center = box.getSpace().makeVector();
         bs.radius = 0;
@@ -35,17 +35,17 @@ public class BoundingSphereGenerator {
 
         //   edgePoint1 = findFarthestPoint(initialPoint)
 
-        Vector edgePoint1 = findFarthestPoint(box, initialPoint, sigmaByType);
-        Vector edgePoint2 = findFarthestPoint(box, edgePoint1, sigmaByType);
+        Vector edgePoint1 = findFarthestPoint(box, initialPoint, sigmaByType, shape);
+        Vector edgePoint2 = findFarthestPoint(box, edgePoint1, sigmaByType, shape);
         bs.center.Ev1Pv2(edgePoint1, edgePoint2);
         bs.center.TE(0.5);
-        Vector edgePoint = findFarthestPoint(box, bs.center, sigmaByType);
+        Vector edgePoint = findFarthestPoint(box, bs.center, sigmaByType, shape);
         bs.radius = Math.sqrt(edgePoint.Mv1Squared(bs.center));
 
         return bs;
     }
 
-    public static Vector findFarthestPoint(Box box, Vector queryPoint, double[] sigmaByType) {
+    public static Vector findFarthestPoint(Box box, Vector queryPoint, double[] sigmaByType, WalkerExterior.Shape shape) {
         Vector farthestPoint = box.getSpace().makeVector();
         farthestPoint.E(queryPoint);
         Vector aFarthest = box.getSpace().makeVector();
@@ -55,13 +55,27 @@ public class BoundingSphereGenerator {
             double radius = 0.5 * sigmaByType[a.getType().getIndex()];
             if (r.Mv1Squared(queryPoint) == 0) {
                 aFarthest.E(r);
-                aFarthest.setX(0, aFarthest.getX(0) + radius);
+                if (shape == WalkerExterior.Shape.SPHERE) {
+                    aFarthest.setX(0, aFarthest.getX(0) + radius);
+                }
+                else {
+                    aFarthest.PE(radius);
+                }
             }
             else {
                 aFarthest.Ev1Mv2(r, queryPoint);
-                aFarthest.normalize();
-                aFarthest.TE(radius);
-                aFarthest.PE(r);
+                if (shape == WalkerExterior.Shape.SPHERE) {
+                    aFarthest.normalize();
+                    aFarthest.TE(radius);
+                    aFarthest.PE(r);
+                }
+                else {
+                    for (int i=0; i<aFarthest.getD(); i++) {
+                        if (aFarthest.getX(i) >= 0) aFarthest.setX(i, aFarthest.getX(i) + radius);
+                        else aFarthest.setX(i, aFarthest.getX(i) - radius);
+                    }
+                    aFarthest.PE(queryPoint);
+                }
             }
             double r2 = aFarthest.Mv1Squared(queryPoint);
             if (r2 > maxR2) {

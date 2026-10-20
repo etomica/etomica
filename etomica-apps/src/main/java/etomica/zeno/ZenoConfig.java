@@ -16,6 +16,7 @@ import etomica.integrator.mcmove.MCMoveMoleculeRotate;
 import etomica.potential.compute.PotentialComputeAggregate;
 import etomica.simulation.Simulation;
 import etomica.space3d.Space3D;
+import etomica.space3d.Vector3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
 import etomica.util.ParameterBase;
@@ -34,13 +35,13 @@ public class ZenoConfig {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numAtoms = 2;
-            params.confFile = "dumbbell2";
+            params.numAtoms = 1;
+            params.confFile = "sphere";
             params.steps = 1;
-            params.walks = 10000000;
+            params.walks = 1000000;
             params.rotation = false;
-            params.eigen = false;
-            params.sigma = 2;
+            params.eigen = true;
+            params.sigma = 1;
         }
 
         System.out.println("config: "+params.confFile);
@@ -49,9 +50,11 @@ public class ZenoConfig {
         System.out.println("rotation: "+(params.rotation ? "on": "off"));
         System.out.println("eigenvalues for q: "+(params.eigen ? "on" : "off"));
         Simulation sim = new Simulation(Space3D.getInstance());
-        AtomType type = AtomType.simpleFromSim(sim);
+        AtomType type1 = AtomType.simpleFromSim(sim);
+        AtomType type2 = AtomType.simpleFromSim(sim);
         ISpecies species = new SpeciesBuilder(sim.getSpace())
-                .addCount(type, params.numAtoms)
+                .addCount(type1, 1)
+//                .addCount(type2, 1)
                 .withConformation(new IConformation() {
                     @Override
                     public void initializePositions(IAtomList atomList) {}
@@ -66,12 +69,14 @@ public class ZenoConfig {
         if (params.rotation) integrator.getMoveManager().addMCMove(rotate);
         rotate.setStepSize(Math.PI);
 //        boundingSphereRadius = 36.660339;
-        double[] sigma = new double[]{params.sigma};
-        MeterZENO meterIntrinsicViscosity = new MeterZENO(sim.box(), sim.getRandom(), sigma);
+        double[] sigma = new double[]{1};
+        MeterZENO meterIntrinsicViscosity = new MeterZENO(sim.box(), sim.getRandom(), sigma, false, WalkerExterior.Shape.CUBE);
         WalkerExterior w = meterIntrinsicViscosity.walker;
+        System.err.println("Need to force rotation about boundingSphereCenter");
+//        rotate.r0.E(w.boundingSphereCenter);
         System.out.println("bounding sphere at "+w.boundingSphereCenter+" radius "+w.boundingSphereRadius);
 //        meterIntrinsicViscosity.setBoundingSphere(CenterOfMass.position(sim.box(), sim.box().getMoleculeList().get(0)), 4);
-//        meterIntrinsicViscosity.setBoundingSphere(new Vector3D(0.5,0,0), 1.5);
+        meterIntrinsicViscosity.setBoundingSphere(new Vector3D(0,0,0), 2);
         meterIntrinsicViscosity.setEigenvaluesForPade(params.eigen);
         meterIntrinsicViscosity.setNumWalks(params.walks);
         //System.out.println("boundingSphereRadius: " + meterIntrinsicViscosity.boundingSphereRadius);
@@ -87,6 +92,8 @@ public class ZenoConfig {
         sim.getController().runActivityBlocking(ai);
         double viscosity = meterIntrinsicViscosity.getIntrinsicViscosity();
         double hydrodynamicRadius = meterIntrinsicViscosity.getHydrodynamicRadius();
+        double vol = meterIntrinsicViscosity.computeVolume();
+        System.out.println("volume: "+ vol);
         System.out.println("Intrinsic viscosity: " + viscosity);
         System.out.println("Hydrodynamic radius: " + hydrodynamicRadius);
         long t2 = System.nanoTime();
