@@ -4,7 +4,6 @@
 
 package etomica.normalmode;
 
-import etomica.action.BoxInflate;
 import etomica.atom.IAtom;
 import etomica.box.Box;
 import etomica.data.*;
@@ -28,30 +27,28 @@ public class MeterSolidHMAFD implements IDataSource {
     protected double rho;
     protected int N, nCells;
     protected double gV, gVV, mV;
-    protected double dim;
     protected Vector dri;
-    protected final double temperature;
-    protected PotentialMasterList potentialMaster, potentialMasterp, potentialMasterm;
+    protected final double T;
+    protected PotentialMasterList potentialMaster0, potentialMasterP, potentialMasterM;
     protected Vector[] rOrig;
     protected int n;
     protected double dbeta, deV;
-    protected double scaleVm, scaleVp, scaleTm, scaleTp;
-    protected double beta, betap, betam;
-    protected Box box, boxp, boxm;
+    protected double scaleVm, scaleVp, scaleBetaM, scaleBetaP;
+    protected double beta, betaP, betaM;
+    protected Box box0, boxP, boxM;
     protected double uShift, pShift;
 
-    public MeterSolidHMAFD(Space space, DataSourceScalar meterPE, PotentialMasterList potentialMaster, PotentialMasterList potentialMasterp, PotentialMasterList potentialMasterm, Box boxp, Box boxm, CoordinateDefinition coordinateDefinition, double temperature, double[] elasticParams, double dbeta, double deV) {
-        int nData = 7;
+    public MeterSolidHMAFD(Space space, DataSourceScalar meterPE, PotentialMasterList potentialMaster0, PotentialMasterList potentialMasterP, PotentialMasterList potentialMasterM, Box boxP, Box boxM, CoordinateDefinition coordinateDefinition, double T, double[] elasticParams, double dbeta, double deV) {
+        int nData = 8;
         this.space = space;
         this.coordinateDefinition = coordinateDefinition;
         this.meterPE = meterPE;
-        this.potentialMaster = potentialMaster;
-        this.potentialMasterp = potentialMasterp;
-        this.potentialMasterm = potentialMasterm;
-        this.temperature = temperature;
-        this.boxp = boxp;
-        this.boxm = boxm;
-        dim = space.D();
+        this.potentialMaster0 = potentialMaster0;
+        this.potentialMasterP = potentialMasterP;
+        this.potentialMasterM = potentialMasterM;
+        this.T = T;
+        this.boxP = boxP;
+        this.boxM = boxM;
         data = new DataDoubleArray(nData);
         dataInfo = new DataInfoDoubleArray("stuff", Null.DIMENSION, new int[]{nData});
         tag = new DataTag();
@@ -59,33 +56,33 @@ public class MeterSolidHMAFD implements IDataSource {
 
         // dbeta
         this.dbeta = dbeta;
-        beta = 1 / this.temperature;
-        betap = beta + dbeta;
-        betam = beta - dbeta;
-        scaleTp = Math.sqrt(beta / betap);
-        scaleTm = Math.sqrt(beta / betam);
+        beta = 1 / this.T;
+        betaP = beta + dbeta;
+        betaM = beta - dbeta;
+        scaleBetaP = Math.sqrt(beta / betaP);
+        scaleBetaM = Math.sqrt(beta / betaM);
 
         //dV
         this.deV = deV;
-        box = coordinateDefinition.getBox();
-        V = box.getBoundary().volume();
-        N = box.getLeafList().size();
+        box0 = coordinateDefinition.getBox();
+        V = box0.getBoundary().volume();
+        N = box0.getLeafList().size();
         rho = N / V;
         Vm = V * (1 - deV);
         Vp = V * (1 + deV);
-        scaleVp = Math.pow(Vp / V, 1.0 / dim);
-        scaleVm = Math.pow(Vm / V, 1.0 / dim);
+        scaleVp = Math.pow(Vp / V, 1.0 / 3.0);
+        scaleVm = Math.pow(Vm / V, 1.0 / 3.0);
 
         gV   = elasticParams[0];
         gVV  = elasticParams[1];
-        mV = gV - 1.0 / dim;
+        mV = gV - 1.0 / 3.0;
 
         dri = space.makeVector();
-        rOrig = box.getSpace().makeVectorArray(box.getLeafList().size());
+        rOrig = box0.getSpace().makeVectorArray(box0.getLeafList().size());
 
-        latticePositions = box.getSpace().makeVectorArray(N);
+        latticePositions = box0.getSpace().makeVectorArray(N);
         for (int i = 0; i < N; i++) {
-            latticePositions[i].E(coordinateDefinition.getLatticePosition(box.getLeafList().get(i)));
+            latticePositions[i].E(coordinateDefinition.getLatticePosition(box0.getLeafList().get(i)));
         }
 
         this.uShift = 0;
@@ -99,79 +96,63 @@ public class MeterSolidHMAFD implements IDataSource {
         n++;
         double[] x = data.getData();
 
-        for (IAtom atom : box.getLeafList()) {
+        for (IAtom atom : box0.getLeafList()) {
             int iAtom = atom.getLeafIndex();
             rOrig[iAtom].E(atom.getPosition());
         }
 
-        Box box = coordinateDefinition.getBox();
-        potentialMaster.computeAll(false);
+        potentialMaster0.computeAll(false);
+        double uSum = potentialMaster0.getLastEnergy();
 
-        double uSum = potentialMaster.getLastEnergy();
-
-        // U, P, Cv, P (Conv and HMA)
-
-        // U_conv
+        // Uc
         x[0] = uSum / N - uShift;
         //U_hma
-        x[1] = dim * (N - 1.0) / 2.0 / N / beta  + dbUdb()[0] / N - uShift;
+        x[1] = 3.0 * (N - 1.0) / 2.0 / N / beta  + dbUdb()[0] / N - uShift;
 
-
-        // P_conv
-        x[2] = rho * temperature - dUdeVc()[0] / V - pShift;
+        // Pc
+        x[2] = rho * T - dUdeVc()[0] / V - pShift;
         // P_hma
-        x[3] = dim * (N - 1.0) / V * gV * temperature - dUdeVm()[0] / V - pShift;
+        x[3] = 3.0 * (N - 1.0) / V * gV * T - dUdeVm()[0] / V + T / V  - pShift;
 
-        // Cv = - beta^2 * d2bA/db2
-        // Cv_conv
-        // Cv = var(U) / (k T^2)
         // Cv_hma
-        x[4] = dbUdb()[1] / N;
+        x[4] = dbUdb()[1] / N / T / T;
 
-        // B = 1/V d2A/deV2
-        // B_conv
-        x[5] = dUdeVc()[1] / V;
-        // B_hma
-        x[6] = dUdeVm()[1] / V;
+        // Bc
+        x[5] = rho * T + dUdeVc()[1] / V;
+        // Bm
+        x[6] = - 3.0 * (N - 1.0) * T * gVV / V + dUdeVm()[1] / V + T / V;
 
-
+        // Gm
+        x[7] = dUdeVm()[2] / V / T;
 
         return data;
     }
 
-
-
-    /**
-     * dU / dbeta
-     * @return the energy derivative w.r.t. beta
-     */
     public double[] dbUdb() {
-        // +dbeta
-        double U_0 = potentialMaster.computeAll(false);
+        double U_0 = potentialMaster0.computeAll(false);
 
-        for (IAtom atom : box.getLeafList()) {
+        // +dbeta
+        for (IAtom atom : box0.getLeafList()) {
             int iAtom = atom.getLeafIndex();
-            dri.Ev1Mv2(atom.getPosition(), latticePositions[iAtom]);
-            dri.TE(scaleTp);
+            dri.Ev1Mv2(box0.getLeafList().get(iAtom).getPosition(), latticePositions[iAtom]);
+            dri.TE(scaleBetaP);
             atom.getPosition().Ev1Pv2(latticePositions[atom.getLeafIndex()], dri);
         }
-
-        double U_p = potentialMaster.computeAll(false);
+        double U_p = potentialMaster0.computeAll(false);
 
         // -dbeta
-        for (IAtom atom : box.getLeafList()) {
+        for (IAtom atom : box0.getLeafList()) {
             int iAtom = atom.getLeafIndex();
-            dri.Ev1Mv2(atom.getPosition(), latticePositions[iAtom]);
-            dri.TE(scaleTm / scaleTp); //undo first
+            dri.Ev1Mv2(box0.getLeafList().get(iAtom).getPosition(), latticePositions[iAtom]);
+            dri.TE(scaleBetaM / scaleBetaP);
             atom.getPosition().Ev1Pv2(latticePositions[atom.getLeafIndex()], dri);
         }
+        double U_m = potentialMaster0.computeAll(false);
 
-        double U_m = potentialMaster.computeAll(false);
+        double dbUdb = (betaP * U_p - betaM * U_m) / 2.0 / dbeta;
+        double d2bUdb2 = (betaP * U_p - 2 * beta * U_0 + betaM * U_m) / dbeta / dbeta;
 
-        double dbUdb = (betap * U_p - betam * U_m) / 2.0 / dbeta;
-        double d2bUdb2 = (betap * U_p - 2 * beta * U_0 + betam * U_m) / dbeta / dbeta;
-
-        for (IAtom atom : box.getLeafList()) {
+        for (IAtom atom : box0.getLeafList()) {
             int iAtom = atom.getLeafIndex();
             atom.getPosition().E(rOrig[iAtom]);
         }
@@ -179,26 +160,21 @@ public class MeterSolidHMAFD implements IDataSource {
         return new double[]{dbUdb, d2bUdb2};
     }
 
-
-    /**
-     * dU / deV
-     * @return the energy derivative w.r.t. V
-     */
     public double[] dUdeVc() {
-        double U_0 = potentialMaster.computeAll(false);
+        double U_0 = potentialMaster0.computeAll(false);
 
         // +dV
-        for (IAtom atomp : boxp.getLeafList()) {
-            int iAtom = atomp.getLeafIndex();
-            atomp.getPosition().Ea1Tv1(scaleVp, box.getLeafList().get(iAtom).getPosition());
+        for (IAtom atom : boxP.getLeafList()) {
+            int iAtom = atom.getLeafIndex();
+            atom.getPosition().Ea1Tv1(scaleVp, box0.getLeafList().get(iAtom).getPosition());
         }
-        double U_p = potentialMasterp.computeAll(false);
+        double U_p = potentialMasterP.computeAll(false);
 
-        for (IAtom atomm : boxm.getLeafList()) {
-            int iAtom = atomm.getLeafIndex();
-            atomm.getPosition().Ea1Tv1(scaleVm, box.getLeafList().get(iAtom).getPosition());
+        for (IAtom atom : boxM.getLeafList()) {
+            int iAtom = atom.getLeafIndex();
+            atom.getPosition().Ea1Tv1(scaleVm, box0.getLeafList().get(iAtom).getPosition());
         }
-        double U_m = potentialMasterm.computeAll(false);
+        double U_m = potentialMasterM.computeAll(false);
 
         double dUdeV = (U_p - U_m) / 2.0 / deV;
         double d2UdeV2 = (U_p - 2 * U_0 +  U_m) / deV / deV;
@@ -206,32 +182,74 @@ public class MeterSolidHMAFD implements IDataSource {
         return new double[] {dUdeV, d2UdeV2};
     }
 
-    // -deV
     public double[] dUdeVm() {
-        double U_0 = potentialMaster.computeAll(false);
+        double U_0 = potentialMaster0.computeAll(false);
 
-        for (IAtom atomp : boxp.getLeafList()) {
-            int iAtom = atomp.getLeafIndex();
-            atomp.getPosition().Ea1Tv1(scaleVp, latticePositions[iAtom]);
-            dri.Ev1Mv2(box.getLeafList().get(iAtom).getPosition(), latticePositions[iAtom]);
+        // +deV
+        for (IAtom atom : boxP.getLeafList()) {
+            int iAtom = atom.getLeafIndex();
+            atom.getPosition().Ea1Tv1(scaleVp, latticePositions[iAtom]);
+            dri.Ev1Mv2(box0.getLeafList().get(iAtom).getPosition(), latticePositions[iAtom]);
             dri.TE(Math.exp(gV * deV));
-            atomp.getPosition().PE(dri);
+            atom.getPosition().PE(dri);
         }
-        double U_p = potentialMasterp.computeAll(false);
+        double U_p = potentialMasterP.computeAll(false);
 
-        for (IAtom atomm : boxm.getLeafList()) {
-            int iAtom = atomm.getLeafIndex();
-            atomm.getPosition().Ea1Tv1(scaleVm, latticePositions[iAtom]);
-            dri.Ev1Mv2(box.getLeafList().get(iAtom).getPosition(), latticePositions[iAtom]);
+        // -deV
+        for (IAtom atom : boxM.getLeafList()) {
+            int iAtom = atom.getLeafIndex();
+            atom.getPosition().Ea1Tv1(scaleVm, latticePositions[iAtom]);
+            dri.Ev1Mv2(box0.getLeafList().get(iAtom).getPosition(), latticePositions[iAtom]);
             dri.TE(Math.exp(-gV * deV));
-            atomm.getPosition().PE(dri);
+            atom.getPosition().PE(dri);
         }
-        double U_m = potentialMasterm.computeAll(false);
+        double U_m = potentialMasterM.computeAll(false);
+
+        //+deV +dbeta
+        for (IAtom atom : boxP.getLeafList()) {
+            int iAtom = atom.getLeafIndex();
+            atom.getPosition().Ea1Tv1(scaleVp, latticePositions[iAtom]);
+            dri.Ev1Mv2(box0.getLeafList().get(iAtom).getPosition(), latticePositions[iAtom]);
+            dri.TE(scaleBetaP * Math.exp(gV * deV));
+            atom.getPosition().PE(dri);
+        }
+        double U_pp = potentialMasterP.computeAll(false);
+
+        //+deV -dbeta
+        for (IAtom atom : boxP.getLeafList()) {
+            int iAtom = atom.getLeafIndex();
+            atom.getPosition().Ea1Tv1(scaleVp, latticePositions[iAtom]);
+            dri.Ev1Mv2(box0.getLeafList().get(iAtom).getPosition(), latticePositions[iAtom]);
+            dri.TE(scaleBetaM * Math.exp(gV * deV));
+            atom.getPosition().PE(dri);
+        }
+        double U_pm = potentialMasterP.computeAll(false);
+
+        //-deV +dbeta
+        for (IAtom atom : boxM.getLeafList()) {
+            int iAtom = atom.getLeafIndex();
+            atom.getPosition().Ea1Tv1(scaleVm, latticePositions[iAtom]);
+            dri.Ev1Mv2(box0.getLeafList().get(iAtom).getPosition(), latticePositions[iAtom]);
+            dri.TE(scaleBetaP * Math.exp(-gV * deV));
+            atom.getPosition().PE(dri);
+        }
+        double U_mp = potentialMasterM.computeAll(false);
+
+        //-deV -dbeta
+        for (IAtom atom : boxM.getLeafList()) {
+            int iAtom = atom.getLeafIndex();
+            atom.getPosition().Ea1Tv1(scaleVm, latticePositions[iAtom]);
+            dri.Ev1Mv2(box0.getLeafList().get(iAtom).getPosition(), latticePositions[iAtom]);
+            dri.TE(scaleBetaM * Math.exp(-gV * deV));
+            atom.getPosition().PE(dri);
+        }
+        double U_mm = potentialMasterM.computeAll(false);
 
         double dUdeV = (U_p - U_m) / 2.0 / deV;
         double d2UdeV2 = (U_p - 2 * U_0 + U_m) / deV / deV;
+        double d2UdeVdbeta = (betaP * U_pp - betaM * U_pm - betaP * U_mp + betaM * U_mm) / 4.0 / deV / dbeta;
 
-        return new double[] {dUdeV, d2UdeV2};
+        return new double[] {dUdeV, d2UdeV2, d2UdeVdbeta};
     }
 
     public DataTag getTag() {

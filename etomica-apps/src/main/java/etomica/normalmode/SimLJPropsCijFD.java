@@ -20,26 +20,29 @@ import etomica.space.*;
 import etomica.species.SpeciesGeneral;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
 
 import java.awt.*;
 
 public class SimLJPropsCijFD extends Simulation {
     public CoordinateDefinitionLeaf coordinateDefinition, coordinateDefinitionp, coordinateDefinitionm;
     public IntegratorVelocityVerlet integrator;
-    public Box box, boxp, boxm;
+    public Box box, boxP, boxM;
     public Boundary boundary, boundaryp, boundarym;
     public int[] nCells;
     public Basis basis, basisp, basism;
     public Primitive primitive, primitivep, primitivem;
-    public PotentialMasterList potentialMaster, potentialMasterp, potentialMasterm;
+    public PotentialMasterList potentialMaster, potentialMasterP, potentialMasterM;
     public P2SoftSphericalTruncated potential;
     public SpeciesGeneral species;
 
     public SimLJPropsCijFD(Space _space, int N, double rho, double T, double rc, double dt, double deV, boolean isLRC) {
         super(_space);
+
+        setRandom(new RandomMersenneTwister(1)); // random seed
+
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
-
         double L = Math.pow(4.0 / rho, 1.0 / 3.0);
         int nc = (int) Math.round(Math.pow(N / 4, 1.0 / 3.0));
         boundary = new BoundaryRectangularPeriodic(space, nc * L);
@@ -72,33 +75,33 @@ public class SimLJPropsCijFD extends Simulation {
         double rhop = rho / (1 + deV);
         double Lp = Math.pow(4.0/rhop, 1.0 / 3.0);
         boundaryp = new BoundaryRectangularPeriodic(space, nc * Lp);
-        boxp = this.makeBox(boundaryp);
-        boxp.setNMolecules(species, N);
+        boxP = this.makeBox(boundaryp);
+        boxP.setNMolecules(species, N);
         primitivep = new PrimitiveCubic(space, nc * Lp);
         Basis basisFCCp = new BasisCubicFcc();
         basisp = new BasisBigCell(space, basisFCCp, nCells);
-        coordinateDefinitionp = new CoordinateDefinitionLeaf(boxp, primitivep, basisp, space);
+        coordinateDefinitionp = new CoordinateDefinitionLeaf(boxP, primitivep, basisp, space);
         coordinateDefinitionp.initializeCoordinates(new int[]{1, 1, 1});
-        potentialMasterp = new PotentialMasterList(getSpeciesManager(), boxp, 2, rc, BondingInfo.noBonding());
-        potentialMasterp.doAllTruncationCorrection = false;
-        potentialMasterp.setPairPotential(sphereType, sphereType, potential);
-        potentialMasterp.init();
+        potentialMasterP = new PotentialMasterList(getSpeciesManager(), boxP, 2, rc, BondingInfo.noBonding());
+        potentialMasterP.doAllTruncationCorrection = false;
+        potentialMasterP.setPairPotential(sphereType, sphereType, potential);
+        potentialMasterP.init();
 
         //box-
         double rhom = rho / (1 - deV);
         double Lm = Math.pow(4.0/rhom, 1.0 / 3.0);
         boundarym = new BoundaryRectangularPeriodic(space, nc * Lm);
-        boxm = this.makeBox(boundarym);
-        boxm.setNMolecules(species, N);
+        boxM = this.makeBox(boundarym);
+        boxM.setNMolecules(species, N);
         primitivem = new PrimitiveCubic(space, nc * Lm);
         Basis basisFCCm = new BasisCubicFcc();
         basism = new BasisBigCell(space, basisFCCm, nCells);
-        coordinateDefinitionm = new CoordinateDefinitionLeaf(boxm, primitivem, basism, space);
+        coordinateDefinitionm = new CoordinateDefinitionLeaf(boxM, primitivem, basism, space);
         coordinateDefinitionm.initializeCoordinates(new int[]{1, 1, 1});
-        potentialMasterm = new PotentialMasterList(getSpeciesManager(), boxm, 2, rc, BondingInfo.noBonding());
-        potentialMasterm.doAllTruncationCorrection = false;
-        potentialMasterm.setPairPotential(sphereType, sphereType, potential);
-        potentialMasterm.init();
+        potentialMasterM = new PotentialMasterList(getSpeciesManager(), boxM, 2, rc, BondingInfo.noBonding());
+        potentialMasterM.doAllTruncationCorrection = false;
+        potentialMasterM.setPairPotential(sphereType, sphereType, potential);
+        potentialMasterM.init();
 
     }
 
@@ -131,28 +134,30 @@ public class SimLJPropsCijFD extends Simulation {
         final SimLJPropsCijFD sim = new SimLJPropsCijFD(Space.getInstance(3), N, rho, T, rc, dt, deV, isLRC);
         double V = sim.box.getBoundary().volume();
 
-
-        System.out.println(" N " + N + " volume " + V);
-        System.out.println(" T " + T + " rho " + rho );
-        System.out.println(" rc " + rc);
-        System.out.println(" steps " + steps + " stepsEq " + stepsEq + " stepsShort = " + stepsShort);
-
-        System.out.println(" dt " + dt);
-        System.out.println(" gV " + params.gV);
-        System.out.println(" gVV " + params.gVV);
-
         //Ulat
         sim.integrator.reset();//uLat
         MeterPotentialEnergyFromIntegrator meterPE = new MeterPotentialEnergyFromIntegrator(sim.integrator);
-        double ULat = meterPE.getDataAsScalar();
-        System.out.println(" uLat " + (ULat/N));
+        double uLat = meterPE.getDataAsScalar();
 
         //Plat
         MeterPressure meterP = new MeterPressure(sim.box, sim.potentialMaster);
         meterP.setTemperature(0);//ZERO means NO ideal gas component!
         double pLat = meterP.getDataAsScalar();
-        System.out.println(" pLat " + pLat);
         meterP.setTemperature(T);
+
+
+        System.out.println("N " + N + " V " + V + " L " + Math.pow(V, 1.0 / 3.0));
+        System.out.println("rho " + rho + " T " + T);
+        System.out.println("rc " + rc);
+        System.out.println("steps " + steps + " stepsEq " + stepsEq + " stepsShort " + stepsShort);
+        System.out.println("dt " + dt);
+
+        System.out.println("\nHMA Elastic Parameters");
+        System.out.println("gV  " + params.gV + " gVV  " + params.gVV);
+
+        System.out.println("\nLattice properties");
+        System.out.println("uLat  " + uLat);
+        System.out.println("pLat  " + pLat);
 
         if (isGraphic) {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
@@ -203,9 +208,7 @@ public class SimLJPropsCijFD extends Simulation {
             return;
         }
 
-
-
-        MeterSolidHMAFD meterElastic = new MeterSolidHMAFD(sim.space, new MeterPotentialEnergyFromIntegrator(sim.integrator), sim.potentialMaster,sim.potentialMasterp,sim.potentialMasterm, sim.boxp, sim.boxm, sim.coordinateDefinition, T, elasticParams, dbeta, deV);
+        MeterSolidHMAFD meterElastic = new MeterSolidHMAFD(sim.space, new MeterPotentialEnergyFromIntegrator(sim.integrator), sim.potentialMaster,sim.potentialMasterP,sim.potentialMasterM, sim.boxP, sim.boxM, sim.coordinateDefinition, T, elasticParams, dbeta, deV);
 
 //Equilibration
         final long startTime = System.currentTimeMillis();
@@ -216,7 +219,7 @@ public class SimLJPropsCijFD extends Simulation {
         int interval = 10;
         long blockSize = steps / (numBlocks * interval);
         if (blockSize == 0) blockSize = 1;
-        System.out.println(" block size " + blockSize + " interval " + interval);
+        System.out.println("block size " + blockSize + "  interval " + interval);
 
 
         //Mapped
@@ -224,88 +227,99 @@ public class SimLJPropsCijFD extends Simulation {
         DataPumpListener accumulatorUPPump = new DataPumpListener(meterElastic, accumulatorElastic, interval);
         sim.integrator.getEventManager().addListener(accumulatorUPPump);
 
-
-        // Short run for P1_avg: to solve the Var(x) issue
+        System.out.println("Short sim for Covariance  " + stepsShort + " steps");
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, stepsShort));
-        IData dataElasticAvg0 = accumulatorElastic.getData(accumulatorElastic.AVERAGE);
-        double uShift = dataElasticAvg0.getValue(1); //U_hma
-        double pShift = dataElasticAvg0.getValue(3); //P_hma
-        System.out.println(" uShift " + uShift);
-        System.out.println(" pShift " + pShift);
-        meterElastic.setShift(uShift, pShift);
-        accumulatorElastic.reset();
 
+        IData dataElasticAvg0 = accumulatorElastic.getData(accumulatorElastic.AVERAGE);
+        IData dataElasticErr0 = accumulatorElastic.getData(accumulatorElastic.ERROR);
+        double uShift = dataElasticAvg0.getValue(1);
+        double errUshift = dataElasticErr0.getValue(1);
+        double pShift = dataElasticAvg0.getValue(3);
+        double errPshift = dataElasticErr0.getValue(3);
+
+        accumulatorElastic.reset();
+        System.out.println("uShift  " + uShift + "  " + errUshift);
+        System.out.println("pShift  " + pShift + "  " + errPshift);
+
+        meterElastic.setShift(uShift, pShift);
 
 // Production run ...
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, steps));
 
         IData dataElasticAvg = accumulatorElastic.getData(accumulatorElastic.AVERAGE);
         IData dataElasticErr = accumulatorElastic.getData(accumulatorElastic.ERROR);
-        IData dataElasticCorr = accumulatorElastic.getData(accumulatorElastic.BLOCK_CORRELATION);
+        IData dataElasticCor = accumulatorElastic.getData(accumulatorElastic.BLOCK_CORRELATION);
         IData dataElasticCov = accumulatorElastic.getData(accumulatorElastic.COVARIANCE);
 
 
 /** First Derivatives*/
-        double U_conv     = dataElasticAvg.getValue(0) + uShift;
-        double errU_conv  = dataElasticErr.getValue(0);
-        double corrU_conv = dataElasticCorr.getValue(0);
+        double Uc     = dataElasticAvg.getValue(0) + uShift;
+        double errUc  = dataElasticErr.getValue(0);
+        double corUc = dataElasticCor.getValue(0);
 
-        double U_hma      = dataElasticAvg.getValue(1) + uShift;
-        double errU_hma   = dataElasticErr.getValue(1);
-        double corrU_hma  = dataElasticCorr.getValue(1);
+        double Um      = dataElasticAvg.getValue(1) + uShift;
+        double errUm   = dataElasticErr.getValue(1);
+        double corUm  = dataElasticCor.getValue(1);
 
-        double P_conv     = dataElasticAvg.getValue(2) + pShift;
-        double errP_conv  = dataElasticErr.getValue(2);
-        double corrP_conv = dataElasticCorr.getValue(2);
+        double Pc     = dataElasticAvg.getValue(2) + pShift;
+        double errPc  = dataElasticErr.getValue(2);
+        double corPc = dataElasticCor.getValue(2);
 
-        double P_hma      = dataElasticAvg.getValue(3) + pShift;
-        double errP_hma   = dataElasticErr.getValue(3);
-        double corrP_hma  = dataElasticCorr.getValue(3);
-
-
-        System.out.println("\n++++ First Derivatives ++++");
-        System.out.println(" U_conv   " + U_conv + " +/- " + errU_conv + "   corr " + corrU_conv);
-        System.out.println(" U_hma    " + U_hma + " +/- " + errU_hma + "   corr " + corrU_hma);
-        System.out.println(" P_conv   " + P_conv + " +/- " + errP_conv + "   corr " + corrP_conv);
-        System.out.println(" P_hma    " + P_hma + " +/- " + errP_hma + "   corr " + corrP_hma);
+        double Pm      = dataElasticAvg.getValue(3) + pShift;
+        double errPm   = dataElasticErr.getValue(3);
+        double corPm  = dataElasticCor.getValue(3);
 
 
         /** Second Derivatives*/
         int nd = dataElasticAvg.getLength();
-        double varU_conv  = dataElasticCov.getValue(0 * (nd + 1));
-        double varU_hma   = dataElasticCov.getValue(1 * (nd + 1));
-        double varP_conv  = dataElasticCov.getValue(2 * (nd + 1));
-        double varP_hma   = dataElasticCov.getValue(3 * (nd + 1));
+        double varUc  = dataElasticCov.getValue(0 * (nd + 1)) * N * N;
+        double varUm   = dataElasticCov.getValue(1 * (nd + 1)) * N * N;
+        double varPc  = dataElasticCov.getValue(2 * (nd + 1));
+        double varPm   = dataElasticCov.getValue(3 * (nd + 1));
+        double covUcPc  = dataElasticCov.getValue(0 * nd + 2) * N;
+        double covUmPm   = dataElasticCov.getValue(1 * nd + 3) * N;
+
         double T2 = T * T;
-        // Cv = - d2A/db2 / T2 = [d2J - d2U + var] / T2
-        double Cv_conv = N * varU_conv / T2;
-        double Cv_hma  = N * varU_hma / T2 - dataElasticAvg.getValue(4) / T2 + 3.0 / 2.0 * (N - 1.0) / N ;
 
-        double B_conv  =            rho * T   + dataElasticAvg.getValue(5) - V / T * varP_conv;
-        double B_hma   = -3.0 * rho * T * gVV + dataElasticAvg.getValue(6) - V / T * varP_hma;
+        double Cvc = varUc / T2 / N;
+        double Cvm  = varUm / T2 / N - dataElasticAvg.getValue(4) + 3.0 / 2.0 * (N - 1.0) / N ;
 
-        System.out.println("\n++++ Second Derivatives ++++");
-        System.out.println(" Cv_conv  " + Cv_conv);
-        System.out.println(" Cv_hma   " + Cv_hma);
+        double Bc = dataElasticAvg.getValue(5) - V / T * varPc;
+        double Bm = dataElasticAvg.getValue(6) - V / T * varPm;
 
-        System.out.println(" B_conv   " + B_conv);
-        System.out.println(" B_hma    " + B_hma);
+        double Gc = rho + covUcPc / T2;
+        double Gm = dataElasticAvg.getValue(7) + covUmPm / T2 + Pm / T;
 
+
+        //Print
+        System.out.println("\n++++ First Derivatives ++++");
+        System.out.println("Uc   " + Uc + " +/- " + errUc + "   cor " + corUc);
+        System.out.println("Um    " + Um + " +/- " + errUm + "   cor " + corUm);
+        System.out.println("Pc   " + Pc + " +/- " + errPc + "   cor " + corPc);
+        System.out.println("Pm    " + Pm + " +/- " + errPm + "   cor " + corPm);
+
+        System.out.println("\n ++++ Second Derivatives ++++");
+        System.out.println("Cvc " + Cvc);
+        System.out.println("Cvc " + Cvm);
+        System.out.println("Bc  " + Bc);
+        System.out.println("Bm  " + Bm);
+        System.out.println("Gc  " + Gc);
+        System.out.println("Gm  " + Gm);
 
         long endTime = System.currentTimeMillis();
         System.out.println("\n Time " + (endTime - startTime) / 1000.0);
     }
 
     public static class SimLJPropsCijParam extends ParameterBase {
-        public int N = 256;
-        public double rho = 1;
+        public int N = 500;
+        public double rho = 1.0;
         public long steps = 10000;
         public long stepsEq = steps / 10;
-        public double T = 0.5;
+        public double T = 1;
         public double rc = 3;
-        public double dt = 0.005;
-        public double gV = 3.096385101500418;
-        public double gVV = -0.200069081433023;
+        public double dt = 0.002;
+        public double gV = 3.094707617816900;
+        public double gVV = -0.199514733065326;
         public double dbeta = 0.001;
         public double deV = 0.001;
         public boolean isGraphic = !true;
