@@ -29,7 +29,7 @@ public class MeterSolidHMAFD implements IDataSource {
     protected int N, nCells;
     protected double gV, gVV, mV;
     protected double dim;
-    protected Vector dri, drj, drij;
+    protected Vector dri;
     protected final double temperature;
     protected PotentialMasterList potentialMaster, potentialMasterp, potentialMasterm;
     protected Vector[] rOrig;
@@ -38,6 +38,7 @@ public class MeterSolidHMAFD implements IDataSource {
     protected double scaleVm, scaleVp, scaleTm, scaleTp;
     protected double beta, betap, betam;
     protected Box box, boxp, boxm;
+    protected double uShift, pShift;
 
     public MeterSolidHMAFD(Space space, DataSourceScalar meterPE, PotentialMasterList potentialMaster, PotentialMasterList potentialMasterp, PotentialMasterList potentialMasterm, Box boxp, Box boxm, CoordinateDefinition coordinateDefinition, double temperature, double[] elasticParams, double dbeta, double deV) {
         int nData = 7;
@@ -80,14 +81,15 @@ public class MeterSolidHMAFD implements IDataSource {
         mV = gV - 1.0 / dim;
 
         dri = space.makeVector();
-        drj = space.makeVector();
-        drij = space.makeVector();
         rOrig = box.getSpace().makeVectorArray(box.getLeafList().size());
 
         latticePositions = box.getSpace().makeVectorArray(N);
         for (int i = 0; i < N; i++) {
             latticePositions[i].E(coordinateDefinition.getLatticePosition(box.getLeafList().get(i)));
         }
+
+        this.uShift = 0;
+        this.pShift = 0;
 
         n = 0;
     }
@@ -102,36 +104,37 @@ public class MeterSolidHMAFD implements IDataSource {
             rOrig[iAtom].E(atom.getPosition());
         }
 
-        double Fdr = 0;
         Box box = coordinateDefinition.getBox();
-        potentialMaster.computeAll(true);
+        potentialMaster.computeAll(false);
 
         double uSum = potentialMaster.getLastEnergy();
-        double virial = potentialMaster.getLastVirial();
-        Vector[] forces = potentialMaster.getForces();
 
-        for (IAtom atom : box.getLeafList()) {
-            int iAtom = atom.getLeafIndex();
-            Vector F = forces[iAtom];
-            dri.Ev1Mv2(atom.getPosition(), latticePositions[iAtom]);
-            box.getBoundary().nearestImage(dri);
-            Fdr += F.dot(dri);
-        }
+        // U, P, Cv, P (Conv and HMA)
 
-        // Analytical derivatives
-        x[0] = uSum / N; // U_conv
-        x[1] = uSum / N + dim * (N - 1.0) / 2.0 / N * temperature  + 0.5 * Fdr / N; // U_hma
-
-        x[2] = rho * temperature - virial / (3 * V); //P_conv
-        x[3] = dim * (N - 1.0) / V * temperature * gV - virial / (3 * V) + mV * Fdr / V; // P_conv
-
-        //Finite-difference derivatives
-        x[4] = dim * (N - 1.0) / 2.0 / N * temperature + dbUdb() / N; //U_hma
-        x[5] = rho * temperature - dUdeVc() / V; // P_conv
-        x[6] = dim * (N - 1.0) / V * gV * temperature - dUdeVm() / V; // P_hma
+        // U_conv
+        x[0] = uSum / N - uShift;
+        //U_hma
+        x[1] = dim * (N - 1.0) / 2.0 / N / beta  + dbUdb()[0] / N - uShift;
 
 
-//        System.out.println(n + "    " + x[2] + "    " + x[3] + "    " +  x[5] + "    " + x[6]);
+        // P_conv
+        x[2] = rho * temperature - dUdeVc()[0] / V - pShift;
+        // P_hma
+        x[3] = dim * (N - 1.0) / V * gV * temperature - dUdeVm()[0] / V - pShift;
+
+        // Cv = - beta^2 * d2bA/db2
+        // Cv_conv
+        // Cv = var(U) / (k T^2)
+        // Cv_hma
+        x[4] = dbUdb()[1] / N;
+
+        // B = 1/V d2A/deV2
+        // B_conv
+        x[5] = dUdeVc()[1] / V;
+        // B_hma
+        x[6] = dUdeVm()[1] / V;
+
+
 
         return data;
     }
@@ -142,8 +145,10 @@ public class MeterSolidHMAFD implements IDataSource {
      * dU / dbeta
      * @return the energy derivative w.r.t. beta
      */
-    public double dbUdb() {
+    public double[] dbUdb() {
         // +dbeta
+        double U_0 = potentialMaster.computeAll(false);
+
         for (IAtom atom : box.getLeafList()) {
             int iAtom = atom.getLeafIndex();
             dri.Ev1Mv2(atom.getPosition(), latticePositions[iAtom]);
@@ -164,22 +169,24 @@ public class MeterSolidHMAFD implements IDataSource {
         double U_m = potentialMaster.computeAll(false);
 
         double dbUdb = (betap * U_p - betam * U_m) / 2.0 / dbeta;
+        double d2bUdb2 = (betap * U_p - 2 * beta * U_0 + betam * U_m) / dbeta / dbeta;
 
         for (IAtom atom : box.getLeafList()) {
             int iAtom = atom.getLeafIndex();
             atom.getPosition().E(rOrig[iAtom]);
         }
 
-        return dbUdb;
+        return new double[]{dbUdb, d2bUdb2};
     }
-
 
 
     /**
      * dU / deV
      * @return the energy derivative w.r.t. V
      */
-    public double dUdeVc() {
+    public double[] dUdeVc() {
+        double U_0 = potentialMaster.computeAll(false);
+
         // +dV
         for (IAtom atomp : boxp.getLeafList()) {
             int iAtom = atomp.getLeafIndex();
@@ -194,12 +201,15 @@ public class MeterSolidHMAFD implements IDataSource {
         double U_m = potentialMasterm.computeAll(false);
 
         double dUdeV = (U_p - U_m) / 2.0 / deV;
+        double d2UdeV2 = (U_p - 2 * U_0 +  U_m) / deV / deV;
 
-        return dUdeV;
+        return new double[] {dUdeV, d2UdeV2};
     }
 
     // -deV
-    public double dUdeVm() {
+    public double[] dUdeVm() {
+        double U_0 = potentialMaster.computeAll(false);
+
         for (IAtom atomp : boxp.getLeafList()) {
             int iAtom = atomp.getLeafIndex();
             atomp.getPosition().Ea1Tv1(scaleVp, latticePositions[iAtom]);
@@ -219,8 +229,9 @@ public class MeterSolidHMAFD implements IDataSource {
         double U_m = potentialMasterm.computeAll(false);
 
         double dUdeV = (U_p - U_m) / 2.0 / deV;
+        double d2UdeV2 = (U_p - 2 * U_0 + U_m) / deV / deV;
 
-        return dUdeV;
+        return new double[] {dUdeV, d2UdeV2};
     }
 
     public DataTag getTag() {
@@ -230,5 +241,11 @@ public class MeterSolidHMAFD implements IDataSource {
     public IDataInfo getDataInfo() {
         return dataInfo;
     }
+
+    public void setShift(double uShift, double pShift) {
+        this.uShift = uShift;
+        this.pShift = pShift;
+    }
+
 
 }

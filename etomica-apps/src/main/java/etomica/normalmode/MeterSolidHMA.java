@@ -37,37 +37,27 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
     protected double drHdr, rHdr;
     protected final Space space;
     protected double uShift, pShift;
-
     protected double virial2;
     protected double virialx, virialy, virialz, virialxy, virialxz, virialyz;
-
     protected double x_Hxx_x, y_Hyy_y, z_Hzz_z;
     protected double x_Hxy_y, x_Hxz_z, y_Hyz_z;
     protected double x_Hyx_y, x_Hzx_z, y_Hzy_z;
-
     protected double[] rdotHrdot =  new double[9];
     protected double[] drHrdot =  new double[3];
     protected double rx1Hdr1, ry2Hdr2, rz3Hdr3;
     protected double rx1Hdr2, rx1Hdr3, ry2Hdr3, ry2Hdr1, rz3Hdr1, rz3Hdr2;
     protected double ry3z2Hdr4, rx3z1Hdr5, rx2y1Hdr6;
     protected double drHdr1, drHdr2, drHdr3, rx1Hdr, ry2Hdr, rz3Hdr;
-
     protected double gV, gVV, mV, mVV;
-
-
     protected double fV , fVV, dP, dB;
-
     protected double gx1, gy1, gy4, gx11, gy11, gx12, gz12, gx44, gy44;
     protected double mx1, my1, my4, mx11, my11, mx12, mz12, mx44, my44;
     protected double mT, mVT, mx1T, my1T;
     protected final boolean doD2;
     protected Vector dri, drj, drij;
-
     protected boolean callComputeAll = true;
-
-
     protected double sumH;
-    protected int nn = 25;//100
+    protected int nn = 7;
 
     public MeterSolidHMA(Space space, PotentialCompute potentialCompute, CoordinateDefinition coordinateDefinition, double[] elasticParams, double temperature, boolean doD2) {
         this.doD2 = doD2;
@@ -80,7 +70,8 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         box = coordinateDefinition.getBox();
         latticeEnergy = potentialCompute.computeAll(false);
         latticePressure = -potentialCompute.getLastVirial() / (box.getBoundary().volume() * dim);
-        int nData = doD2 ? 41 : 16;
+//        int nData = doD2 ? 41 : 16;
+        int nData = 7;
 
         dataInfo = new DataInfoDoubleArray("Stuff", Null.DIMENSION, new int[]{nData});
         dataInfo.addTag(tag);
@@ -88,42 +79,40 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
         gV = elasticParams[0];
         gVV = elasticParams[1];
-        gx1 = elasticParams[2];
-        gy1 = elasticParams[3];
-        gy4 = elasticParams[4];
-        gx11 = elasticParams[5];
-        gy11 = elasticParams[6];
-        gx44 = elasticParams[7];
-        gy44 = elasticParams[8];
-        gx12 = elasticParams[9];
-        gz12 = elasticParams[10];
-
-        dP = elasticParams[11];
-        dB = elasticParams[12];
+//        gx1 = elasticParams[2];
+//        gy1 = elasticParams[3];
+//        gy4 = elasticParams[4];
+//        gx11 = elasticParams[5];
+//        gy11 = elasticParams[6];
+//        gx44 = elasticParams[7];
+//        gy44 = elasticParams[8];
+//        gx12 = elasticParams[9];
+//        gz12 = elasticParams[10];
+//        dP = elasticParams[11];
+//        dB = elasticParams[12];
 
         int numAtoms = box.getMoleculeList().size();
         double V = box.getBoundary().volume();
         double rho = numAtoms / V;
-        fV = (dP/temperature-rho)/(3*(numAtoms-1));
-        fVV = fV*fV - (dB/temperature-rho)/(3*V*(numAtoms-1)) + 2.0*fV/(3.0*V);
-
-        System.out.println(" gV-from-fV: " + (V*fV+1/3.0));
+//        fV = (dP/temperature-rho)/(3*(numAtoms-1));
+//        fVV = fV*fV - (dB/temperature-rho)/(3*V*(numAtoms-1)) + 2.0*fV/(3.0*V);
+//        System.out.println(" gV-from-fV: " + (V*fV+1/3.0));
 
         mV = gV - 1.0 / 3.0;
         mVV = gVV + gV * gV + 2.0 / 9.0;
         mT = 1.0 /2.0/temperature;
         mVT = mT * (mV + 1.0 / 3.0);
-        mx1 = gx1 - 1.0;
-        my1 = gy1;
-        my4 = gy4 - 0.5;
-        mx11 = gx11 + gx1 * gx1 + 1.0;
-        my11 = gy11 + gy1 * gy1;
-        mx12 = gx12 + gx1 * gy1; //gx2=gy1
-        mz12 = gz12 + gy1 * gy1; //gz1=gy1 , gz2=gy1
-        mx44 = gx44; //gx4=0
-        my44 = gy44 + gy4 * gy4 + 1.0 / 4.0;
-        mx1T = mT * gx1;
-        my1T = mT * gy1;
+//        mx1 = gx1 - 1.0;
+//        my1 = gy1;
+//        my4 = gy4 - 0.5;
+//        mx11 = gx11 + gx1 * gx1 + 1.0;
+//        my11 = gy11 + gy1 * gy1;
+//        mx12 = gx12 + gx1 * gy1; //gx2=gy1
+//        mz12 = gz12 + gy1 * gy1; //gz1=gy1 , gz2=gy1
+//        mx44 = gx44; //gx4=0
+//        my44 = gy44 + gy4 * gy4 + 1.0 / 4.0;
+//        mx1T = mT * gx1;
+//        my1T = mT * gy1;
 
         this.uShift = 0;
         this.pShift = 0;
@@ -220,10 +209,7 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         double uSum;
         if (callComputeAll) {
             PotentialCallback callback = doD2 ? this : null;
-//            sumH = 0;
             uSum = potentialMaster.computeAll(true, callback);
-//            System.out.println("sumH: " + sumH);
-//            System.exit(0);
         } else {
             uSum = potentialMaster.getLastEnergy();
         }
@@ -236,12 +222,9 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         double virial2 = potentialMaster.getLastVirial2();
         double[] virialXYZ = potentialMaster.getLastVirialXYZ();
         double[] virial2XYZ = potentialMaster.getLastVirial2XYZ();
-
         Vector[] forces = potentialMaster.getForces();
         Vector[] dFdeV = potentialMaster.getdFdeV();
         Vector[][] dFde = potentialMaster.getdFde();
-
-
 
         boolean debug = false;
         if(debug && wantsHessian() && dFdeV != null){
@@ -435,42 +418,45 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
         //P1
 //        x[4] = -rho * temperature + virialx / V - p1Shift;
 //        x[5] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialx + Frdot1) / V - p1Shift;
-        x[4] = -rho * temperature + virialXYZ[0] / V - p1Shift;
-        x[5] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialXYZ[0] + Frdot1) / V - p1Shift;
+//        x[4] = -rho * temperature + virialXYZ[0] / V - p1Shift;
+//        x[5] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialXYZ[0] + Frdot1) / V - p1Shift;
 
 
         //P2
-        x[6] = -rho * temperature + virialXYZ[1] / V - p1Shift;
-        x[7] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialXYZ[1] + Frdot2) / V - p1Shift;
+//        x[6] = -rho * temperature + virialXYZ[1] / V - p1Shift;
+//        x[7] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialXYZ[1] + Frdot2) / V - p1Shift;
         //P3
-        x[8] = -rho * temperature + virialXYZ[2] / V - p1Shift;
-        x[9] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialXYZ[2] + Frdot3) / V - p1Shift;
+//        x[8] = -rho * temperature + virialXYZ[2] / V - p1Shift;
+//        x[9] = -((N - 1) * temperature * (gx1 + 2 * gy1) - virialXYZ[2] + Frdot3) / V - p1Shift;
         //P4
 //        x[10] = virialyz / V;
 //        x[11] = (virialyz - Frdot4) / V;
-        x[10] = virialXYZ[3] / V;
-        x[11] = (virialXYZ[3] - Frdot4) / V;
+//        x[10] = virialXYZ[3] / V;
+//        x[11] = (virialXYZ[3] - Frdot4) / V;
         //P5
-        x[12] = virialXYZ[4] / V;
-        x[13] = (virialXYZ[4] - Frdot5) / V;
+//        x[12] = virialXYZ[4] / V;
+//        x[13] = (virialXYZ[4] - Frdot5) / V;
         //P6
-        x[14] = virialXYZ[5] / V;
-        x[15] = (virialXYZ[5] - Frdot6) / V;
+//        x[14] = virialXYZ[5] / V;
+//        x[15] = (virialXYZ[5] - Frdot6) / V;
 
 
         //Second derivatives
         if (doD2) {
             //Cv - HMA
-            x[16] = -1.0/4.0/temperature*(Fdr + drHdr);
+//            x[16] = -1.0/4.0/temperature*(Fdr + drHdr);
+            x[4] = -1.0/4.0/temperature*(Fdr + drHdr);
 
             // B
-            x[17] = virial2/V + rho*temperature;
+//            x[17] = virial2/V + rho*temperature;
+            x[5] = virial2/V + rho*temperature;
             // LJ - old
             // x[18] = (virial2 + mV * mV * drHdr - mVV * Fdr + 2.0 / 3.0 * mV * rHdr - 3.0 * (N - 1) * temperature * gVV) / V + temperature / V;
             //PRE
 //            x[18] = dB + virial2/V + V*fV*fV*drHdr - V*fVV*Fdr - 2.0*fV*dFdeVdr ;//fV=mV/V ; fVV=mVV/V^2
             //PRB
-            x[18] = (virial2 + mV*mV*drHdr - mVV*Fdr - 2.0*mV*dFdeVdr - 3.0*(N-1)*temperature*gVV)/V + temperature/V;
+//            x[18] = (virial2 + mV*mV*drHdr - mVV*Fdr - 2.0*mV*dFdeVdr - 3.0*(N-1)*temperature*gVV)/V + temperature/V;
+            x[6] = (virial2 + mV*mV*drHdr - mVV*Fdr - 2.0*mV*dFdeVdr - 3.0*(N-1)*temperature*gVV)/V + temperature/V;
 
             // dr1Hdr1 = 0 , dr2Hdr2 = 3 , dr3Hdr3 = 5
             // dr1Hdr2 = 1 , dr1Hdr3 = 2 , dr2Hdr3 = 4
@@ -482,18 +468,18 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
             //C11
 //            x[19] = x_Hxx_x / V + 2 * rho * temperature; //C11
 //            x[20] = (x_Hxx_x + dr1Hdr1 - Frddot11 + 2 * rx1Hdr1 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
-            x[19] = virial2XYZ[0]/V + 2*rho*temperature; //C11
-            x[20] = (virial2XYZ[0] + rdotHrdot[0] - Frddot11  - 2*dF1rdot1 - (N-1.0)*temperature*(gx11+2*gy11))/V + 2*temperature/V;
+//            x[19] = virial2XYZ[0]/V + 2*rho*temperature; //C11
+//            x[20] = (virial2XYZ[0] + rdotHrdot[0] - Frddot11  - 2*dF1rdot1 - (N-1.0)*temperature*(gx11+2*gy11))/V + 2*temperature/V;
             //C22
 //            x[21] = y_Hyy_y / V + 2 * rho * temperature; //C22
 //            x[22] = (y_Hyy_y + dr2Hdr2 - Frddot22 + 2 * ry2Hdr2 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
-            x[21] = virial2XYZ[1]/V + 2*rho*temperature; //C22
-            x[22] = (virial2XYZ[1] + rdotHrdot[3] - Frddot22  - 2*dF2rdot2 - (N-1.0)*temperature*(gx11+2*gy11))/V + 2*temperature/V;
+//            x[21] = virial2XYZ[1]/V + 2*rho*temperature; //C22
+//            x[22] = (virial2XYZ[1] + rdotHrdot[3] - Frddot22  - 2*dF2rdot2 - (N-1.0)*temperature*(gx11+2*gy11))/V + 2*temperature/V;
 //            //C33
 //            x[23] = z_Hzz_z / V + 2 * rho * temperature; //C33
 //            x[24] = (z_Hzz_z + dr3Hdr3 - Frddot33 + 2 * rz3Hdr3 - (N - 1.0) * temperature * (gx11 + 2 * gy11)) / V + 2 * temperature / V;
-            x[23] = virial2XYZ[2]/V + 2*rho*temperature; //C33
-            x[24] = (virial2XYZ[2] + rdotHrdot[5] - Frddot33  - 2*dF3rdot3 - (N-1.0)*temperature*(gx11+2*gy11))/V + 2*temperature/V;
+//            x[23] = virial2XYZ[2]/V + 2*rho*temperature; //C33
+//            x[24] = (virial2XYZ[2] + rdotHrdot[5] - Frddot33  - 2*dF3rdot3 - (N-1.0)*temperature*(gx11+2*gy11))/V + 2*temperature/V;
 
 //
 //            //C12
@@ -508,14 +494,14 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 
             // dr1Hdr2 = 1 , dr1Hdr3 = 2 , dr2Hdr3 = 4
             //C12
-            x[25] = virial2XYZ[3] / V;
-            x[26] = (virial2XYZ[3] + rdotHrdot[1] - Frddot12 - dF1rdot2 - dF2rdot1 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
+//            x[25] = virial2XYZ[3] / V;
+//            x[26] = (virial2XYZ[3] + rdotHrdot[1] - Frddot12 - dF1rdot2 - dF2rdot1 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
             //C13
-            x[27] = virial2XYZ[4] / V;
-            x[28] = (virial2XYZ[4] + rdotHrdot[2] - Frddot13 - dF1rdot3 - dF3rdot1 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
+//            x[27] = virial2XYZ[4] / V;
+//            x[28] = (virial2XYZ[4] + rdotHrdot[2] - Frddot13 - dF1rdot3 - dF3rdot1 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
             //C23
-            x[29] = virial2XYZ[5] / V;
-            x[30] = (virial2XYZ[5] + rdotHrdot[4] - Frddot23 - dF2rdot3 - dF3rdot2 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
+//            x[29] = virial2XYZ[5] / V;
+//            x[30] = (virial2XYZ[5] + rdotHrdot[4] - Frddot23 - dF2rdot3 - dF3rdot2 - (N - 1.0) * temperature * (gz12 + 2 * gx12)) / V;
 
 //            //C44
 //            x[31] = y_Hzy_z / V + rho * temperature;
@@ -527,29 +513,29 @@ public class MeterSolidHMA implements IDataSourcePotential, PotentialCallback {
 //            x[35] = x_Hyx_y / V + rho * temperature;//C66
 //            x[36] = (x_Hyx_y + dr6Hdr6 - Frddot66 + rx2y1Hdr6 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
 //          C44 (yz,yz)
-            x[31] = virial2XYZ[6] / V + rho * temperature;
-            x[32] = (virial2XYZ[6] + rdotHrdot[6] - Frddot44 - 2.0*dF4rdot4 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
+//            x[31] = virial2XYZ[6] / V + rho * temperature;
+//            x[32] = (virial2XYZ[6] + rdotHrdot[6] - Frddot44 - 2.0*dF4rdot4 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
             //C55
-            x[33] = virial2XYZ[7] / V + rho * temperature;
-            x[34] = (virial2XYZ[7] + rdotHrdot[7] - Frddot55 - 2.0*dF5rdot5 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
+//            x[33] = virial2XYZ[7] / V + rho * temperature;
+//            x[34] = (virial2XYZ[7] + rdotHrdot[7] - Frddot55 - 2.0*dF5rdot5 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
             //C66
-            x[35] = virial2XYZ[8] / V + rho * temperature;
-            x[36] = (virial2XYZ[8] + rdotHrdot[8] - Frddot66 - 2.0*dF6rdot6 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
+//            x[35] = virial2XYZ[8] / V + rho * temperature;
+//            x[36] = (virial2XYZ[8] + rdotHrdot[8] - Frddot66 - 2.0*dF6rdot6 - (N - 1) * temperature * (gx44 + 2 * gy44) + temperature) / V;
 
 //            //g_V
 //            x[37] = 1.0 / 2.0 / V / temperature * (gV * Fdr - mV * drHdr - 1.0 / 3.0 * rHdr) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
 //PRB
 //            x[37] = 1.0 / 2.0 / V / temperature * (-mV * drHdr + gV * Fdr + dFdeVdr) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
-            gV = V*fV + 1/3.0;
-            x[37] = 1.0 / 2.0 / temperature * (-fV * drHdr + gV/V * Fdr + dFdeVdr/V) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
+//            gV = V*fV + 1/3.0;
+//            x[37] = 1.0 / 2.0 / temperature * (-fV * drHdr + gV/V * Fdr + dFdeVdr/V) + 3.0 * (N - 1) * gV / V + 1.0 / V; //bV_hma
 
 //            //b_mn
 //            x[38] = 1.0 / V * (mT * drHdr1 - Frddot1T +  mT * rx1Hdr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
 //            x[39] = 1.0 / V * (mT * drHdr2 - Frddot2T + mT * ry2Hdr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
 //            x[40] = 1.0 / V * (mT * drHdr3 - Frddot3T + mT * rz3Hdr) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
-            x[38] = 1.0 / V * (mT * drHrdot[0] - Frddot1T - mT * dF1dr1) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
-            x[39] = 1.0 / V * (mT * drHrdot[1] - Frddot2T - mT * dF2dr2) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
-            x[40] = 1.0 / V * (mT * drHrdot[2] - Frddot3T - mT * dF3dr3) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+//            x[38] = 1.0 / V * (mT * drHrdot[0] - Frddot1T - mT * dF1dr1) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+//            x[39] = 1.0 / V * (mT * drHrdot[1] - Frddot2T - mT * dF2dr2) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
+//            x[40] = 1.0 / V * (mT * drHrdot[2] - Frddot3T - mT * dF3dr3) - (N - 1) / V * (gx1 + 2 * gy1) - 1 / V;
         }
 
         return data;
