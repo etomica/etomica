@@ -5,8 +5,9 @@
 package etomica.virial;
 
 import etomica.action.IAction;
+import etomica.util.collections.IntSet;
+import etomica.util.collections.IntSet.PropertyBin;
 import etomica.util.random.IRandom;
-import etomica.virial.IntSet.PropertyBin;
 import etomica.virial.wheatley.ClusterWheatley;
 
 import java.io.*;
