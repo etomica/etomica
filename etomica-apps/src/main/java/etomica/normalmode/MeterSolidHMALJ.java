@@ -38,10 +38,9 @@ public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback 
     protected double mT, mVT, mx1T, my1T;
     protected Vector dri, drj, drij;
     protected boolean callComputeAll = true;
-    protected Vector[] dFdeV;
     protected double Fr , Fdr , rHr , drHdr, rHdr;
 
-    public MeterSolidHMALJ(Space space, PotentialCompute potentialCompute, CoordinateDefinition coordinateDefinition, double[] elasticParams, double T, boolean doD2) {
+    public MeterSolidHMALJ(Space space, PotentialCompute potentialCompute, CoordinateDefinition coordinateDefinition, double[] elasticParams, double T) {
         int nData = 8;
         this.coordinteDefinition = coordinateDefinition;
         tag = new DataTag();
@@ -82,15 +81,13 @@ public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback 
         mx1T = mT * gx1;
         my1T = mT * gy1;
 
-        this.uShift = 0;
-        this.pShift = 0;
 
         dri = space.makeVector();
         drj = space.makeVector();
         drij = space.makeVector();
 
-        dFdeV = new Vector[0];
-
+        this.uShift = 0;
+        this.pShift = 0;
     }
 
     @Override
@@ -101,10 +98,6 @@ public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback 
     @Override
     public DataTag getTag() {
         return tag;
-    }
-
-    public void setTemperature(double T) {
-        this.T = T;
     }
 
     /**
@@ -119,12 +112,12 @@ public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback 
         drHdr = 0;
         rHdr = 0;
 
-        double uSum;
+        double U;
         if (callComputeAll) {
             PotentialCallback callback = this;
-            uSum = potentialMaster.computeAll(false, callback);
+            U = potentialMaster.computeAll(false, callback);
         } else {
-            uSum = potentialMaster.getLastEnergy();
+            U = potentialMaster.getLastEnergy();
         }
 
         double[] x = data.getData();
@@ -132,20 +125,20 @@ public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback 
         int N = box.getMoleculeList().size();
         double rho = N / V;
 
-        x[0] = uSum / N - uShift;
-        x[1] = uSum / N + 3.0 / 2.0 * (N - 1.0) / N * T + 1.0 / 2.0 / N * Fdr - uShift;
+        //U
+        x[0] = U / N - uShift;
+        x[1] = 3.0 / 2.0 * (N - 1.0) / N * T + U / N + 1.0 / 2.0 / N * Fdr - uShift;
 
-        //Pc and Pm
+        //P
         x[2] = rho * T + Fr / (3.0 * V) - pShift;
         x[3] = 3.0 * (N - 1.0) / V * T * gV + Fr / (3.0 * V) + mV * Fdr / V + T / V - pShift;
 
-        //Second derivatives
-        //Cvm
+        //Cv
         x[4] = 3.0 / 2.0 * (N - 1.0) / N  - 1.0 / 4.0 / T * (Fdr + drHdr) / N;
 
-        // B
+        //B
         x[5] = rho * T + (1.0 / 9.0 * rHr + 2.0 / 9.0 * Fr) / V;
-        x[6] = - 3.0 * (N - 1.0) * T * gVV / V + (1.0 / 9.0 * rHr + 2.0 / 9.0 * Fr +  mV * mV * drHdr - mVV * Fdr + 2.0 / 3.0 * mV * rHdr) / V + T / V;
+        x[6] = - 3.0 * (N - 1.0) / V * T * gVV + (1.0 / 9.0 * rHr + 2.0 / 9.0 * Fr +  mV * mV * drHdr - mVV * Fdr + 2.0 / 3.0 * mV * rHdr) / V + T / V;
 
         //Gm
         x[7] = 3.0 * (N - 1.0) * gV / V + (gV * Fdr - mV * drHdr - 1.0 / 3.0 * rHdr) / 2.0 / V / T + 1.0 / V;
@@ -154,10 +147,7 @@ public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback 
     }
 
     @Override
-    //pairCompute called by potentialcompute
-    public void pairCompute(int i, int j, Vector rij, double[] u012) { //rij = rj - ri
-//        if (i < j) System.out.println("Hessian: " + i + "  " + j);
-
+    public void pairCompute(int i, int j, Vector rij, double[] u012) {
         double du = u012[1]; // r u'
         double d2u = u012[2];// r2 u''
         double rij2 = rij.squared();
@@ -198,6 +188,7 @@ public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback 
         tmpV.E(drij);
         Hij.transform(tmpV); // tmpV = Hij.drj
         rHdr += rij.dot(tmpV);
+
     }
 
     public void setShift(double uShift, double pShift) {
