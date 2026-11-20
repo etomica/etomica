@@ -174,3 +174,6 @@ docs
 
 # Claude Code per-user settings
 .claude/settings.local.json
+
+# saved Claude Code session transcripts
+*Claude session*.txt
