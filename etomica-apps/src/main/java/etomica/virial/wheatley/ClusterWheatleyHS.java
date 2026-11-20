@@ -263,21 +263,19 @@ public class ClusterWheatleyHS implements ClusterWheatley {
         }
 
         int nf = 1<<n;
+        // The sums below run over subsets j of i that contain a fixed set of bits (jBits), with j != i.
+        // We write j = jBits | s and enumerate the proper submasks s of rest = i ^ jBits in ascending
+        // order via s = (s - rest) & rest.  This visits only valid subsets, in the same order as the
+        // original increment-and-skip loops, so the floating-point sums are unchanged.
+
         //Compute the fC's
         for(int i=1; i<nf; i++) {
             fC[i] = fQ[i];
             int iLowBit = i & -i;
-            int inc = iLowBit<<1;
-            for(int j=iLowBit; j<i; j+=inc) {
-                int jComp = i & ~j;
-                while ((j|jComp) != i && j<i) {
-                    int jHighBits = j^iLowBit;
-                    int jlow = jHighBits & -jHighBits;
-                    j += jlow;
-                    jComp = (i & ~j);
-                }
-                if (j==i) break;
-                fC[i] -= fC[j] * fQ[jComp];//for fQ, flip the bits on j; use only those appearing in i
+            int rest = i ^ iLowBit;
+            for (int s=0; s!=rest; s=(s-rest)&rest) {
+                // j = iLowBit|s, jComp = rest^s is the subset of i complementing j
+                fC[i] -= fC[iLowBit|s] * fQ[rest^s];
             }
         }
 
@@ -296,20 +294,11 @@ public class ClusterWheatleyHS implements ClusterWheatley {
             int ii = i - 1;//all bits in i but lowest
             int iLow2Bit = (ii & -ii);//next lowest bit
             int jBits = 1 | iLow2Bit;
-            if (jBits==i) continue;
             //jBits has 1 and next lowest bit in i
-            int iii = ii ^ iLow2Bit;//i with 2 lowest bits off
-            int jInc = (iii & -iii);//3rd lowest bit, also increment for j
-            for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i containing jBits
-                int jComp = (i & ~j); //subset of i complementing j
-                while ((j|jComp) != i && j<i) {
-                    int jHighBits = j^jBits;
-                    int jlow = jHighBits & -jHighBits;
-                    j += jlow;
-                    jComp = (i & ~j);
-                }
-                if (j==i) break;
-                fA[i] += fB[j] * fC[jComp|1];
+            int rest = i ^ jBits;
+            for (int s=0; s!=rest; s=(s-rest)&rest) {//sum over partitions of i containing jBits
+                // j = jBits|s, jComp = rest^s is the subset of i complementing j
+                fA[i] += fB[jBits|s] * fC[(rest^s)|1];
             }
             fB[i] -= fA[i];//remove from B graphs that contain articulation point at 0
         }
@@ -326,58 +315,20 @@ public class ClusterWheatleyHS implements ClusterWheatley {
                     continue;
                 }
                 int jBits;
-                int ii = i ^ iLowBit;
-                int iLow2Bit = (ii & -ii);
-                if (iLowBit != vs1 && iLow2Bit != vs1) {
-                    //v is not in the lowest 2 bits
-                    // jBits is the lowest bit and v
-                    jBits = iLowBit | vs1;
-
-                    // we can only increment by the 2nd lowest
-                    int jInc = iLow2Bit;
-
-                    //at this point jBits has (lowest bit + v) or (v + next lowest bit)
-                    for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
-                        if ((j & jBits) != jBits) {
-                            //ensure jBits are in j
-                            j |= vs1;
-                            if (j==i) break;
-                        }
-                        int jComp = i & ~j;//subset of i complementing j
-                        while ((j|jComp) != i && j<i) {
-                            int jHighBits = j^jBits;
-                            int jlow = jHighBits & -jHighBits;
-                            j += jlow; // this might knock out the v bit
-                            j |= vs1;
-                            jComp = (i & ~j);
-                        }
-                        if (j==i) break;
-                        fA[i] += fB[j] * (fB[jComp|vs1] + fA[jComp|vs1]);
-                    }
+                if (iLowBit == vs1) {
+                    // v is the lowest bit; jBits is v and the next lowest bit
+                    int ii = i ^ iLowBit;
+                    jBits = vs1 | (ii & -ii);
                 }
                 else {
-                    //lowest 2 bits contain v
-                    // jBits is the lowest 2 bits
-                    // we can start at jBits and increment by the 3rd lowest bit
-                    jBits = iLowBit | iLow2Bit;
-                    if (jBits == i) continue; // no bits left for jComp
-                    
-                    int iii = ii ^ iLow2Bit;
-                    int jInc = (iii & -iii);
-
-                    //at this point jBits has (lowest bit + v) or (v + next lowest bit)
-                    for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
-                        // start=jBits and jInc ensure that every set includes jBits
-                        int jComp = i & ~j;//subset of i complementing j
-                        while ((j|jComp) != i && j<i) {
-                            int jHighBits = j^jBits;
-                            int jlow = jHighBits & -jHighBits;
-                            j += jlow;
-                            jComp = (i & ~j);
-                        }
-                        if (j==i) break;
-                        fA[i] += fB[j] * (fB[jComp|vs1] + fA[jComp|vs1]);
-                    }
+                    // jBits is the lowest bit and v
+                    jBits = iLowBit | vs1;
+                }
+                int rest = i ^ jBits;
+                for (int s=0; s!=rest; s=(s-rest)&rest) {//sum over partitions of i containing jBits
+                    // j = jBits|s, jComp = rest^s is the subset of i complementing j
+                    int jCompv = (rest^s) | vs1;
+                    fA[i] += fB[jBits|s] * (fB[jCompv] + fA[jCompv]);
                 }
 
                 fB[i] -= fA[i];//remove from B graphs that contain articulation point at v
