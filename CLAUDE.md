@@ -81,6 +81,13 @@ A simulation is a `Simulation` subclass that wires these pieces together in its 
 - Verification: after a change, compile the affected subproject.
 - Never commit or push; I review and commit myself.
 
+## References
+
+`REFERENCES.md` (repo root) maps publications to the code that implements them. When working on an
+algorithm, check it for the source paper and read the paper (local PDF if listed, otherwise via the
+DOI). When you learn how code relates to a paper, or find a paper for code that isn't listed, update
+the entry following the file's format.
+
 ## Core quirks list
 
 `CORE_QUIRKS.md` (repo root) records surprising behavior and suspected bugs in etomica-core (and

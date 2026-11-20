@@ -171,3 +171,6 @@ virtualenv
 
 # ignore the docs folder, we will be automatically publishing it to a separate repo
 docs
+
+# Claude Code per-user settings
+.claude/settings.local.json
