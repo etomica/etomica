@@ -58,10 +58,13 @@ import etomica.virial.cluster.ClusterAbstract;
  * &rarr; <i>f</i><sub>B</sub> (biconnected) of
  * R. J. Wheatley, Phys. Rev. Lett. <b>110</b>, 200601 (2013), in which every product
  * of two subset quantities becomes a product of polynomials (a convolution of their
- * coefficients). The cost is
+ * coefficients). A subset of <i>p</i> points has at most
+ * <i>p</i>(<i>p</i> &minus; 1)/2 pairs, so its polynomial has at most that degree, and
+ * each convolution runs only up to the degrees of its two factors (see
+ * {@link #maxBonds}). The cost is at most
  * O(3<sup><i>n</i></sup> <i>P</i><sup>2</sup>) per configuration, where
- * <i>P</i> = <i>n</i>(<i>n</i> &minus; 1)/2, and memory is
- * O(2<sup><i>n</i></sup> <i>P</i>). With {@code f1} and {@code e2} equal to 0 or 1,
+ * <i>P</i> = <i>n</i>(<i>n</i> &minus; 1)/2, and in practice much less because most
+ * subsets are small; memory is O(2<sup><i>n</i></sup> <i>P</i>). With {@code f1} and {@code e2} equal to 0 or 1,
  * every coefficient is an integer, so the double-precision results are exact as long
  * as the intermediate values stay below 2<sup>53</sup>.
  *
@@ -133,6 +136,12 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
 	protected final double[][] fB;
 	/** Work array holding f<sub>B</sub> + f<sub>A</sub> for one subset during the recursion. */
 	protected final double[] fBA;
+	/**
+	 * Maximum number of well bonds in each subset, p(p &minus; 1)/2 for a subset of p
+	 * points, indexed by subset bitmask. Polynomial coefficients above this degree are
+	 * zero and are neither computed nor read.
+	 */
+	protected final int[] maxBonds;
 	/** Reciprocal temperature, passed to the Mayer functions (which should ignore it). */
 	protected double beta;
 	/** Biconnectivity test used by {@link #checkConfig(BoxCluster)}. */
@@ -172,6 +181,11 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
     	fA =  new double[nf][npairs+1];
     	fB =  new double[nf][npairs+1];
     	fBA = new double[npairs+1];
+    	maxBonds = new int[nf];
+    	for (int i=1; i<nf; i++) {
+    	    int p = Integer.bitCount(i);
+    	    maxBonds[i] = p*(p-1)/2;
+    	}
 
     	Node[] nds = new Node[n];
     	for(int i=0; i<nds.length; i++){
@@ -278,14 +292,15 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
 			if (i==j) continue;
 			int k = i & ~j;
 			if (k == (k & -k)) continue;
+			int di = maxBonds[i];
 
-	        for(int if1=0; if1<=npairs; if1++){//if1=index of f1 bond, when #of f1 bond1=0, 1, 2, ... NPAIRS
+	        for(int if1=0; if1<=di; if1++){//if1=index of f1 bond, when #of f1 bond1=0, 1, 2, ... NPAIRS
 	        	fQ[i][if1] = fQ[k][if1];
             }
 
             for (int l=(j<<1); l<i; l=(l<<1)){//l=index of 1 point set
             	if ( (l&i) == 0 ) continue;
-                for(int if1=0; if1<=npairs; if1++){
+                for(int if1=0; if1<=di; if1++){
                 	fQQ[if1] = fQ[i][if1];
                     fQ[i][if1] = fQ[i][if1] * fQ[l|j][0];//add a e2 bonds.
                     if(if1>0) fQ[i][if1] += fQQ[if1-1] * fQ[l|j][1];//add a f1 bonds
@@ -302,7 +317,9 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
 	 * {@link #valueArray(BoxCluster)}.
 	 *
 	 * <p>Each sum over subsets visits only the proper subsets j of a set i that contain
-	 * a fixed set of bits, using the submask step {@code s = (s - rest) & rest}.
+	 * a fixed set of bits, using the submask step {@code s = (s - rest) & rest}. Each
+	 * product of polynomials runs only up to the degrees given by {@link #maxBonds}, and
+	 * skips zero coefficients of the first factor.
 	 *
 	 * @param box the box holding the configuration (not used directly)
 	 * @return the coefficients; this is {@code fB[nf-1]}, scaled in place by
@@ -313,38 +330,39 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
         //Compute the fC's
         for (int i=1; i<nf; i++){
             double[] fCi = fC[i];
-            System.arraycopy(fQ[i], 0, fCi, 0, npairs+1);
+            System.arraycopy(fQ[i], 0, fCi, 0, maxBonds[i]+1);
             int iLowBit = i & -i;
             int rest = i ^ iLowBit;
             // sum over proper subsets j of i that contain iLowBit; jComp = i & ~j
             for (int s=0; s!=rest; s=(s-rest)&rest){
-                double[] fCj = fC[iLowBit|s];
-                double[] fQjComp = fQ[rest^s];
-                for (int if1=0; if1<=npairs; if1++){
-                    double t = 0;
-                    for (int k=0; k<=if1; k++){
-                        t += fCj[k] * fQjComp[if1-k];
+                int j = iLowBit|s, jComp = rest^s;
+                double[] fCj = fC[j];
+                double[] fQjComp = fQ[jComp];
+                int dj = maxBonds[j], dc = maxBonds[jComp];
+                for (int k=0; k<=dj; k++){
+                    double a = fCj[k];
+                    if (a == 0) continue;
+                    for (int l=0; l<=dc; l++){
+                        fCi[k+l] -= a * fQjComp[l];
                     }
-                    fCi[if1] -= t;
                 }
             }
         }
 
         //find fA1
         for (int i=2; i<nf; i+=2){//all even sets (2,4,6) don't contain 1
-            System.arraycopy(fC[i], 0, fB[i], 0, npairs+1);
+            System.arraycopy(fC[i], 0, fB[i], 0, maxBonds[i]+1);
         }
 
-        for (int if1=0; if1<=npairs; if1++){
-            fA[1][if1] = 0;
-            fB[1][if1] = fC[1][if1];
-        }
+        fA[1][0] = 0;
+        fB[1][0] = fC[1][0];
 
         for (int i=3; i<nf; i+=2){//every set will contain 1.
             double[] fAi = fA[i];
             double[] fBi = fB[i];
-            System.arraycopy(fC[i], 0, fBi, 0, npairs+1);
-            for (int if1=0; if1<=npairs; if1++){
+            int di = maxBonds[i];
+            System.arraycopy(fC[i], 0, fBi, 0, di+1);
+            for (int if1=0; if1<=di; if1++){
                 fAi[if1] = 0;
             }
             int ii = i - 1;//all bits in i but lowest
@@ -353,17 +371,19 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
             int rest = i ^ jBits;
             // sum over proper subsets j of i that contain jBits; jComp = i & ~j
             for (int s=0; s!=rest; s=(s-rest)&rest){
-                double[] fBj = fB[jBits|s];
-                double[] fCjComp = fC[(rest^s)|1];
-                for (int if1=0; if1<=npairs; if1++){
-                    double t = 0;
-                    for (int k=0; k<=if1; k++){
-                        t += fBj[k] * fCjComp[if1-k];
+                int j = jBits|s, jComp1 = (rest^s)|1;
+                double[] fBj = fB[j];
+                double[] fCjComp = fC[jComp1];
+                int dj = maxBonds[j], dc = maxBonds[jComp1];
+                for (int k=0; k<=dj; k++){
+                    double a = fBj[k];
+                    if (a == 0) continue;
+                    for (int l=0; l<=dc; l++){
+                        fAi[k+l] += a * fCjComp[l];
                     }
-                    fAi[if1] += t;
                 }
             }
-            for (int if1=0; if1<=npairs; if1++){
+            for (int if1=0; if1<=di; if1++){
                 fBi[if1] -= fAi[if1];//remove from B graphs that contain articulation point 0.
             }
         }
@@ -372,7 +392,8 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
             int vs1 = 1<<v;
             for (int i=vs1+1; i<nf; i++){
                 double[] fAi = fA[i];
-                for (int if1=0; if1<=npairs; if1++){
+                int di = maxBonds[i];
+                for (int if1=0; if1<=di; if1++){
                     fAi[if1] = 0;
                 }
                 if ( (i & vs1) == 0 ) continue;
@@ -391,23 +412,25 @@ public class ClusterWheatleyExtendSW implements ClusterAbstract {
                 int rest = i ^ jBits;
                 // sum over proper subsets j of i that contain jBits; jComp = i & ~j
                 for (int s=0; s!=rest; s=(s-rest)&rest){
-                    double[] fBj = fB[jBits|s];
+                    int j = jBits|s;
+                    double[] fBj = fB[j];
                     int jCompv = (rest^s) | vs1;
                     double[] fBjComp = fB[jCompv];
                     double[] fAjComp = fA[jCompv];
-                    for (int if1=0; if1<=npairs; if1++){
+                    int dj = maxBonds[j], dc = maxBonds[jCompv];
+                    for (int if1=0; if1<=dc; if1++){
                         fBA[if1] = fBjComp[if1] + fAjComp[if1];
                     }
-                    for (int if1=0; if1<=npairs; if1++){
-                        double t = 0;
-                        for (int k=0; k<=if1; k++){
-                            t += fBj[k] * fBA[if1-k];
+                    for (int k=0; k<=dj; k++){
+                        double a = fBj[k];
+                        if (a == 0) continue;
+                        for (int l=0; l<=dc; l++){
+                            fAi[k+l] += a * fBA[l];
                         }
-                        fAi[if1] += t;
                     }
                 }
                 double[] fBi = fB[i];
-                for (int if1=0; if1<=npairs; if1++){
+                for (int if1=0; if1<=di; if1++){
                     fBi[if1] -= fAi[if1];//remove from B graphs
                 }
             }
