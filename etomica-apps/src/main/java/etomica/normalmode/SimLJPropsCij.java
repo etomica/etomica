@@ -17,6 +17,7 @@ import etomica.data.types.DataGroup;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.DisplayTextBox;
 import etomica.graphics.SimulationGraphic;
+import etomica.integrator.IntegratorLangevin;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorVelocityVerlet;
 import etomica.lattice.crystal.Basis;
@@ -48,13 +49,9 @@ public class SimLJPropsCij extends Simulation {
     public SpeciesGeneral species;
     public P2SoftSphericalTruncated potential;
 
-    public SimLJPropsCij(Space _space, int N, double rho0, double T, double rc, double dt) {
+    public SimLJPropsCij(Space _space, int N, double rho0, double T, double rc, double dt, boolean isSeed, Thermostat thermostat, double gamma) {
         super(_space);
-
-
-        setRandom(new RandomMersenneTwister(1)); // random seed
-
-
+        if (isSeed) setRandom(new RandomMersenneTwister(1)); // random seed
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
         double L = Math.pow(4.0 / rho0, 1.0 / 3.0);
@@ -71,9 +68,21 @@ public class SimLJPropsCij extends Simulation {
 
         potentialMaster = new PotentialMasterList(getSpeciesManager(), box, 2, rc, BondingInfo.noBonding());
         potentialMaster.doAllTruncationCorrection = false;
-        integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), dt, T, box);
+
+        System.out.println("+++++++++ HMA: analytic +++++++++");
+        System.out.println("Thermoatst: " + thermostat);
+        if (thermostat == Thermostat.andersen) {
+            integrator = new IntegratorVelocityVerlet(potentialMaster, getRandom(), dt, T, box);
+            System.out.println(integrator.getThermostat());
+            integrator.setThermostatNoDrift(true);
+            System.out.println("thermostat_interval: " + integrator.getThermostatInterval());
+        } else if (thermostat == Thermostat.langevin) {
+            integrator = new IntegratorLangevin(potentialMaster, random, dt, T, box, gamma);
+            integrator.setThermostatNoDrift(false); // taken care inside HMA meter
+            System.out.println("gamma: " + gamma);
+        }
+
         integrator.setIsothermal(true);
-        integrator.setThermostatNoDrift(true);
 
         potential = new P2SoftSphericalTruncated(new P2LennardJones(), rc);
         AtomType sphereType = species.getLeafType();
@@ -96,11 +105,15 @@ public class SimLJPropsCij extends Simulation {
         final long startTime = System.currentTimeMillis();
         SimOverlapParam params = new SimOverlapParam();
         ParseArgs.doParseArgs(params, args);
-        boolean isGraphic = params.isGraphic;;
+        boolean isGraphic = params.isGraphic;
+        boolean isSeed = params.isSeed;
         double rho0 = params.rho0;
         long steps = params.steps;
-        long stepsEq = params.stepsEq;
-        long stepsShort = params.stepsShort;
+        long stepsEq = params.steps / 10;
+        long stepsShort = params.steps / 10;
+        Thermostat thermostat = params.thermostat;
+        double gamma = params.gamma;
+
         double gV = params.gV;
         double gVV = params.gVV;
 
@@ -110,13 +123,11 @@ public class SimLJPropsCij extends Simulation {
         double T = params.T;
         double T2 = T * T;
         double rc = params.rc;
-        double strain_x = params.strain_x;
-        double strain_yz = params.strain_yz;
         double[] elasticParams = new double[2];
         elasticParams[0] = gV;
         elasticParams[1] = gVV;
 
-        final SimLJPropsCij sim = new SimLJPropsCij(Space.getInstance(3), N, rho0, T, rc, dt);
+        final SimLJPropsCij sim = new SimLJPropsCij(Space.getInstance(3), N, rho0, T, rc, dt, isSeed, thermostat, gamma);
         double V = sim.box.getBoundary().volume();
         double rho = N / V;
 
@@ -137,6 +148,7 @@ public class SimLJPropsCij extends Simulation {
         System.out.println("rc " + rc);
         System.out.println("steps " + steps + " stepsEq " + stepsEq + " stepsShort " + stepsShort);
         System.out.println("dt " + dt);
+        System.out.println("isSeed " + isSeed);
 
         System.out.println("\nHMA Elastic Parameters");
         System.out.println("gV  " + params.gV + " gVV  " + params.gVV);
@@ -204,6 +216,7 @@ public class SimLJPropsCij extends Simulation {
         double errPshift = dataElasticErr0.getValue(3);
 
         accumulatorElastic.reset();
+
         System.out.println("uShift  " + uShift + "  " + errUshift);
         System.out.println("pShift  " + pShift + "  " + errPshift);
 
@@ -268,24 +281,23 @@ public class SimLJPropsCij extends Simulation {
         System.out.println("\nTime (min)  " + (endTime - startTime) / 1000.0/60.0);
     }
 
+    public enum Thermostat {langevin, andersen};
 
     /**
      * Inner class for parameters understood by the HSMD3D constructor
      */
     public static class SimOverlapParam extends ParameterBase {
+        public double dt = 0.005;
         public int N = 500;
         public double rho0 = 1.0;
         public double T = 0.5;
         public double rc = 3.0;
-        public long steps = 20000;
-        public long stepsEq = steps / 10;
-        public long stepsShort = steps / 10;
-        public double dt = 0.002;
+        public long steps = 10000;
         public double gV = 3.094707617816900;
         public double gVV = -0.199514733065326;
-        public double strain_x = 0.0;
-        public double strain_yz = 0.0;
         public boolean isGraphic = false;
-
+        public boolean isSeed = !true;
+        public Thermostat thermostat = Thermostat.langevin;
+        public double gamma = 10;
     }
 }

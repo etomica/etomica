@@ -20,6 +20,7 @@ import etomica.space.Vector;
 import etomica.units.dimensions.Null;
 
 public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback {
+    protected Vector[] latticePositions;
     protected final int dim;
     protected final DataTag tag;
     protected DataInfoDoubleArray dataInfo;
@@ -28,21 +29,19 @@ public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback 
     protected double T;
     protected double latticeEnergy, latticePressure;
     protected final Box box;
-    protected final CoordinateDefinition coordinteDefinition;
+    protected final CoordinateDefinition coordinateDefinition;
     protected final Space space;
     protected double uShift, pShift;
     protected double gV, gVV, mV, mVV;
     protected double fV , fVV, dP, dB;
-    protected double gx1, gy1, gy4, gx11, gy11, gx12, gz12, gx44, gy44;
-    protected double mx1, my1, my4, mx11, my11, mx12, mz12, mx44, my44;
-    protected double mT, mVT, mx1T, my1T;
+    protected double mT, mVT;
     protected Vector dri, drj, drij;
     protected boolean callComputeAll = true;
     protected double Fr , Fdr , rHr , drHdr, rHdr;
-
+    protected int N;
     public MeterSolidHMALJ(Space space, PotentialCompute potentialCompute, CoordinateDefinition coordinateDefinition, double[] elasticParams, double T) {
         int nData = 8;
-        this.coordinteDefinition = coordinateDefinition;
+        this.coordinateDefinition = coordinateDefinition;
         tag = new DataTag();
         this.potentialMaster = potentialCompute;
         dim = space.D();
@@ -59,28 +58,16 @@ public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback 
         gV = elasticParams[0];
         gVV = elasticParams[1];
 
-        int numAtoms = box.getMoleculeList().size();
+        N = box.getMoleculeList().size();
         double V = box.getBoundary().volume();
-        double rho = numAtoms / V;
-        fV = (dP/T-rho)/(3*(numAtoms-1));
-        fVV = fV*fV - (dB/T-rho)/(3*V*(numAtoms-1)) + 2.0*fV/(3.0*V);
+        double rho = N / V;
+        fV = (dP/T-rho)/(3*(N-1));
+        fVV = fV*fV - (dB/T-rho)/(3*V*(N-1)) + 2.0*fV/(3.0*V);
 
         mV = gV - 1.0 / 3.0;
         mVV = gVV + gV * gV + 2.0 / 9.0;
         mT = 1.0 /2.0/T;
         mVT = mT * (mV + 1.0 / 3.0);
-        mx1 = gx1 - 1.0;
-        my1 = gy1;
-        my4 = gy4 - 0.5;
-        mx11 = gx11 + gx1 * gx1 + 1.0;
-        my11 = gy11 + gy1 * gy1;
-        mx12 = gx12 + gx1 * gy1; //gx2=gy1
-        mz12 = gz12 + gy1 * gy1; //gz1=gy1 , gz2=gy1
-        mx44 = gx44; //gx4=0
-        my44 = gy44 + gy4 * gy4 + 1.0 / 4.0;
-        mx1T = mT * gx1;
-        my1T = mT * gy1;
-
 
         dri = space.makeVector();
         drj = space.makeVector();
@@ -88,6 +75,8 @@ public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback 
 
         this.uShift = 0;
         this.pShift = 0;
+
+        latticePositions = box.getSpace().makeVectorArray(N);
     }
 
     @Override
@@ -106,6 +95,17 @@ public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback 
      */
     @Override
     public IData getData() {
+
+        Vector rCOM = space.makeVector();
+        for (IAtom atom : box.getLeafList()) {
+            rCOM.PE(atom.getPosition());
+        }
+        rCOM.TE(1.0 / N);
+        for (IAtom atom : box.getLeafList()) {
+            int iAtom = atom.getLeafIndex();
+            latticePositions[iAtom].Ev1Pv2(coordinateDefinition.getLatticePosition(atom), rCOM);
+        }
+
         Fr = 0 ;
         Fdr = 0;
         rHr = 0 ;
@@ -153,9 +153,9 @@ public class MeterSolidHMALJ implements IDataSourcePotential, PotentialCallback 
         double rij2 = rij.squared();
         IAtom iAtom = box.getLeafList().get(i);
         IAtom jAtom = box.getLeafList().get(j);
-        dri.Ev1Mv2(iAtom.getPosition(), coordinteDefinition.getLatticePosition(iAtom));
+        dri.Ev1Mv2(iAtom.getPosition(), latticePositions[i]);
         box.getBoundary().nearestImage(dri);
-        drj.Ev1Mv2(jAtom.getPosition(), coordinteDefinition.getLatticePosition(jAtom));
+        drj.Ev1Mv2(jAtom.getPosition(), latticePositions[j]);
         box.getBoundary().nearestImage(drj);
         drij.Ev1Mv2(drj, dri); // drij = rj - ri  (NOT ri - rj)!!!
 
