@@ -33,10 +33,10 @@ import etomica.virial.MayerFunction;
 import etomica.virial.MayerHardSphere;
 import etomica.virial.MeterVirialBD;
 import etomica.virial.cluster.*;
-import etomica.virial.mcmove.MCMoveClusterAtomChainHSTail;
 import etomica.virial.mcmove.MCMoveClusterAtomHSChain;
 import etomica.virial.mcmove.MCMoveClusterAtomHSRing;
 import etomica.virial.mcmove.MCMoveClusterAtomHSTree;
+import etomica.virial.mcmove.RandomPositionCoreTail;
 import etomica.virial.simulations.SimulationVirial;
 import etomica.virial.wheatley.ClusterWheatleyHS;
 import etomica.virial.wheatley.ClusterWheatleyPartitionScreening;
@@ -301,7 +301,9 @@ public class VirialHS {
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         }
         else if (ref == VirialHSParam.CHAIN_TAIL) {
-            MCMoveClusterAtomChainHSTail mcMoveHS = new MCMoveClusterAtomChainHSTail(sim.getRandom(), sim.box, sigmaHS, pow);
+            MCMoveClusterAtomHSChain mcMoveHS = new MCMoveClusterAtomHSChain(sim.getRandom(), sim.box, sigmaHS);
+            MCMoveClusterAtomHSChain.InsertionPositionSource positionSource = new RandomPositionCoreTail(space, sim.getRandom(), pow);
+            mcMoveHS.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         }
         else if (ref == VirialHSParam.CHAIN_TREE) {

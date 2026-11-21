@@ -32,7 +32,6 @@ import etomica.units.Kelvin;
 import etomica.units.Mole;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGeneratorUnix;
 
 /**
  * Simulation for Catalysis module.
@@ -55,7 +54,7 @@ public class Catalysis extends Simulation {
     public final ReactionManagerCO reactionManagerCO;
 
     public Catalysis(Space space, int nCellsZ) {
-        this(space, nCellsZ, new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray()));
+        this(space, nCellsZ, new RandomMersenneTwister(IRandom.getRandSeedArray()));
     }
 
     public Catalysis(Space _space, int nCellsZ, IRandom random) {

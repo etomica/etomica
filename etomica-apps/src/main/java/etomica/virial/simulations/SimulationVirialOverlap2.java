@@ -573,6 +573,7 @@ public class SimulationVirialOverlap2 extends Simulation {
         Activity activityInitRefPref = new Activity() {
             @Override
             public void runActivity(Controller.ControllerHandle handle) {
+                long myInitSteps = initSteps;
                 // use the old refpref value as a starting point so that an initial
                 // guess can be provided
                 double oldRefPref = refPref;
@@ -604,7 +605,7 @@ public class SimulationVirialOverlap2 extends Simulation {
 
                     long oldBlockSize = blockSize;
                     // 1000 blocks
-                    long newBlockSize = initSteps * integratorOS.getNumSubSteps() / 1000;
+                    long newBlockSize = myInitSteps * integratorOS.getNumSubSteps() / 1000;
                     if (newBlockSize < 1000) {
                         // make block size at least 1000, even if it means fewer blocks
                         newBlockSize = 1000;
@@ -629,7 +630,7 @@ public class SimulationVirialOverlap2 extends Simulation {
                         integratorOS.setAdjustStepFraction(false);
                     }
 
-                    for (int i = 0; i < initSteps; i++) {
+                    for (int i = 0; i < myInitSteps; i++) {
                         handle.yield(integratorOS::doStep);
                     }
 
@@ -646,9 +647,17 @@ public class SimulationVirialOverlap2 extends Simulation {
                         dvo.getOverlapAverage();
                         throw new RuntimeException("oops refpref "+newRefPref);
                     }
-                    if (newRefPref > oldRefPref * Math.exp(initAlphaSpan - 0.01) || newRefPref < oldRefPref * Math.exp(-(initAlphaSpan - 0.001))) {
-                        System.out.println("guess for ref pref (" + newRefPref + ") is at the edge of the range considered");
-                        oldRefPref = newRefPref;
+                    double[] alphaData = dvo.getOverlapAverageAndErrorForAlpha(newRefPref);
+                    double relerr = alphaData[1]/alphaData[0];
+
+                    if (relerr > 0.4 || Double.isNaN(alphaData[1]) || alphaData[0] == 0 || Double.isInfinite(alphaData[0])) {
+//                        oldRefPref = newRefPref;
+                        // trying more steps
+                        myInitSteps *= 2;
+                        System.out.println("Poor estimate for alpha ("+(int)(relerr*100)+"% error) let's try "+myInitSteps+" steps");
+                        if (myInitSteps > initSteps*10) {
+                            throw new RuntimeException("Nope.  Seems like a lost cause");
+                        }
                         continue;
                     }
 
@@ -728,73 +737,95 @@ public class SimulationVirialOverlap2 extends Simulation {
         Activity activityEquilibrate = new Activity() {
             @Override
             public void runActivity(Controller.ControllerHandle handle) {
-                // run a short simulation to get reasonable MC Move step sizes and
-                // (if needed) narrow in on a reference preference
-                long oldBlockSize = blockSize;
-                // 1000 blocks
-                long newBlockSize = initSteps * integratorOS.getNumSubSteps() / 1000;
-                if (newBlockSize < 1000) {
-                    // make block size at least 1000, even if it means fewer blocks
-                    newBlockSize = 1000;
-                }
-                if (newBlockSize > 1000000) {
-                    // needs to be an int.  1e6 steps/block is a bit crazy.
-                    newBlockSize = 1000000;
-                }
-                setAccumulatorBlockSize((int)newBlockSize);
-                for (int i=0; i<2; i++) {
-                    integrators[i].getMoveManager().setEquilibrating(true);
-                }
-                boolean adjustable = integratorOS.isAdjustStepFraction();
-                if (adjustable) {
-                    // we do this initialization to
-                    // 1. find alpha
-                    // 2. get molecules out of their starting configuration
-                    // 3. find optimal mc move step sizes
-                    // all of these are about as hard in the reference as in the target system
-                    // so force integratorOS to run both systems equally.
-                    integratorOS.setRefStepFraction(0.5);
-                    integratorOS.setAdjustStepFraction(false);
-                }
-                for (int i = 0; i < initSteps; i++) {
-                    handle.yield(integratorOS::doStep);
-                }
-                if (adjustable) {
-                    integratorOS.setAdjustStepFraction(true);
-                }
+                long myInitSteps = initSteps;
+                while (true) {
+                    // run a short simulation to get reasonable MC Move step sizes and
+                    // (if needed) narrow in on a reference preference
+                    long oldBlockSize = blockSize;
+                    // 1000 blocks
+                    long newBlockSize = myInitSteps * integratorOS.getNumSubSteps() / 1000;
+                    if (newBlockSize < 1000) {
+                        // make block size at least 1000, even if it means fewer blocks
+                        newBlockSize = 1000;
+                    }
+                    if (newBlockSize > 1000000) {
+                        // needs to be an int.  1e6 steps/block is a bit crazy.
+                        newBlockSize = 1000000;
+                    }
+                    setAccumulatorBlockSize((int) newBlockSize);
+                    for (int i = 0; i < 2; i++) {
+                        integrators[i].getMoveManager().setEquilibrating(true);
+                    }
+                    boolean adjustable = integratorOS.isAdjustStepFraction();
+                    if (adjustable) {
+                        // we do this initialization to
+                        // 1. find alpha
+                        // 2. get molecules out of their starting configuration
+                        // 3. find optimal mc move step sizes
+                        // all of these are about as hard in the reference as in the target system
+                        // so force integratorOS to run both systems equally.
+                        integratorOS.setRefStepFraction(0.5);
+                        integratorOS.setAdjustStepFraction(false);
+                    }
+                    for (int i = 0; i < myInitSteps; i++) {
+                        handle.yield(integratorOS::doStep);
+                    }
+                    if (adjustable) {
+                        integratorOS.setAdjustStepFraction(true);
+                    }
 
-                if (refPref == -1) {
-                    refPref = dvo.getOverlapAverage();
-                    System.out.println("setting ref pref to "+refPref);
-                    if (Double.isInfinite(refPref) || Double.isNaN(refPref)) {
-                        dvo.getOverlapAverage();
-                        throw new RuntimeException("oops");
-                    }
-                    dpVirialOverlap[0].setNumAlpha(numAlpha);
-                    dpVirialOverlap[1].setNumAlpha(numAlpha);
-                    setRefPref(refPref,1);
-                    if (fileName != null) {
-                        try {
-                            FileWriter fileWriter = new FileWriter(fileName);
-                            BufferedWriter bufWriter = new BufferedWriter(fileWriter);
-                            bufWriter.write(String.valueOf(refPref)+"\n");
-                            bufWriter.close();
-                            fileWriter.close();
+                    if (refPref == -1) {
+                        double newRefPref = dvo.getOverlapAverage();
+                        double[] alphaData = dvo.getOverlapAverageAndErrorForAlpha(newRefPref);
+                        double relerr = alphaData[1] / alphaData[0];
+
+                        if (!dvo.isQualityResult() || relerr > 0.3 || Double.isNaN(alphaData[1]) || alphaData[0] == 0 || Double.isInfinite(alphaData[0])) {
+                            if (!dvo.isQualityResult()) {
+                                System.out.println("New estimate for alpha outside range.  Recentering at "+newRefPref);
+                                setRefPref(newRefPref, 4);
+                                refPref = -1;
+                            }
+
+                            // trying more steps
+                            myInitSteps *= 2;
+                            System.out.println("Poor estimate for alpha (" + (int) (relerr * 100) + "% error) let's try " + myInitSteps + " steps");
+                            if (myInitSteps > initSteps*10) {
+                                throw new RuntimeException("Nope.  Seems like a lost cause");
+                            }
+                            continue;
                         }
-                        catch (IOException e) {
-                            throw new RuntimeException("couldn't write to refpref file");
+                        refPref = newRefPref;
+
+                        System.out.println("setting ref pref to " + refPref);
+                        if (Double.isInfinite(refPref) || Double.isNaN(refPref)) {
+                            dvo.getOverlapAverage();
+                            throw new RuntimeException("oops");
                         }
+                        dpVirialOverlap[0].setNumAlpha(numAlpha);
+                        dpVirialOverlap[1].setNumAlpha(numAlpha);
+                        setRefPref(refPref, 1);
+                        if (fileName != null) {
+                            try {
+                                FileWriter fileWriter = new FileWriter(fileName);
+                                BufferedWriter bufWriter = new BufferedWriter(fileWriter);
+                                bufWriter.write(String.valueOf(refPref) + "\n");
+                                bufWriter.close();
+                                fileWriter.close();
+                            } catch (IOException e) {
+                                throw new RuntimeException("couldn't write to refpref file");
+                            }
+                        }
+                    } else {
+                        dvo.reset();
                     }
-                }
-                else {
-                    dvo.reset();
-                }
-                setAccumulatorBlockSize(oldBlockSize);
-                for (int i = 0; i < 2; i++) {
-                    integrators[i].getMoveManager().setEquilibrating(false);
-                }
-                if (extraTargetClusters.length > 0) {
-                    initBlockAccumulator();
+                    setAccumulatorBlockSize(oldBlockSize);
+                    for (int i = 0; i < 2; i++) {
+                        integrators[i].getMoveManager().setEquilibrating(false);
+                    }
+                    if (extraTargetClusters.length > 0) {
+                        initBlockAccumulator();
+                    }
+                    break;
                 }
             }
         };

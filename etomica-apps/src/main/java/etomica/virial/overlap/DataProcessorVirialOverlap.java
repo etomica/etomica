@@ -26,10 +26,7 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
     }
 
     protected IDataInfo processDataInfo(IDataInfo inputDataInfo) {
-        numIncomingValues = inputDataInfo.getLength();
-        if (numIncomingValues < 2) {
-            throw new RuntimeException("must have at least 2 values");
-        }
+        numVirialValues = inputDataInfo.getLength() - 1;
         setup();
         return dataInfo;
     }
@@ -37,8 +34,8 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
     protected void setup() {
         // recreate our data objects.  new dataInfo will also cause downstream to reset.
         // we need numAlpha elements for the overlap values and 1 for the not-overlap value.
-        data = new DataDoubleArray(numAlpha+numIncomingValues-1);
-        dataInfo = new DataDoubleArray.DataInfoDoubleArray("virial", Null.DIMENSION, new int[]{numAlpha+numIncomingValues-1});
+        data = new DataDoubleArray(numAlpha+numVirialValues);
+        dataInfo = new DataDoubleArray.DataInfoDoubleArray("virial", Null.DIMENSION, new int[]{numAlpha+numVirialValues});
         if (dataSink != null) {
             // when called from putDataInfo->processDataInfo, dataSink.putDataInfo will be called anyway
             // but when we're called because our internal parameters changed (numAlpha, etc), then we
@@ -100,20 +97,21 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
      */
     protected IData processData(IData inputData) {
         double[] x = data.getData();
-        for (int i=0; i<numIncomingValues-1; i++) {
+        for (int i=0; i<numVirialValues; i++) {
             // pass thru the target values
             x[i] = inputData.getValue(i);
         }
-        double value1 = inputData.getValue(numIncomingValues-1);
+        // last value is what we want
+        double value1 = inputData.getValue(numVirialValues);
         for (int j=0; j<numAlpha; j++) {
             // this is actually the overlap value for all the various values of the overlap parameter
             // this doesn't look right, but it is.
             // http://rheneas.eng.buffalo.edu/~andrew/overlapf.pdf
             if (isReference) {
-                x[j+numIncomingValues-1] = 1.0 / (1.0 + alpha[j]/value1);
+                x[j+numVirialValues] = 1.0 / (1.0 + alpha[j]/value1);
             }
             else {
-                x[j+numIncomingValues-1] = 1.0 / (alpha[j] + 1.0/value1);
+                x[j+numVirialValues] = 1.0 / (alpha[j] + 1.0/value1);
             }
         }
         return data;
@@ -125,11 +123,11 @@ public class DataProcessorVirialOverlap extends DataProcessor implements AlphaSo
     public double getAlpha(int i) {
         return alpha[i];
     }
-    
+
+    protected int numVirialValues;
     protected DataDoubleArray data;
     private int numAlpha;
     private double[] alpha;
     private final boolean isReference;
     protected double alphaCenter, alphaSpan;
-    protected int numIncomingValues;
 }

@@ -25,7 +25,7 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
     protected final double[][] virialData;
     protected DataFunction data;
     protected Box box;
-    protected int profileDim;
+    protected int surfaceDim;
 
     public DataProcessorInterfacialTensionProfile(Space space) {
         virialData = new double[space.D()][0];
@@ -39,12 +39,12 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         box = newBox;
     }
 
-    public int getProfileDim() {
-        return profileDim;
+    public int getSurfaceDim() {
+        return surfaceDim;
     }
 
-    public void setProfileDim(int newProfileDim) {
-        profileDim = newProfileDim;
+    public void setSurfaceDim(int newProfileDim) {
+        surfaceDim = newProfileDim;
     }
 
     protected IData processData(IData inputData) {
@@ -56,10 +56,10 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         int nBins = data.getArrayShape(0);
         double[] tension = data.getData();
         for (int i=0; i<nBins; i++) {
-            tension[i] = (D-1)*virialData[profileDim][i];
+            tension[i] = (D-1)*virialData[surfaceDim][i];
         }
         for (int j=0; j<D; j++) {
-            if (j == profileDim) continue;
+            if (j == surfaceDim) continue;
             for (int i=0; i<nBins; i++) {
                 tension[i] -= virialData[j][i];
             }
@@ -68,10 +68,10 @@ public class DataProcessorInterfacialTensionProfile extends DataProcessor {
         double area = 1;
         Vector dim = box.getBoundary().getBoxSize();
         for (int i=0; i<dim.getD(); i++) {
-            if (i == profileDim) continue;
+            if (i == surfaceDim) continue;
             area *= dim.getX(i);
         }
-        double binSize = dim.getX(0) / virialData[profileDim].length;
+        double binSize = dim.getX(0) / virialData[surfaceDim].length;
         double fac = 0.5/area/binSize/(D-1);
         for (int i=0; i<nBins; i++) {
             tension[i] *= fac;

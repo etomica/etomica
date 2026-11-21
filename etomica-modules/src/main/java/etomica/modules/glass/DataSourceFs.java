@@ -29,9 +29,9 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
     protected final ConfigurationStorage configStorage;
     protected DataDoubleArray tData;
     protected DataDoubleArray.DataInfoDoubleArray tDataInfo;
-    protected DataFunction data;
+    protected DataFunction data, errData;
     protected DataFunction.DataInfoFunction dataInfo;
-    protected double[] fsSum;
+    protected double[] fsSum, fsSum2;
     protected final DataTag tTag, tag;
     protected long[] nSamples;
     protected Vector dr, q;
@@ -41,7 +41,7 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
     public DataSourceFs(ConfigurationStorage configStorage) {
         this.configStorage = configStorage;
         Space space = configStorage.getBox().getSpace();
-        fsSum = new double[0];
+        fsSum = fsSum2 = new double[0];
         nSamples = new long[0];
         tag = new DataTag();
         tTag = new DataTag();
@@ -68,8 +68,10 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
 
     public void reallocate(int n) {
         fsSum = Arrays.copyOf(fsSum, n);
+        fsSum2 = Arrays.copyOf(fsSum2, n);
         nSamples = Arrays.copyOf(nSamples, n);
         data = new DataFunction(new int[]{n});
+        errData = new DataFunction(new int[]{n});
         tData = new DataDoubleArray(new int[]{n});
         tDataInfo = new DataDoubleArray.DataInfoDoubleArray("t", Time.DIMENSION, new int[]{n});
         dataInfo = new DataFunction.DataInfoFunction("Fs(t)", Null.DIMENSION, this);
@@ -88,6 +90,7 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
     public IData getData() {
         if (configStorage.getLastConfigIndex() < 1) return data;
         double[] y = data.getData();
+        double[] yErr = errData.getData();
         int nAtoms = configStorage.getSavedConfig(0).length;
         if(type != null){
             Box box = configStorage.getBox();
@@ -95,7 +98,9 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
         }
 
         for (int i = 0; i < fsSum.length; i++) {
-            y[i] = fsSum[i] / (nAtoms * nSamples[i]) ; // Why subtract "-1" ?
+            long M = nAtoms * nSamples[i];
+            y[i] = fsSum[i] / M;
+            yErr[i] = Math.sqrt((fsSum2[i]/M - y[i]*y[i]) / (M - 1));
         }
         return data;
     }
@@ -129,7 +134,9 @@ public class DataSourceFs implements IDataSource, ConfigurationStorage.Configura
                     IAtom jAtom = atoms.get(j);
                     if (type == null || jAtom.getType() == type) {
                         dr.Ev1Mv2(positions[j], iPositions[j]);
-                        fsSum[i] += Math.cos(q.dot(dr));
+                        double c = Math.cos(q.dot(dr));
+                        fsSum[i] += c;
+                        fsSum2[i] += c*c;
                     }
                 }
                 nSamples[i]++;

@@ -439,7 +439,7 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         totcount++;
         valueBD = false;
 
-        if (Math.abs(fB[nf - 1][0]) < tol * checkFac) {
+        if (fB[nf - 1][0]!=0 && Math.abs(fB[nf - 1][0]) < tol * checkFac) {
             boolean justChecking = Math.abs(fB[nf - 1][0]) >= tol;
             double r = -1;
             int idx = 0;

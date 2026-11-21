@@ -164,10 +164,16 @@ public class MeterHistogramOrientationMA implements IDataSource, DataSourceIndep
                         double denom = 1 + cos2ti + cosh2zi + cosh2z[nz][j] - 4 * costi * coshz[nz][j] * coshzi;
                         double denomM = 1 + cos2ti + cosh2zi + cosh2zM[nz][j] - 4 * costi * coshzM[nz][j] * coshzi;
                         double tdot = 2*sinti * (coshz[nz][j] * coshzi - costi) / denom;//diverges for ri->r, ti->0
-                        if (Math.abs(tdot) / Math.PI > 10) tdot = 0;//truncate if diverging
+                        if (Math.abs(tdot) / Math.PI > Double.MAX_VALUE) {
+                            tdot = 0;//truncate if diverging
+                            System.out.println("truncating tdot");
+                        }
                         tdot += 2*sinti * (coshzM[nz][j] * coshzi - costi) / denomM;//doesn't diverge
                         double zdot = 2*sinhzi * (-costi * coshz[nz][j] + coshzi) / denom;//diverges for ri->r, ti->0
-                        if (Math.abs(zdot) / Math.PI > 10) zdot = 0;//truncate if diverging
+                        if (Math.abs(zdot) / Math.PI > Double.MAX_VALUE) {
+                            zdot = 0;//truncate if diverging
+                            System.out.println("truncating zdot");
+                        }
                         zdot += -ziRed + 2*sinhzi * (-costi * coshzM[nz][j] + coshzi) / denomM;//doesn't diverge
                         for (int n = 1; n<=nmax; n++) {//correction from approximation of 1/sinh
                             double coshn1r = Math.cosh(n*(1-z/Lz));

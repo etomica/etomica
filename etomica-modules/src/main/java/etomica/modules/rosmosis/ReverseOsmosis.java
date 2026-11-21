@@ -60,6 +60,7 @@ public class ReverseOsmosis extends Simulation implements MeterOsmoticPressure.W
         box = this.makeBox();
 
         PotentialMaster potentialMaster = new PotentialMaster(getSpeciesManager(), box, BondingInfo.noBonding());
+        potentialMaster.doAllTruncationCorrection = false;
         PotentialComputeField pcField = new PotentialComputeField(getSpeciesManager(), box) {
             @Override
             public double computeAll(boolean doForces, PotentialCallback pc) {
@@ -76,6 +77,7 @@ public class ReverseOsmosis extends Simulation implements MeterOsmoticPressure.W
                 return u;
             }
         };
+        PotentialComputeAggregate.localStorageDefault = true;
         PotentialComputeAggregate pcAgg = new PotentialComputeAggregate(potentialMaster, pcField);
 
         //controller and integrator
@@ -110,7 +112,7 @@ public class ReverseOsmosis extends Simulation implements MeterOsmoticPressure.W
         potentialMaster.setPairPotential(speciesSolvent.getLeafType(), speciesSolute.getLeafType(), tf.make(potential12));
 
         potentialMM = new P2LennardJones(sigMembrane, epsMembrane);
-        potentialMaster.setPairPotential(speciesMembrane.getLeafType(), speciesMembrane.getLeafType(), potentialMM);
+        potentialMaster.setPairPotential(speciesMembrane.getLeafType(), speciesMembrane.getLeafType(), tf.make(potentialMM));
 
         potentialM1 = new P2LennardJones(0.5 * (sigMembrane + sigSolute), Math.sqrt(epsMembrane * epsSolute));
         potentialMaster.setPairPotential(speciesMembrane.getLeafType(), speciesSolute.getLeafType(), tf.make(potentialM1));
@@ -144,7 +146,7 @@ public class ReverseOsmosis extends Simulation implements MeterOsmoticPressure.W
     }
 
     public double getWallForce() {
-        return wallForce;
+        return 0.5*wallForce;
     }
 
     public static void main(String[] args) {

@@ -30,7 +30,7 @@ jobs:
     - name: Build modules application
       run: "./gradlew :etomica-modules:archiveModulesApp"
     - name: Upload artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: etomica-modules-${{ runner.os }}
         path: etomica-modules/build/dist/etomica-modules.zip
@@ -42,7 +42,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Download artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       id: download
 
     - name: Get current date

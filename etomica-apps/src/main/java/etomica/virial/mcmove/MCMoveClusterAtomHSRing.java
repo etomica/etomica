@@ -11,7 +11,6 @@ import etomica.space.Vector;
 import etomica.space3d.Vector3D;
 import etomica.util.random.IRandom;
 import etomica.util.random.RandomMersenneTwister;
-import etomica.util.random.RandomNumberGeneratorUnix;
 import etomica.virial.BoxCluster;
 
 import java.io.FileWriter;
@@ -767,7 +766,7 @@ public class MCMoveClusterAtomHSRing extends MCMoveBox {
             System.exit(1);
         }
         double[] b = new double[]{0,1.1,0.9*1.19776,0.674043,0.543464,0.4489,0.381788,0.331708,0.29308,0.262442,0.237574};
-        RandomMersenneTwister random = new RandomMersenneTwister(RandomNumberGeneratorUnix.getRandSeedArray());
+        RandomMersenneTwister random = new RandomMersenneTwister(IRandom.getRandSeedArray());
         FileWriter fw = null;
 //        try {
 //            fw = new FileWriter("maxbias.dat");

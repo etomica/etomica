@@ -31,6 +31,7 @@ import etomica.virial.cluster.*;
 import etomica.virial.mcmove.MCMoveClusterAtomHSChainMix;
 import etomica.virial.mcmove.MCMoveClusterAtomHSTreeMix;
 import etomica.virial.mcmove.MCMoveClusterAtomInBox;
+import etomica.virial.mcmove.RandomPositionSphere;
 import etomica.virial.simulations.SimulationVirial;
 import etomica.virial.wheatley.ClusterWheatleyHS;
 
@@ -50,15 +51,15 @@ public class VirialHSMixture {
         if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.nPoints = 6;
+            params.nPoints = 4;
             params.numSteps = 10000000L;
             params.ref = VirialHSParam.CHAIN_TREE;
             params.chainFrac = 0.5;
-            params.q = 0.2;
+            params.q = 1;
             params.nonAdd = 0.0;
-            params.cff = 3;
+            params.cff = 0;
             params.D = 3;
-            params.L = 6;
+            params.L = 2;
         }
         final int nSmall = params.cff;
         final int nPoints = params.nPoints;
@@ -149,20 +150,24 @@ public class VirialHSMixture {
         accumulator.setPushInterval(1000000);
 
         sim.integrator.getMoveManager().removeMCMove(sim.mcMoveTranslate);
+        boolean doL = L < Double.POSITIVE_INFINITY && L > 0;
+        RandomPositionSphere positionSource = doL ? new RandomPositionSphere(space, sim.getRandom(), sim.box().getBoundary())
+                                                  : new RandomPositionSphere(space, sim.getRandom());
         if (ref == VirialHSParam.TREE) {
             MCMoveClusterAtomHSTreeMix mcMoveHS = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), sim.box, pairSigma);
+            mcMoveHS.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         } else if (ref == VirialHSParam.CHAINS) {
             MCMoveClusterAtomHSChainMix mcMoveHS = new MCMoveClusterAtomHSChainMix(sim.getRandom(), sim.box, pairSigma);
-            mcMoveHS.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
+            mcMoveHS.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHS);
         } else if (ref == VirialHSParam.CHAIN_TREE) {
             MCMoveClusterAtomHSTreeMix mcMoveHST = new MCMoveClusterAtomHSTreeMix(sim.getRandom(), sim.box, pairSigma);
-            mcMoveHST.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
+            mcMoveHST.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHST);
             sim.integrator.getMoveManager().setFrequency(mcMoveHST, 1 - chainFrac);
             MCMoveClusterAtomHSChainMix mcMoveHSC = new MCMoveClusterAtomHSChainMix(sim.getRandom(), sim.box, pairSigma);
-            mcMoveHSC.setForceInBox(L < Double.POSITIVE_INFINITY && L > 0);
+            mcMoveHSC.setPositionSource(positionSource);
             sim.integrator.getMoveManager().addMCMove(mcMoveHSC);
             sim.integrator.getMoveManager().setFrequency(mcMoveHSC, chainFrac);
         } else if (ref == VirialHSParam.RANDOM) {

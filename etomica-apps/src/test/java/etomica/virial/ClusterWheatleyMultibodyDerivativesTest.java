@@ -82,7 +82,7 @@ public class ClusterWheatleyMultibodyDerivativesTest {
         box.acceptNotify();
 
         testvalue = cwmd.getAllLastValues(box);
-        shouldbe = new double[] {0.19793888606280885, 0.011353771037695998, -0.06281513482115919, 0.3512268214582845, -2.0136871937865037, 12.204107890382543};
+        shouldbe = new double[] {0.1979388860563625, 0.011353771065627053, -0.06281513493500539, 0.3512268218840009, -2.0136871952313515, 12.204107895617248};
 
 //        System.out.println(java.util.Arrays.toString(testvalue));
 

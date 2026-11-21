@@ -46,7 +46,22 @@ public class IntegratorVelocityVerlet extends IntegratorMD {
                 System.out.println("first " + a + " r=" + r + ", v=" + v + ", f=" + force);
             }
             v.PEa1Tv1(0.5 * timeStep * a.getType().rm(), force);  // p += f(old)*dt/2
-            r.PEa1Tv1(timeStep, v);         // r += p*dt/m
+            r.PEa1Tv1(0.5 * timeStep, v);         // r += p*dt/m/2
+        }
+
+        if (isothermal) {
+            doThermostatInternal();
+        }
+
+        //Finish integration step
+        for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
+            IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
+            Vector r = a.getPosition();
+            Vector v = a.getVelocity();
+            if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
+                System.out.println("second " + a + " v=" + v + ", f=" + forces[iLeaf]);
+            }
+            r.PEa1Tv1(0.5 * timeStep, v);         // r += p*dt/m/2
         }
 
         eventManager.forcePrecomputed();
@@ -55,28 +70,23 @@ public class IntegratorVelocityVerlet extends IntegratorMD {
 
         eventManager.forceComputed();
 
-        //Finish integration step
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
-            Vector velocity = a.getVelocity();
+            Vector v = a.getVelocity();
             if (Debug.ON && Debug.DEBUG_NOW && Debug.anyAtom(new AtomSetSinglet(a))) {
-                System.out.println("second " + a + " v=" + velocity + ", f=" + forces[iLeaf]);
+                System.out.println("third " + a + " v=" + v + ", f=" + forces[iLeaf]);
             }
-            velocity.PEa1Tv1(0.5 * timeStep * a.getType().rm(), forces[iLeaf]);  //p += f(new)*dt/2
+            v.PEa1Tv1(0.5 * timeStep * a.getType().rm(), forces[iLeaf]);  //p += f(new)*dt/2
         }
 
-        eventManager.preThermostat();
+        eventManager.finalizeStep();
 
         currentKineticEnergy = 0;
         for (int iLeaf = 0; iLeaf < nLeaf; iLeaf++) {
             IAtomKinetic a = (IAtomKinetic) leafList.get(iLeaf);
-            Vector velocity = a.getVelocity();
-            currentKineticEnergy += 0.5 * a.getType().getMass() * velocity.squared();
+            currentKineticEnergy += 0.5 * a.getType().getMass() * a.getVelocity().squared();
         }
 
-        if (isothermal) {
-            doThermostatInternal();
-        }
     }
 
     public void reset() {

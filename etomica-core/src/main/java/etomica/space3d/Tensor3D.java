@@ -101,7 +101,13 @@ public class Tensor3D implements Tensor, java.io.Serializable {
         yy = v3.y;
         zz = v3.z;
     }
-    
+
+    @Override
+    public void diagE(double a) {
+        this.E(0.0);
+        xx = yy = zz = a;
+    }
+
     public void assignTo(Vector[] v) {
         if(v.length != 3) {
             throw new IllegalArgumentException("Tensor requires 3 vector for assignment");

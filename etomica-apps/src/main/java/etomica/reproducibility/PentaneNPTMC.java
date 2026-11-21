@@ -19,6 +19,7 @@ import etomica.data.meter.MeterDensity;
 import etomica.data.meter.MeterPotentialEnergyFromIntegrator;
 import etomica.data.meter.MeterPressure;
 import etomica.data.types.DataDouble;
+import etomica.data.types.DataGroup;
 import etomica.graphics.*;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.mcmove.MCMoveMolecule;
@@ -42,7 +43,6 @@ import etomica.units.dimensions.Null;
 import etomica.util.Constants;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.util.random.RandomMersenneTwister;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +61,6 @@ public class PentaneNPTMC extends Simulation {
 
     public PentaneNPTMC(Space space, double density, int nSpheres, int numMolecules, double temperature, String configFilename, double rc, double pressure) {
         super(space);
-        setRandom(new RandomMersenneTwister(1));
         species = SpeciesAlkane.makeBuilder(nSpheres)
                 .build();
         addSpecies(species);
@@ -175,10 +174,6 @@ public class PentaneNPTMC extends Simulation {
             ParseArgs.doParseArgs(params, args);
         }
         else {
-            params.numSteps = 350000;
-            params.density = 0.3;
-            params.configFilename = null; // "octane";
-            params.graphics = true;
         }
 
         Unit dUnit = new SimpleUnit(Null.DIMENSION, 1/(72.15/Constants.AVOGADRO*1e24), "Density", "g/cm^3", false);
@@ -190,6 +185,7 @@ public class PentaneNPTMC extends Simulation {
         double density = dUnit.toSim(params.density);
         boolean graphics = params.graphics;
         long numSteps = params.numSteps;
+        long equilibration = params.equilibration;
         String configFilename = params.configFilename;
         double rc = params.rc;
         double pressureKPa = params.pressureKPa;
@@ -405,26 +401,31 @@ public class PentaneNPTMC extends Simulation {
             return;
         }
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps/100));
-        sim.integrator.getMoveManager().addMCMove(sim.translateMove);
+        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, equilibration));
 
-        sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, numSteps/5));
+        int interval = 10;
+        int pInterval = 10*numMolecules;
+        long samples = numSteps / interval;
+        long bs = Math.max(samples / 100, 1);
+        long pSamples = numSteps / pInterval;
+        long pbs = Math.max(pSamples / 100, 1);
 
-        long samples = numSteps / (numMolecules*8);
-        long bs = samples / 100;
-        if (bs == 0) bs = 1;
+        MeterDensity meterDensity = new MeterDensity(sim.box());
+        AccumulatorAverageFixed accDensity = new AccumulatorAverageFixed(bs);
+        DataPumpListener pumpDensity = new DataPumpListener(meterDensity, accDensity, interval);
+        sim.integrator.getEventManager().addListener(pumpDensity);
 
-        AccumulatorAverageFixed accU = new AccumulatorAverageFixed((numSteps/10)/100);
-        DataPumpListener pumpU = new DataPumpListener(meterU, accU, 10);
+        AccumulatorAverageFixed accU = new AccumulatorAverageFixed(bs);
+        DataPumpListener pumpU = new DataPumpListener(meterU, accU, interval);
         sim.integrator.getEventManager().addListener(pumpU);
 
-        AccumulatorAverageFixed accP = new AccumulatorAverageFixed(bs);
+        AccumulatorAverageFixed accP = new AccumulatorAverageFixed(pbs);
         forkP.addDataSink(accP);
-        AccumulatorAverageFixed accZ = new AccumulatorAverageFixed(bs);
+        AccumulatorAverageFixed accZ = new AccumulatorAverageFixed(pbs);
         dpZ.addDataSink(accZ);
-        AccumulatorAverageFixed accZm1oR = new AccumulatorAverageFixed(bs);
+        AccumulatorAverageFixed accZm1oR = new AccumulatorAverageFixed(pbs);
         dpZm1oR.addDataSink(accZm1oR);
-        DataPumpListener pumpP = new DataPumpListener(meterP, forkP, 8*numMolecules);
+        DataPumpListener pumpP = new DataPumpListener(meterP, forkP, pInterval);
         sim.integrator.getEventManager().addListener(pumpP);
 
         long t1 = System.nanoTime();
@@ -455,15 +456,23 @@ public class PentaneNPTMC extends Simulation {
         double corZ_ = dataZ_.getValue(accZm1oR.BLOCK_CORRELATION.index);
         System.out.println("(Z-1)/rho: "+avgZ_+"   err: "+errZ_+"   cor: "+corZ_);
 
+        DataGroup dataDensity = (DataGroup) accDensity.getData();
+        double avgDensity = dataDensity.getValue(accDensity.AVERAGE.index);
+        double errDensity = dataDensity.getValue(accDensity.ERROR.index);
+        double corDensity = dataDensity.getValue(accDensity.BLOCK_CORRELATION.index);
+        System.out.println("density avg: " + avgDensity + "  err: " + errDensity + "  cor: " + corDensity);
+        System.out.println("density avg (g/cm^3): " + dUnit.fromSim(avgDensity) + "  err: " + dUnit.fromSim(errDensity) + "  cor: " + corDensity);
+
         System.out.println("time: "+(t2-t1)/1e9);
     }
 
     public static class OctaneParams extends ParameterBase {
-        public double temperatureK = 372;
         public int numMolecules = 300;
-        public double density = 0.0005;
+        public double temperatureK = 372;
+        public double density = 0.539;
         public boolean graphics = false;
-        public long numSteps = 200000;
+        public long numSteps = numMolecules*1000*120;
+        public long equilibration = numMolecules*1000*50;
         public String configFilename = null;
         public double rc = 14;
         public double pressureKPa = 1402;

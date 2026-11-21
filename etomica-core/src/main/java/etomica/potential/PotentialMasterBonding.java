@@ -577,11 +577,17 @@ public class PotentialMasterBonding implements PotentialCompute {
             }
         }
 
-        protected void updateBondCounts(int ispecies) {
+        protected void updateBondCounts(ISpecies species) {
+            int ispecies = species.getIndex();
             for (int i=0; i<n[ispecies].length; i++) {
                 Arrays.fill(n[ispecies][i], 0);
             }
             int[][] ni = n[ispecies];
+            if (ni.length != species.getLeafAtomCount()) {
+                int nn = species.getLeafAtomCount();
+                n[ispecies] = new int[nn][nn];
+                ni = n[ispecies];
+            }
             for (IPotential2 p : bondedPairs[ispecies].keySet()) {
                 List<int[]> bondedIndices = bondedPairs[ispecies].get(p);
                 for (int[] pairs : bondedIndices) {
@@ -609,7 +615,7 @@ public class PotentialMasterBonding implements PotentialCompute {
             int[][][] partners = handledIndices(species, bondedIndices);
             bondedPairs[speciesIndex].put(potential, new ArrayList<>(bondedIndices));
             bondedPairPartners[speciesIndex].put(potential, partners);
-            updateBondCounts(species.getIndex());
+            updateBondCounts(species);
         }
 
         public void setBondingPotentialTriplet(ISpecies species, IPotentialBondAngle potential, List<int[]> bondedIndices) {

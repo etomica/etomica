@@ -61,14 +61,10 @@ public class DataProcessorInterfacialTension extends DataProcessor {
         double area = 1;
         Vector dim = box.getBoundary().getBoxSize();
         int D = dim.getD();
+        data.x = inputData.getValue(surfaceDim);
         for (int i=0; i<D; i++) {
             if (i == surfaceDim) continue;
             area *= dim.getX(i);
-        }
-        data.x = 0;
-        data.x = inputData.getValue(0);
-        for (int i=0; i<D; i++) {
-            if (i == surfaceDim) continue;
             data.x -= inputData.getValue(i)/(D-1);
         }
         data.x /= 2*area;

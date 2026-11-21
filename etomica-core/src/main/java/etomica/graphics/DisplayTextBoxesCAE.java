@@ -44,10 +44,13 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
     public DisplayTextBoxesCAE() {
 		super();
 		currentBox = new DisplayTextBox();
+        currentBox.setShowUnit(false);
 		currentBox.setLabel("Current");
 		averageBox = new DisplayTextBox();
+        averageBox.setShowUnit(false);
 		averageBox.setLabel("Average");
 		errorBox = new DisplayTextBox();
+        errorBox.setShowUnit(false);
 		errorBox.setLabel("Error");
         corBox = new DisplayTextBox();
         corBox.setLabel("Correlation");
@@ -193,6 +196,10 @@ public class DisplayTextBoxesCAE extends Display implements IDataSink {
         }
     }
 
+    /**
+     * Sets the units for the displayed quantities.
+     * Does not change the units label for the display.
+     */
     public void setUnit(Unit unit) {
         currentBox.setUnit(unit);
         averageBox.setUnit(unit);

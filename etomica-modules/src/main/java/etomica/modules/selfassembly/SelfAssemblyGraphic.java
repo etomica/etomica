@@ -24,6 +24,8 @@ import etomica.units.dimensions.Quantity;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  *
@@ -90,6 +92,12 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         colorScheme.setColor(sim.getTypeB1(), new Color(0, 0, 200));
         colorScheme.setColor(sim.getTypeB2(), new Color(0, 200, 0));
         getDisplayBox(sim.box).setColorScheme(colorScheme);
+
+        DeviceAtomColor deviceAtomColorA = new DeviceAtomColor(sim.getController(), colorScheme, sim.getTypeA(), getPaintAction(sim.box));
+        DeviceAtomColor deviceAtomColorB1 = new DeviceAtomColor(sim.getController(), colorScheme, sim.getTypeB1(), getPaintAction(sim.box));
+        DeviceAtomColor deviceAtomColorB2 = new DeviceAtomColor(sim.getController(), colorScheme, sim.getTypeB2(), getPaintAction(sim.box));
+
+        DeviceBackgroundColor deviceBGColor = new DeviceBackgroundColor(sim.getController(), this, sim.box, getPaintAction(sim.box));
 
         getController().getSimRestart().setIgnoreOverlap(true);
         IAction reconfig = new IAction() {
@@ -356,6 +364,14 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         });
         printParamsButton.setLabel("Print parameters");
 
+        // Color tab
+        JPanel colorPanel = new JPanel(new GridBagLayout());
+
+        colorPanel.add(deviceAtomColorA.new Button("A ","Atom A Color"),vertGBC);
+        colorPanel.add(deviceAtomColorB1.new Button("B1","Atom B1 Color"),vertGBC);
+        colorPanel.add(deviceAtomColorB2.new Button("B2","Atom B2 Color"),vertGBC);
+        colorPanel.add(deviceBGColor.new Button(), vertGBC);
+
 
         // ***********  Assemble controls
         final JTabbedPane sliderPanel = new JTabbedPane();
@@ -370,6 +386,7 @@ public class SelfAssemblyGraphic extends SimulationGraphic {
         sliderPanel.add(B1B1Sliders.panel, "B1-B1");
         sliderPanel.add(B1B2Sliders.panel, "B1-B2");
         sliderPanel.add(B2B2Sliders.panel, "B2-B2");
+        sliderPanel.add(colorPanel, "Colors");
         controls.add(delaySlider.graphic(), vertGBC);
         if (showAtomFilterButtons) {
             controls.add(atomFilterButtonA.graphic(), vertGBC);

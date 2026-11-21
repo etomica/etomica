@@ -100,8 +100,7 @@ public class ChainHSMD3D extends Simulation {
         integrator = new IntegratorHard(potentialMaster.getPairPotentials(), neighborManager, random, 0.01, 1.0, box, getSpeciesManager(), bondingInfo);
         integrator.setIsothermal(false);
 
-        MeterRadiusGyration meterRG = new MeterRadiusGyration(space);
-        meterRG.setBox(box);
+        MeterRadiusGyration meterRG = new MeterRadiusGyration(box);
         histogramRG = new AccumulatorHistogram(new HistogramCollapsing(), 10);
         pumpRG = new DataPumpListener(meterRG, histogramRG);
         integrator.getEventManager().addListener(pumpRG);
