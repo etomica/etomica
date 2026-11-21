@@ -36,7 +36,8 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
     protected ClusterWheatleySoftDerivativesBD clusterBD;
     protected boolean debug = false;
     protected boolean doCaching = true;
-    protected final int[][] binomial;
+    protected final double[] factorial, invFactorial;
+    protected final double[] fBA;
     protected long SoftBDcount = 0;
     protected double BDAccFrac = 1;
     protected IRandom random;
@@ -66,13 +67,14 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         fB = new double[nf][nDer + 1];
         this.nDer = nDer;
         setTolerance(tol);
-        this.binomial = new int[nDer + 1][];
-        for (int m = 0; m <= nDer; m++) {
-            binomial[m] = new int[m + 1];
-            for (int l = 0; l <= m; l++) {
-                binomial[m][l] = (int) (SpecialFunctions.factorial(m) / (SpecialFunctions.factorial(l) * SpecialFunctions.factorial(m - l)));
-            }
+        factorial = new double[nDer + 1];
+        invFactorial = new double[nDer + 1];
+        factorial[0] = invFactorial[0] = 1;
+        for (int m = 1; m <= nDer; m++) {
+            factorial[m] = factorial[m - 1] * m;
+            invFactorial[m] = 1 / factorial[m];
         }
+        fBA = new double[nDer + 1];
         setNumBDCheckBins(5);
     }
 
@@ -281,31 +283,33 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         }
         calcFullFQ(box);
         int nf = 1<<n;
+        // The recursion below works with Taylor coefficients f^(m)/m! rather than the derivatives
+        // f^(m), so the Leibniz rule needs no binomial factors.  fQ is converted here (calcFullFQ
+        // recomputes it for every configuration) and fB[nf-1] is converted back at the end.
+        if (nDer > 1) {
+            for (int i=1; i<nf; i++) {
+                double[] fQi = fQ[i];
+                for (int m=2; m<=nDer; m++) {
+                    fQi[m] *= invFactorial[m];
+                }
+            }
+        }
         //Compute the fC's
         for(int i=1; i<nf; i++) {
-        	for(int m=0;m<=nDer;m++){
-        		fC[i][m] = fQ[i][m];
-//        		System.out.println("fC["+i+"]["+m+"]"+fC[i][m]);
-        	}
+            double[] fCi = fC[i];
+            System.arraycopy(fQ[i], 0, fCi, 0, nDer+1);
             int iLowBit = i & -i;
-            int inc = iLowBit<<1;
-            for(int j=iLowBit; j<i; j+=inc) {
-                int jComp = i & ~j;
-                while ((j|jComp) != i && j<i) {
-                    int jHighBits = j^iLowBit;
-                    int jlow = jHighBits & -jHighBits;
-                    j += jlow;
-                    jComp = (i & ~j);
-                }
-                if (j==i) break;
-
-//                System.out.println("jcomp = "+jComp);
-                for(int m=0;m<=nDer;m++){                
-                	for(int l=0;l<=m;l++){
-//
-                		fC[i][m] -= binomial[m][l]*fC[j][l] * fQ[jComp][m-l];//for fQ, flip the bits on j; use only those appearing in i
-                		//computes fC and its derivatives w.r.t beta
-                	}
+            int rest = i ^ iLowBit;
+            // sum over proper subsets j of i that contain iLowBit; jComp = i & ~j
+            for (int s=0; s!=rest; s=(s-rest)&rest) {
+                double[] fCj = fC[iLowBit|s];
+                double[] fQjComp = fQ[rest^s];
+                for (int m=0; m<=nDer; m++) {
+                    double t = 0;
+                    for (int l=0; l<=m; l++) {
+                        t += fCj[l] * fQjComp[m-l];
+                    }
+                    fCi[m] -= t;
                 }
             }
         }
@@ -314,9 +318,7 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         for (int i=2; i<nf; i+=2) {
             // all even sets don't contain 1
             //fA[i] = 0;
-        	for(int m=0;m<=nDer;m++){
-        		fB[i][m] = fC[i][m];
-        	}
+            System.arraycopy(fC[i], 0, fB[i], 0, nDer+1);
         }
         for(int m=0;m<=nDer;m++){
         	fA[1][m] = 0;
@@ -324,42 +326,40 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
         }
         for (int i=3; i<nf; i+=2) {
             // every set will contain 1
-        	for(int m=0;m<=nDer;m++){
-        		fA[i][m] = 0;
-        		fB[i][m] = fC[i][m];
-        	}
+            double[] fAi = fA[i];
+            double[] fBi = fB[i];
+            System.arraycopy(fC[i], 0, fBi, 0, nDer+1);
+            for (int m=0; m<=nDer; m++) {
+                fAi[m] = 0;
+            }
             int ii = i - 1;//all bits in i but lowest
             int iLow2Bit = (ii & -ii);//next lowest bit
             int jBits = 1 | iLow2Bit;
-            if (jBits==i) continue;
             //jBits has 1 and next lowest bit in i
-            int iii = ii ^ iLow2Bit;//i with 2 lowest bits off
-            int jInc = (iii & -iii);//3rd lowest bit, also increment for j
-            for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i containing jBits
-                int jComp = (i & ~j); //subset of i complementing j
-                while ((j|jComp) != i && j<i) {
-                    int jHighBits = j^jBits;
-                    int jlow = jHighBits & -jHighBits;
-                    j += jlow;
-                    jComp = (i & ~j);
-                }
-                if (j==i) break;
-                for(int m=0;m<=nDer;m++){
-                	for(int l=0;l<=m;l++){
-                		fA[i][m] += binomial[m][l]*fB[j][l] * fC[jComp|1][m-l];
-                	}
+            int rest = i ^ jBits;
+            // sum over proper subsets j of i that contain jBits; jComp = i & ~j
+            for (int s=0; s!=rest; s=(s-rest)&rest) {
+                double[] fBj = fB[jBits|s];
+                double[] fCjComp = fC[(rest^s)|1];
+                for (int m=0; m<=nDer; m++) {
+                    double t = 0;
+                    for (int l=0; l<=m; l++) {
+                        t += fBj[l] * fCjComp[m-l];
+                    }
+                    fAi[m] += t;
                 }
             }
             for(int m=0;m<=nDer;m++){
-            	fB[i][m] -= fA[i][m];//remove from B graphs that contain articulation point at 0
+            	fBi[m] -= fAi[m];//remove from B graphs that contain articulation point at 0
             }
         }
 
         for (int v=1; v<n; v++) {
             int vs1 = 1<<v;
             for (int i=vs1+1; i<nf; i++) {
+                double[] fAi = fA[i];
             	for(int m=0;m<=nDer;m++){
-            		fA[i][m] = 0;
+            		fAi[m] = 0;
             	}
 //                fB[v][i] = fB[v-1][i];//no a.p. at v or below, starts with those having no a.p. at v-1 or below
                 //rest of this is to generate A (diagrams having a.p. at v but not below), and subtract it from B
@@ -368,71 +368,44 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                 if (iLowBit == i) { //lowest bit is only bit; fA and fB are done
                     continue;
                 }
+                // jBits is v plus the lowest bit of i other than v
                 int jBits;
-                int ii = i ^ iLowBit;
-                int iLow2Bit = (ii & -ii);
-                if (iLowBit != vs1 && iLow2Bit != vs1) {
-                    //v is not in the lowest 2 bits
-                    // jBits is the lowest bit and v
-                    jBits = iLowBit | vs1;
-
-                    // we can only increment by the 2nd lowest
-                    int jInc = iLow2Bit;
-
-                    //at this point jBits has (lowest bit + v) or (v + next lowest bit)
-                    for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
-                        if ((j & jBits) != jBits) {
-                            //ensure jBits are in j
-                            j |= vs1;
-                            if (j==i) break;
-                        }
-                        int jComp = i & ~j;//subset of i complementing j
-                        while ((j|jComp) != i && j<i) {
-                            int jHighBits = j^jBits;
-                            int jlow = jHighBits & -jHighBits;
-                            j += jlow; // this might knock out the v bit
-                            j |= vs1;
-                            jComp = (i & ~j);
-                        }
-                        if (j==i) break;
-                        for(int m=0;m<=nDer;m++){                
-                            for(int l=0;l<=m;l++){
-                                fA[i][m] += binomial[m][l]*fB[j][l] * (fB[jComp|vs1][m-l] + fA[jComp|vs1][m-l]);
-                            }
-                        }
-                    }
+                if (iLowBit == vs1) {
+                    int ii = i ^ iLowBit;
+                    jBits = vs1 | (ii & -ii);
                 }
                 else {
-                    //lowest 2 bits contain v
-                    // jBits is the lowest 2 bits
-                    // we can start at jBits and increment by the 3rd lowest bit
-                    jBits = iLowBit | iLow2Bit;
-                    if (jBits == i) continue; // no bits left for jComp
-                    
-                    int iii = ii ^ iLow2Bit;
-                    int jInc = (iii & -iii);
-
-                    //at this point jBits has (lowest bit + v) or (v + next lowest bit)
-                    for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
-                        // start=jBits and jInc ensure that every set includes jBits
-                        int jComp = i & ~j;//subset of i complementing j
-                        while ((j|jComp) != i && j<i) {
-                            int jHighBits = j^jBits;
-                            int jlow = jHighBits & -jHighBits;
-                            j += jlow;
-                            jComp = (i & ~j);
+                    jBits = iLowBit | vs1;
+                }
+                int rest = i ^ jBits;
+                // sum over proper subsets j of i that contain jBits; jComp = i & ~j
+                for (int s=0; s!=rest; s=(s-rest)&rest) {
+                    double[] fBj = fB[jBits|s];
+                    int jCompv = (rest^s) | vs1;
+                    double[] fBjComp = fB[jCompv];
+                    double[] fAjComp = fA[jCompv];
+                    for (int m=0; m<=nDer; m++) {
+                        fBA[m] = fBjComp[m] + fAjComp[m];
+                    }
+                    for (int m=0; m<=nDer; m++) {
+                        double t = 0;
+                        for (int l=0; l<=m; l++) {
+                            t += fBj[l] * fBA[m-l];
                         }
-                        if (j == i) break;
-                        for (int m = 0; m <= nDer; m++) {
-                            for (int l = 0; l <= m; l++) {
-                                fA[i][m] += binomial[m][l] * fB[j][l] * (fB[jComp | vs1][m - l] + fA[jComp | vs1][m - l]);
-                            }
-                        }
+                        fAi[m] += t;
                     }
                 }
+                double[] fBi = fB[i];
                 for (int m = 0; m <= nDer; m++) {
-                    fB[i][m] -= fA[i][m];//remove from B graphs that contain articulation point at v
+                    fBi[m] -= fAi[m];//remove from B graphs that contain articulation point at v
                 }
+            }
+        }
+        if (nDer > 1) {
+            // convert Taylor coefficients back to derivatives
+            double[] fBn = fB[nf-1];
+            for (int m=2; m<=nDer; m++) {
+                fBn[m] *= factorial[m];
             }
         }
         double bfac = (1.0 - n) / SpecialFunctions.factorial(n);
