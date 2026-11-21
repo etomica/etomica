@@ -14,8 +14,7 @@ import etomica.space.Vector;
 public final class VectorND implements Vector, java.io.Serializable {
 
     protected final double[] x;
-    private static final long serialVersionUID = 1L;
-    
+
     public VectorND(int D) {
         x = new double[D];
     }
@@ -45,6 +44,11 @@ public final class VectorND implements Vector, java.io.Serializable {
         for (int i=0; i<x.length; i++) {
             array[i] = x[i];
         }
+    }
+
+    @Override
+    public Vector makeCopy() {
+        return new VectorND(x);
     }
 
     public boolean equals(Vector v) {

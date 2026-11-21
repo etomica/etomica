@@ -15,7 +15,6 @@ import etomica.exception.MethodNotImplementedException;
 public final class Vector2D implements Vector, java.io.Serializable {
 
     double x, y;
-    private static final long serialVersionUID = 1L;
 
     public Vector2D() {
         x = 0.0;
@@ -43,6 +42,11 @@ public final class Vector2D implements Vector, java.io.Serializable {
     public void assignTo(double[] array) {
         array[0] = x;
         array[1] = y;
+    }
+
+    @Override
+    public Vector makeCopy() {
+        return new Vector2D(x, y);
     }
 
     public boolean equals(Vector v) {

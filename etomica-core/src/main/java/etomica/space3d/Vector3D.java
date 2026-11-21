@@ -59,6 +59,11 @@ public final class Vector3D implements Vector, java.io.Serializable {
         array[2] = z;
     }
 
+    @Override
+    public Vector makeCopy() {
+        return new Vector3D(x, y, z);
+    }
+
     public boolean equals(Vector v) {
         return (x == ((Vector3D) v).x) && (y == ((Vector3D) v).y)
                 && (z == ((Vector3D) v).z);

@@ -37,6 +37,12 @@ public interface Vector {
     }
 
     /**
+     *
+     * @return a new Vector instance that is a copy of this one
+     */
+    Vector makeCopy();
+
+    /**
      * Returns true if all corresponding elements of this and the given vector
      * are equal; returns false otherwise.
      */

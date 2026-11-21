@@ -62,6 +62,11 @@ public final class Vector1D implements Vector, java.io.Serializable {
         array[0] = x;
     }
 
+    @Override
+    public Vector makeCopy() {
+        return new Vector1D(x);
+    }
+
     public void E(double a) {
         x = a;
     }
