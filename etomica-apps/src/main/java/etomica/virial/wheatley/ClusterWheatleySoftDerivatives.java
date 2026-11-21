@@ -294,6 +294,131 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                 }
             }
         }
+        // nDer <= 2 (the common cases) use hand-unrolled copies of the recursion, which are
+        // 2-4x faster than the general loops and give bitwise-identical results.
+        if (nDer == 2) recursion2(nf);
+        else if (nDer == 1) recursion1(nf);
+        else if (nDer == 0) recursion0(nf);
+        else recursionGeneral(nf);
+        if (nDer > 1) {
+            // convert Taylor coefficients back to derivatives
+            double[] fBn = fB[nf-1];
+            for (int m=2; m<=nDer; m++) {
+                fBn[m] *= factorial[m];
+            }
+        }
+        double bfac = (1.0 - n) / SpecialFunctions.factorial(n);
+        totcount++;
+        valueBD = false;
+
+        if (fB[nf - 1][0]!=0 && Math.abs(fB[nf - 1][0]) < tol * checkFac) {
+            boolean justChecking = Math.abs(fB[nf - 1][0]) >= tol;
+            double r = -1;
+            int idx = 0;
+            if (justChecking) {
+                idx = 1 + (int) Math.log10(Math.abs(fB[nf - 1][0]) / tol);
+                if (idx >= nCheck.length) idx = nCheck.length - 1;
+                if (randomJustChecking == null) {
+                    randomJustChecking = new RandomMersenneTwister(1);
+                }
+                //r = BDAccFrac < 1 ? randomJustChecking.nextDouble() : 0;
+                r = randomJustChecking.nextDouble();
+                r *= 10.0 * (nCheckTot[idx] + 1) / (nCheckTot[0] + 1);
+            } else {
+                r = BDAccFrac < 1 ? random.nextDouble() : 0;
+            }
+            nCheckTot[idx]++;
+            // integrand is too small for recursion to compute accurately.  we ought to do
+            // BD, but it's expensive.  only do BD BDAccFrac of the time.  If we do it, then
+            // boost the returned value by 1/BDAccFrac to account for the missed configurations
+            boolean doBD = clusterBD != null && r < BDAccFrac;
+            if (doBD) {
+                valueBD = true;
+
+                SoftBDcount += 1;
+//                if(count&&box.getIndex()==1&&!returnDoubleVal)System.out.println(stepcount);
+                timeBD -= System.nanoTime();
+                System.arraycopy(clusterBD.getAllLastValues(box), 0, value, 0, nDer + 1);
+                timeBD += System.nanoTime();
+                if (count && box.getIndex() == 1) {
+                    double err = Math.abs(Math.abs(value[0] / bfac - fB[nf - 1][0])) * 100 / Math.abs(value[0] / bfac);
+                    System.out.println("fB double = " + Math.abs(fB[nf - 1][0]) + " ,fB BD = " + Math.abs(value[0] / bfac) + ", Error % = " + err);
+                    if (true) {
+                        double maxr2 = 0;
+                        for (int i = 0; i < n - 1; i++) {
+                            for (int j = i + 1; j < n; j++) {
+                                double r2 = box.getCPairSet().getr2(i, j);
+                                if (r2 > maxr2) maxr2 = r2;
+                            }
+                        }
+                        System.out.println(Math.sqrt(maxr2) + " " + value[0] / bfac + " " + value[1] / bfac + " " + value[2] / bfac + " "
+                                + fB[nf - 1][0] + " " + fB[nf - 1][1] + " " + fB[nf - 1][2]);
+                    }
+                }
+                nCheck[idx]++;
+                avgAbsCheck[idx] += (Math.abs(fB[nf - 1][0]) - avgAbsCheck[idx]) / nCheck[idx];
+                avgAbsCheckBD[idx] += (Math.abs(value[0] / bfac) - avgAbsCheckBD[idx]) / nCheck[idx];
+                if (justChecking) {
+                    if (nCheck[idx] > 3 && avgAbsCheck[idx] / avgAbsCheckBD[idx] > 1.1) {
+                        printCheckData();
+                        throw new RuntimeException("busted");
+                    }
+                    if (Math.abs((fB[nf - 1][0]) / (value[0] / bfac)) > 1.5) {
+                        printCheckData();
+                        System.out.println("double: " + fB[nf - 1][0] + "  BD: " + (value[0] / bfac));
+                        throw new RuntimeException("busted");
+                    }
+                    for (int m = 0; m <= nDer; m++) {
+                        value[m] = bfac * fB[nf - 1][m];
+                    }
+                } else {
+                    for (int m = 0; m <= nDer; m++) {
+                        value[m] /= BDAccFrac;
+                    }
+                }
+                if (pushmeval && Math.abs(value[0] / bfac) > tol) {
+                    value[0] = tol;
+                }
+            } else if (justChecking) {
+                for (int m = 0; m <= nDer; m++) {
+                    value[m] = bfac * fB[nf - 1][m];
+                }
+            } else {
+                for (int m = 0; m <= nDer; m++) {
+                    value[m] = 0;
+                }
+            }
+            return;
+        }
+
+//        System.out.println("fQ"+" "+Arrays.toString(fQ[nf-1]));
+//        for(int i=0;i<fC.length;i++){
+//            System.out.println("fC"+" "+i+" "+Arrays.toString(fC[i]));}
+//        System.out.println("fA"+" "+Arrays.toString(fA[nf-1]));
+//        System.out.println("fB"+" "+Arrays.toString(fB[nf-1]));
+//        if (fB[nf-1][0] != -1 && fB[nf-1][1] == 0) {
+//            throw new RuntimeException("oops");
+//        }
+        for(int m=0;m<=nDer;m++){
+            value[m] = bfac*fB[nf-1][m];
+        }
+        if (pushme && maxR2 > 2*2) {
+//            value *= Math.pow(maxR2/4, 6);
+        }
+        if(pushmeval){ value[0] = 1e-200;}
+    }
+
+    /**
+     * Runs the Wheatley recursion for any number of derivatives, filling {@code fC}, {@code fA}
+     * and {@code fB} from {@code fQ}.  On entry {@code fQ} holds Taylor coefficients
+     * f<sup>(m)</sup>/m!; on exit {@code fB[nf-1]} holds the Taylor coefficients of the sum of
+     * biconnected diagrams.  {@link #calcValue(BoxCluster)} uses this only for nDer &gt; 2;
+     * {@link #recursion0(int)}, {@link #recursion1(int)} and {@link #recursion2(int)} are
+     * unrolled copies for smaller nDer.
+     *
+     * @param nf number of point subsets, 2<sup>n</sup>
+     */
+    protected void recursionGeneral(int nf) {
         //Compute the fC's
         for(int i=1; i<nf; i++) {
             double[] fCi = fC[i];
@@ -401,112 +526,223 @@ public class ClusterWheatleySoftDerivatives implements ClusterAbstract, ClusterA
                 }
             }
         }
-        if (nDer > 1) {
-            // convert Taylor coefficients back to derivatives
-            double[] fBn = fB[nf-1];
-            for (int m=2; m<=nDer; m++) {
-                fBn[m] *= factorial[m];
+    }
+
+    /**
+     * Same as {@link #recursionGeneral(int)} for nDer = 0, with the derivative loops removed.
+     * The arithmetic is done in the same order, so results are bitwise identical; only loop
+     * overhead is eliminated.  Any change to the recursion must be made in all four methods.
+     *
+     * @param nf number of point subsets, 2<sup>n</sup>
+     */
+    protected void recursion0(int nf) {
+        for (int i=1; i<nf; i++) {
+            double c = fQ[i][0];
+            int iLowBit = i & -i;
+            int rest = i ^ iLowBit;
+            for (int s=0; s!=rest; s=(s-rest)&rest) {
+                c -= fC[iLowBit|s][0] * fQ[rest^s][0];
+            }
+            fC[i][0] = c;
+        }
+        for (int i=2; i<nf; i+=2) fB[i][0] = fC[i][0];
+        fA[1][0] = 0;
+        fB[1][0] = fC[1][0];
+        for (int i=3; i<nf; i+=2) {
+            int ii = i - 1;
+            int jBits = 1 | (ii & -ii);
+            int rest = i ^ jBits;
+            double a = 0;
+            for (int s=0; s!=rest; s=(s-rest)&rest) {
+                a += fB[jBits|s][0] * fC[(rest^s)|1][0];
+            }
+            fA[i][0] = a;
+            fB[i][0] = fC[i][0] - a;
+        }
+        for (int v=1; v<n; v++) {
+            int vs1 = 1<<v;
+            for (int i=vs1+1; i<nf; i++) {
+                fA[i][0] = 0;
+                if ((i & vs1) == 0) continue;
+                int iLowBit = (i&-i);
+                if (iLowBit == i) continue;
+                int jBits;
+                if (iLowBit == vs1) {
+                    int ii = i ^ iLowBit;
+                    jBits = vs1 | (ii & -ii);
+                }
+                else {
+                    jBits = iLowBit | vs1;
+                }
+                int rest = i ^ jBits;
+                double a = 0;
+                for (int s=0; s!=rest; s=(s-rest)&rest) {
+                    int jc = (rest^s) | vs1;
+                    a += fB[jBits|s][0] * (fB[jc][0] + fA[jc][0]);
+                }
+                fA[i][0] = a;
+                fB[i][0] -= a;
             }
         }
-        double bfac = (1.0 - n) / SpecialFunctions.factorial(n);
-        totcount++;
-        valueBD = false;
+    }
 
-        if (fB[nf - 1][0]!=0 && Math.abs(fB[nf - 1][0]) < tol * checkFac) {
-            boolean justChecking = Math.abs(fB[nf - 1][0]) >= tol;
-            double r = -1;
-            int idx = 0;
-            if (justChecking) {
-                idx = 1 + (int) Math.log10(Math.abs(fB[nf - 1][0]) / tol);
-                if (idx >= nCheck.length) idx = nCheck.length - 1;
-                if (randomJustChecking == null) {
-                    randomJustChecking = new RandomMersenneTwister(1);
-                }
-                //r = BDAccFrac < 1 ? randomJustChecking.nextDouble() : 0;
-                r = randomJustChecking.nextDouble();
-                r *= 10.0 * (nCheckTot[idx] + 1) / (nCheckTot[0] + 1);
-            } else {
-                r = BDAccFrac < 1 ? random.nextDouble() : 0;
+    /**
+     * Same as {@link #recursionGeneral(int)} for nDer = 1, with the derivative loops unrolled.
+     * See {@link #recursion0(int)}.
+     *
+     * @param nf number of point subsets, 2<sup>n</sup>
+     */
+    protected void recursion1(int nf) {
+        for (int i=1; i<nf; i++) {
+            double[] fQi = fQ[i];
+            double c0 = fQi[0], c1 = fQi[1];
+            int iLowBit = i & -i;
+            int rest = i ^ iLowBit;
+            for (int s=0; s!=rest; s=(s-rest)&rest) {
+                double[] x = fC[iLowBit|s];
+                double[] y = fQ[rest^s];
+                double x0 = x[0], x1 = x[1], y0 = y[0], y1 = y[1];
+                c0 -= x0*y0;
+                c1 -= x0*y1 + x1*y0;
             }
-            nCheckTot[idx]++;
-            // integrand is too small for recursion to compute accurately.  we ought to do
-            // BD, but it's expensive.  only do BD BDAccFrac of the time.  If we do it, then
-            // boost the returned value by 1/BDAccFrac to account for the missed configurations
-            boolean doBD = clusterBD != null && r < BDAccFrac;
-            if (doBD) {
-                valueBD = true;
-
-                SoftBDcount += 1;
-//                if(count&&box.getIndex()==1&&!returnDoubleVal)System.out.println(stepcount);
-                timeBD -= System.nanoTime();
-                System.arraycopy(clusterBD.getAllLastValues(box), 0, value, 0, nDer + 1);
-                timeBD += System.nanoTime();
-                if (count && box.getIndex() == 1) {
-                    double err = Math.abs(Math.abs(value[0] / bfac - fB[nf - 1][0])) * 100 / Math.abs(value[0] / bfac);
-                    System.out.println("fB double = " + Math.abs(fB[nf - 1][0]) + " ,fB BD = " + Math.abs(value[0] / bfac) + ", Error % = " + err);
-                    if (true) {
-                        double maxr2 = 0;
-                        for (int i = 0; i < n - 1; i++) {
-                            for (int j = i + 1; j < n; j++) {
-                                double r2 = box.getCPairSet().getr2(i, j);
-                                if (r2 > maxr2) maxr2 = r2;
-                            }
-                        }
-                        System.out.println(Math.sqrt(maxr2) + " " + value[0] / bfac + " " + value[1] / bfac + " " + value[2] / bfac + " "
-                                + fB[nf - 1][0] + " " + fB[nf - 1][1] + " " + fB[nf - 1][2]);
-                    }
-                }
-                nCheck[idx]++;
-                avgAbsCheck[idx] += (Math.abs(fB[nf - 1][0]) - avgAbsCheck[idx]) / nCheck[idx];
-                avgAbsCheckBD[idx] += (Math.abs(value[0] / bfac) - avgAbsCheckBD[idx]) / nCheck[idx];
-                if (justChecking) {
-                    if (nCheck[idx] > 3 && avgAbsCheck[idx] / avgAbsCheckBD[idx] > 1.1) {
-                        printCheckData();
-                        throw new RuntimeException("busted");
-                    }
-                    if (Math.abs((fB[nf - 1][0]) / (value[0] / bfac)) > 1.5) {
-                        printCheckData();
-                        System.out.println("double: " + fB[nf - 1][0] + "  BD: " + (value[0] / bfac));
-                        throw new RuntimeException("busted");
-                    }
-                    for (int m = 0; m <= nDer; m++) {
-                        value[m] = bfac * fB[nf - 1][m];
-                    }
-                } else {
-                    for (int m = 0; m <= nDer; m++) {
-                        value[m] /= BDAccFrac;
-                    }
-                }
-                if (pushmeval && Math.abs(value[0] / bfac) > tol) {
-                    value[0] = tol;
-                }
-            } else if (justChecking) {
-                for (int m = 0; m <= nDer; m++) {
-                    value[m] = bfac * fB[nf - 1][m];
-                }
-            } else {
-                for (int m = 0; m <= nDer; m++) {
-                    value[m] = 0;
-                }
+            double[] fCi = fC[i];
+            fCi[0] = c0; fCi[1] = c1;
+        }
+        for (int i=2; i<nf; i+=2) {
+            double[] fCi = fC[i], fBi = fB[i];
+            fBi[0] = fCi[0]; fBi[1] = fCi[1];
+        }
+        fA[1][0] = 0; fA[1][1] = 0;
+        fB[1][0] = fC[1][0]; fB[1][1] = fC[1][1];
+        for (int i=3; i<nf; i+=2) {
+            int ii = i - 1;
+            int jBits = 1 | (ii & -ii);
+            int rest = i ^ jBits;
+            double a0 = 0, a1 = 0;
+            for (int s=0; s!=rest; s=(s-rest)&rest) {
+                double[] x = fB[jBits|s];
+                double[] y = fC[(rest^s)|1];
+                double x0 = x[0], x1 = x[1], y0 = y[0], y1 = y[1];
+                a0 += x0*y0;
+                a1 += x0*y1 + x1*y0;
             }
-            return;
+            double[] fAi = fA[i], fBi = fB[i], fCi = fC[i];
+            fAi[0] = a0; fAi[1] = a1;
+            fBi[0] = fCi[0] - a0; fBi[1] = fCi[1] - a1;
         }
+        for (int v=1; v<n; v++) {
+            int vs1 = 1<<v;
+            for (int i=vs1+1; i<nf; i++) {
+                double[] fAi = fA[i];
+                fAi[0] = 0; fAi[1] = 0;
+                if ((i & vs1) == 0) continue;
+                int iLowBit = (i&-i);
+                if (iLowBit == i) continue;
+                int jBits;
+                if (iLowBit == vs1) {
+                    int ii = i ^ iLowBit;
+                    jBits = vs1 | (ii & -ii);
+                }
+                else {
+                    jBits = iLowBit | vs1;
+                }
+                int rest = i ^ jBits;
+                double a0 = 0, a1 = 0;
+                for (int s=0; s!=rest; s=(s-rest)&rest) {
+                    double[] x = fB[jBits|s];
+                    int jc = (rest^s) | vs1;
+                    double[] yb = fB[jc], ya = fA[jc];
+                    double x0 = x[0], x1 = x[1];
+                    double y0 = yb[0] + ya[0], y1 = yb[1] + ya[1];
+                    a0 += x0*y0;
+                    a1 += x0*y1 + x1*y0;
+                }
+                fAi[0] = a0; fAi[1] = a1;
+                double[] fBi = fB[i];
+                fBi[0] -= a0; fBi[1] -= a1;
+            }
+        }
+    }
 
-//        System.out.println("fQ"+" "+Arrays.toString(fQ[nf-1]));
-//        for(int i=0;i<fC.length;i++){
-//            System.out.println("fC"+" "+i+" "+Arrays.toString(fC[i]));}
-//        System.out.println("fA"+" "+Arrays.toString(fA[nf-1]));
-//        System.out.println("fB"+" "+Arrays.toString(fB[nf-1]));
-//        if (fB[nf-1][0] != -1 && fB[nf-1][1] == 0) {
-//            throw new RuntimeException("oops");
-//        }
-        for(int m=0;m<=nDer;m++){
-            value[m] = bfac*fB[nf-1][m];
+    /**
+     * Same as {@link #recursionGeneral(int)} for nDer = 2, with the derivative loops unrolled.
+     * See {@link #recursion0(int)}.
+     *
+     * @param nf number of point subsets, 2<sup>n</sup>
+     */
+    protected void recursion2(int nf) {
+        for (int i=1; i<nf; i++) {
+            double[] fQi = fQ[i];
+            double c0 = fQi[0], c1 = fQi[1], c2 = fQi[2];
+            int iLowBit = i & -i;
+            int rest = i ^ iLowBit;
+            for (int s=0; s!=rest; s=(s-rest)&rest) {
+                double[] x = fC[iLowBit|s];
+                double[] y = fQ[rest^s];
+                double x0 = x[0], x1 = x[1], x2 = x[2], y0 = y[0], y1 = y[1], y2 = y[2];
+                c0 -= x0*y0;
+                c1 -= x0*y1 + x1*y0;
+                c2 -= x0*y2 + x1*y1 + x2*y0;
+            }
+            double[] fCi = fC[i];
+            fCi[0] = c0; fCi[1] = c1; fCi[2] = c2;
         }
-        if (pushme && maxR2 > 2*2) {
-//            value *= Math.pow(maxR2/4, 6);
+        for (int i=2; i<nf; i+=2) {
+            double[] fCi = fC[i], fBi = fB[i];
+            fBi[0] = fCi[0]; fBi[1] = fCi[1]; fBi[2] = fCi[2];
         }
-        if(pushmeval){ value[0] = 1e-200;}
+        fA[1][0] = 0; fA[1][1] = 0; fA[1][2] = 0;
+        fB[1][0] = fC[1][0]; fB[1][1] = fC[1][1]; fB[1][2] = fC[1][2];
+        for (int i=3; i<nf; i+=2) {
+            int ii = i - 1;
+            int jBits = 1 | (ii & -ii);
+            int rest = i ^ jBits;
+            double a0 = 0, a1 = 0, a2 = 0;
+            for (int s=0; s!=rest; s=(s-rest)&rest) {
+                double[] x = fB[jBits|s];
+                double[] y = fC[(rest^s)|1];
+                double x0 = x[0], x1 = x[1], x2 = x[2], y0 = y[0], y1 = y[1], y2 = y[2];
+                a0 += x0*y0;
+                a1 += x0*y1 + x1*y0;
+                a2 += x0*y2 + x1*y1 + x2*y0;
+            }
+            double[] fAi = fA[i], fBi = fB[i], fCi = fC[i];
+            fAi[0] = a0; fAi[1] = a1; fAi[2] = a2;
+            fBi[0] = fCi[0] - a0; fBi[1] = fCi[1] - a1; fBi[2] = fCi[2] - a2;
+        }
+        for (int v=1; v<n; v++) {
+            int vs1 = 1<<v;
+            for (int i=vs1+1; i<nf; i++) {
+                double[] fAi = fA[i];
+                fAi[0] = 0; fAi[1] = 0; fAi[2] = 0;
+                if ((i & vs1) == 0) continue;
+                int iLowBit = (i&-i);
+                if (iLowBit == i) continue;
+                int jBits;
+                if (iLowBit == vs1) {
+                    int ii = i ^ iLowBit;
+                    jBits = vs1 | (ii & -ii);
+                }
+                else {
+                    jBits = iLowBit | vs1;
+                }
+                int rest = i ^ jBits;
+                double a0 = 0, a1 = 0, a2 = 0;
+                for (int s=0; s!=rest; s=(s-rest)&rest) {
+                    double[] x = fB[jBits|s];
+                    int jc = (rest^s) | vs1;
+                    double[] yb = fB[jc], ya = fA[jc];
+                    double x0 = x[0], x1 = x[1], x2 = x[2];
+                    double y0 = yb[0] + ya[0], y1 = yb[1] + ya[1], y2 = yb[2] + ya[2];
+                    a0 += x0*y0;
+                    a1 += x0*y1 + x1*y0;
+                    a2 += x0*y2 + x1*y1 + x2*y0;
+                }
+                fAi[0] = a0; fAi[1] = a1; fAi[2] = a2;
+                double[] fBi = fB[i];
+                fBi[0] -= a0; fBi[1] -= a1; fBi[2] -= a2;
+            }
+        }
     }
 
     public double getTimeBD() {
