@@ -45,3 +45,28 @@ Publications describing algorithms implemented in Etomica, mapped to the code th
     the same recursion with binomial coefficients (Eqs. 8–10); `ClusterWheatleySoftDerivatives`
     keeps a `binomial` table for this. The paper's Supplemental Material has the proofs, timings
     for N = 4–12 and a link to an implementation.
+
+### Flexible molecules: uniquely flexible (non-biconnected) contributions
+
+- K. R. S. Shaul, A. J. Schultz, and D. A. Kofke, "Mayer-sampling Monte Carlo calculations of uniquely
+  flexible contributions to virial coefficients," J. Chem. Phys. **135**, 124101 (2011).
+  doi:[10.1063/1.3635773](https://doi.org/10.1063/1.3635773)
+  - PDF: `~/Documents/Papers Library/2011-Shaul-Kofke-Journal of Chemical Physics-Mayer-sampling Monte Carlo calculations of uniquely flexible contributions to virial coefficients-.pdf`
+  - Code: `etomica.virial.cluster.VirialDiagrams` with `flex = true` generates the flex-correction
+    diagrams. Drivers: `etomica.virial.simulations.VirialAlkane` (TraPPE-UA alkanes; uses
+    `nPoints+1` molecules, with a constraint map that ties the alternate root to molecule 0's
+    position and orientation). `simulations.theta.VirialChain` and `VirialStar` (polymer models)
+    also build flex diagrams.
+  - Notes: for flexible molecules the singly connected diagrams no longer cancel the disconnected
+    ones. The two blocks meeting at an articulation molecule are correlated through its internal
+    conformation, which rotation cannot average away. The leftover B_n^NBC is zero for rigid models.
+    At third order, B3^NBC = −T1, where T1 is the variance over the root's intramolecular Boltzmann
+    distribution of the B2-like integral ∫f12 dr2 (Eq. 7), so B3^NBC ≤ 0. The terms are computed
+    directly as differences using an "alternate" root molecule (1′, 1″) that shares molecule 1's
+    center and, for three-site models, its orientation (Fig. 1), so that the near-cancelling pieces
+    are sampled together. Methanol's Coulomb interactions need coarse orientational averaging by
+    flipping molecules (2³ or 2⁴ configurations), plus a special move for the four-molecule chain
+    F_4^B. The Wheatley classes above compute only f_B, so for flexible models they give B_n^BC and
+    the uniquely flexible part must be added separately. See also S. Caracciolo, B. M. Mognetti,
+    and A. Pelissetto, J. Chem. Phys. **125**, 094903 (2006) and Macromol. Theory Simul. **17**,
+    67 (2008), which derive the B3 and B4 expressions.
