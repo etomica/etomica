@@ -1291,7 +1291,6 @@ public class GlassProd {
                 for (int j=0; j<2; j++) GlassProd.writeDataToFile(meterFs[i][j], filenameFs[i][j]);
                 GlassProd.writeDataToFile(meterF[i], filenameF[i]);
             }
-            GlassProd.writeDataToFile(meterFs, meterFs.errData, filenameFs);
             GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc, meterPerc3}, filenamePerc);
             GlassProd.writeCombinedDataToFile(new IDataSource[]{meterPerc.makeImmFractionSource(),
                     meterPerc3.makeImmFractionSource()}, filenameImmFrac);
