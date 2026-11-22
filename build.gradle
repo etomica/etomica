@@ -5,7 +5,7 @@ plugins {
 apply plugin: 'eclipse'
 
 wrapper {
-    gradleVersion = '9.5'
+    gradleVersion = '9.9.2'
     distributionType = Wrapper.DistributionType.BIN
 }
 
