@@ -777,7 +777,7 @@ public class GlassProd {
             sfacAB = setupStructureFactor(sim.box, sfacCut, atomSignalAB, params.sfacDataInterval, configStorageMSD, phiA-phiB);
         }
         else {
-            setupStructureFactor(sim.box, sfacCut, atomSignalSimple, params.sfacMinInterval, configStorageMSD, params.density);
+            sfacA = sfacDensity = setupStructureFactor(sim.box, sfacCut, atomSignalSimple, params.sfacMinInterval, configStorageMSD, params.density);
         }
         StructureFactorStuff sfacStress = setupStructureFactor(sim.box, sfacCut, signalStressNormal, params.sfacDataInterval, configStorageMSD, Double.NaN);
 
