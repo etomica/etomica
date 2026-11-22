@@ -20,52 +20,188 @@ import java.util.BitSet;
 import java.util.HashSet;
 
 /**
- * This class calculates the sum of all biconnected clusters using Wheatley's
- * recursive formulation.
- * 
- * @author David Kofke and Andrew Schultz 
+ * Computes the hard-sphere virial-coefficient integrand using Wheatley's recursion for
+ * the sum over all biconnected Mayer diagrams, in exact integer arithmetic, with
+ * screening of zero-valued configurations and lookup tables for small subsets.
+ *
+ * <h2>What is computed</h2>
+ * For hard spheres every Mayer bond is either &minus;1 (overlap) or 0, so the sum
+ * <i>f</i><sub>B</sub> over biconnected diagrams on <i>n</i> points is an integer for
+ * each configuration. {@link #value(BoxCluster)} returns
+ * <blockquote>
+ *   (1 &minus; <i>n</i>) <i>f</i><sub>B</sub>.
+ * </blockquote>
+ * <b>Normalization:</b> this is <i>n</i>! times the value returned by
+ * {@link ClusterWheatleyHS} for the same configuration, which returns
+ * (1 &minus; <i>n</i>) <i>f</i><sub>B</sub>/<i>n</i>!. A driver that switches between the
+ * two classes must account for the factor of <i>n</i>!.
+ *
+ * <h2>Algorithm</h2>
+ * The recursion <i>f</i><sub>Q</sub> &rarr; <i>f</i><sub>C</sub> (connected) &rarr;
+ * <i>f</i><sub>B</sub> (biconnected) follows R. J. Wheatley, Phys. Rev. Lett.
+ * <b>110</b>, 200601 (2013). It differs from {@link ClusterWheatleyHS} in four ways:
+ * <ul>
+ * <li><b>Integer arithmetic.</b> {@code fC}, {@code fA} and {@code fB} are {@code int}
+ *     arrays, so results are exact. The constructor rejects <i>n</i> &gt; 13, where
+ *     {@code int} could overflow.</li>
+ * <li><b>Boolean f<sub>Q</sub>.</b> {@code fQ[S]} is true when some pair in subset
+ *     <i>S</i> overlaps, that is, when the product of e-bonds over <i>S</i> is 0.</li>
+ * <li><b>Precomputed partitions.</b> The constructor lists, for every subset, the
+ *     sub-subsets that each step of the recursion sums over, so each configuration
+ *     visits only valid terms. This uses O(3<sup><i>n</i></sup>) memory.</li>
+ * <li><b>Lookup tables.</b> For every subset of at most {@code nPtsTabulated} points,
+ *     the constructor tabulates f<sub>C</sub>, f<sub>A</sub> and f<sub>A</sub> +
+ *     f<sub>B</sub> (at each articulation-point level) for every possible pattern of
+ *     overlaps (the subset's "signature"). For each configuration,
+ *     {@link #calcSignatures()} finds each small subset's signature and its values are
+ *     looked up instead of computed. If {@code nPtsTabulated} equals <i>n</i>, the
+ *     result is read directly from the table. The tables have
+ *     2<sup><i>p</i>(<i>p</i>&minus;1)/2</sup> entries for <i>p</i> =
+ *     {@code nPtsTabulated}, so construction time and memory grow very rapidly with
+ *     <i>p</i>.</li>
+ * </ul>
+ *
+ * <h2>Screening</h2>
+ * {@link #value(BoxCluster)} first calls {@link #checkConfig(BoxCluster)}, which builds
+ * the overlap graph and returns false (value 0) without running the recursion if
+ * <ul>
+ * <li>exactly one pair does not overlap;</li>
+ * <li>any point overlaps fewer than two others; or</li>
+ * <li>the overlap graph has a clique separator: a clique (a single point, an
+ *     overlapping pair, or a larger set in which every pair overlaps) whose removal
+ *     disconnects the remaining points.</li>
+ * </ul>
+ * If every pair overlaps, the configuration is accepted without the clique search.
+ * {@code checkConfig} also records the statistics returned by {@link #getEdgeCount()},
+ * {@link #getOutDegree()}, {@link #getFullBondMask()}, {@link #getCliques()} and
+ * {@link #getECliques()}.
+ *
+ * <h2>Inputs and conventions</h2>
+ * <ul>
+ * <li>{@code f} must return &minus;1 for an overlapping pair; any other value is
+ *     treated as no overlap. {@link etomica.virial.MayerHardSphere} is the usual
+ *     choice.</li>
+ * <li>Values are cached by the configuration ID of the box's {@link CoordinatePairSet},
+ *     including the configuration before the most recent one, so that a rejected Monte
+ *     Carlo trial does not trigger a recomputation.</li>
+ * </ul>
+ *
+ * <h2>Limitations</h2>
+ * <ul>
+ * <li>{@link #makeCopy()} uses the default {@code nPtsTabulated} of 2, not this
+ *     cluster's value.</li>
+ * <li>{@link #main(String[])}, {@link #updateF()}, the {@code checkme} and
+ *     {@code doStatistics} flags and {@link FrequencyCounter} are development aids.
+ *     Both flags are compile-time false, so {@link #sigCounter} is null.</li>
+ * </ul>
+ *
+ * <p>Drivers: {@link etomica.virial.simulations.hardsphere.VirialHS} and
+ * {@link etomica.virial.simulations.hardsphere.VirialHSBinMultiThreaded}, when run with
+ * {@code nPtsTabulated} &gt; 0 (otherwise they use {@link ClusterWheatleyHS}).
+ *
+ * @author David Kofke and Andrew Schultz
+ * @see ClusterWheatleyHS
  */
 public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
 
+    /** Number of points (n) and number of subsets (2<sup>n</sup>). */
     protected final int n, nf;
+    /** Hard-sphere Mayer function; &minus;1 means overlap. */
     protected final MayerFunction f;
     
+    /** For each subset bitmask, true if some pair in the subset overlaps (product of e-bonds is 0). */
     protected final boolean[] fQ;
+    /**
+     * Recursion values for each subset bitmask: f<sub>A</sub> (articulation-point
+     * diagrams at the current level), f<sub>B</sub>, f<sub>A</sub> + f<sub>B</sub> and
+     * f<sub>C</sub> (connected diagrams).
+     */
     protected final int[] fA, fB, fAB, fC;
+    /** Configuration IDs for the current and previous cached values. */
     protected long cPairID = -1, lastCPairID = -1;
+    /** Current and previous cached values. */
     protected double value, lastValue;
+    /** Reciprocal temperature, passed to the Mayer function. */
     protected double beta;
+    /** Number of overlaps at each point, from the most recent {@link #checkConfig(BoxCluster)}. */
     protected final byte[] outDegree;
+    /**
+     * For each single-point bitmask 1&lt;&lt;i, the bitmask of points that overlap point
+     * i, from the most recent {@link #checkConfig(BoxCluster)}. Other entries are 0.
+     */
     protected final int[] fullBondMask;
+    /** For each subset bitmask, whether it is a clique of overlaps (work array for screening). */
     protected final boolean[] cliqueSet;
+    /** Numbers of overlap cliques and of e-bond cliques from the most recent {@link #checkConfig(BoxCluster)}. */
     protected int cliqueCount, eCliqueCount;
+    /** If true (always, at present), f<sub>Q</sub> is computed during {@link #checkConfig(BoxCluster)}. */
     protected boolean precalcQ = true;
+    /** Lists of overlap cliques and e-bond cliques, as subset bitmasks. */
     protected final int[] cliqueList, eCliqueList;
     
 //    protected final int[] nBonds;
+    /** Number of points in each subset, indexed by subset bitmask. */
     protected final int[] nPts;
+    /** Work array: articulation-point level reached for each tabulated subset. */
     protected final int[] vCount;
+    /** Overlap signature of each tabulated subset: one bit per pair, set if the pair overlaps. */
     protected final int[] sig;
+    /**
+     * Precomputed partitions for the f<sub>A</sub> sums: {@code partitionsA[v][i]} lists,
+     * in ascending order, the proper subsets of i that contain point v and the lowest
+     * point of i other than v; null if i does not contain v or has fewer than three
+     * points.
+     */
     protected final int[][][] partitionsA;
+    /**
+     * Precomputed partitions for the f<sub>C</sub> sums: {@code partitionsC[i]} lists, in
+     * ascending order, the proper subsets of i that contain the lowest point of i.
+     */
     protected final int[][] partitionsC;
     long bigSum1, bigSum2, count, bigSumN, bigSumNCount;
 
+    /** Tabulated f<sub>A</sub> values: {@code fAList[p][signature][v]} for subsets of p points. */
     protected final int[][][] fAList;
+    /** Tabulated f<sub>A</sub> + f<sub>B</sub> values: {@code fABList[p][signature][v]} for subsets of p points. */
     protected final int[][][] fABList; 
+    /** Tabulated f<sub>C</sub> values: {@code fCList[p][signature]} for subsets of p points. */
     protected final int[][] fCList;
+    /** Shared all-zero table row, used for signatures with too few overlaps to be connected. */
     protected final int[] allZero;
     
+    /** Table rows looked up for each subset of the current configuration; null if not tabulated. */
     protected final int[][] fAValues, fABValues;
+    /** Subsets of at most this many points are tabulated (at most n). */
     protected final int nPtsTabulated;//tabulate fA,fAB,fC values for all graphs up to this size
+    /** Development flag: if true, tabulated values are checked against computed ones. */
     protected static final boolean checkme = false;
+    /** Development flag: if true, signature frequencies and maximum magnitudes are recorded. */
     protected final boolean doStatistics = false;
+    /** Signature frequency counters, one per subset size; null unless {@code doStatistics} is true. */
     public final FrequencyCounter[] sigCounter;
     long maxA, maxB, maxAB, maxC, maxQ;
 
+    /**
+     * Creates the cluster, tabulating subsets of up to two points.
+     *
+     * @param nPoints number of points, n, at most 13
+     * @param f       hard-sphere Mayer function (&minus;1 for overlap)
+     * @throws IllegalArgumentException if nPoints &gt; 13
+     */
     public ClusterWheatleyPartitionScreening(int nPoints, MayerFunction f) {
         this(nPoints, f, 2);
     }
 
+    /**
+     * Creates the cluster, precomputing the partition lists and the lookup tables.
+     *
+     * @param nPoints       number of points, n, at most 13
+     * @param f             hard-sphere Mayer function (&minus;1 for overlap)
+     * @param nPtsTabulated tabulate subsets of up to this many points (reduced to n if
+     *                      larger); the tables have 2<sup>p(p&minus;1)/2</sup> entries
+     *                      for p = nPtsTabulated
+     * @throws IllegalArgumentException if nPoints &gt; 13
+     */
     public ClusterWheatleyPartitionScreening(int nPoints, MayerFunction f, int nPtsTabulated) {
         this.n = nPoints;
         if(nPoints > 13) throw new IllegalArgumentException("fA, fB, etc need to be long instead of int for nPoints > 13");
@@ -131,29 +267,13 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
    }
     
     private final int[] computeCPartitions(int i) {
-        
-        int partitionCount = 0;
-        int[] iPartitions = new int[10];//start with arbitrary length and resize as needed
-
+        // proper subsets j of i that contain the lowest bit of i, in ascending order
         int iLowBit = i & -i;
-        int inc = iLowBit<<1;
-        for(int j=iLowBit; j<i; j+=inc) {
-            int jComp = i & ~j;
-            while ((j|jComp) != i && j<i) {
-                int jHighBits = j^iLowBit;
-                int jlow = jHighBits & -jHighBits;
-                j += jlow;
-                jComp = (i & ~j);
-            }
-            if (j==i) break;
-            partitionCount++;
-            if(iPartitions.length < partitionCount) {
-                iPartitions = Arrays.copyOf(iPartitions, partitionCount+10);
-            }
-            iPartitions[partitionCount-1] = j;            
-        }
-        if(iPartitions.length > partitionCount) {
-            iPartitions = Arrays.copyOf(iPartitions, partitionCount);
+        int rest = i ^ iLowBit;
+        int[] iPartitions = new int[(1 << Integer.bitCount(rest)) - 1];
+        int k = 0;
+        for (int s = 0; s != rest; s = (s - rest) & rest) {
+            iPartitions[k++] = iLowBit | s;
         }
         return iPartitions;
     }
@@ -168,78 +288,36 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
         }
     }
         
+    /**
+     * Lists the partitions summed over when computing f<sub>A</sub> for subset i at
+     * articulation point v.
+     *
+     * @param vs1 the bitmask of point v (1&lt;&lt;v)
+     * @param i   the subset bitmask
+     * @return the proper subsets of i that contain v and the lowest point of i other
+     *         than v, in ascending order; null if i does not contain v or has fewer than
+     *         three points
+     */
     protected int[] computeAPartitions(int vs1, int i) {
         
         if((vs1 & i)==0 || (nPts[i]<3)) return null;
-        
-        int partitionCount = 0;
-        int[] iPartitions = new int[10];//start with arbitrary length and resize as needed
-        
+
+        // proper subsets j of i that contain v and the lowest bit of i other than v,
+        // in ascending order
         int iLowBit = (i&-i);//lowest bit in i
-        int ii = i ^ iLowBit;//strip off low bit
-        int iLow2Bit = (ii & -ii);//second-lowest bit in i
-        
-        if (iLowBit != vs1 && iLow2Bit != vs1) {
-            //v is not in the lowest 2 bits
-            
-            int jBits = iLowBit | vs1;// jBits is the lowest bit and v
-
-            //increment by the 2nd-lowest bit to ensure lowest bit is always there
-            int jInc = iLow2Bit;
-
-            //at this point jBits has (lowest bit + v)
-            for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i
-                if ((j & jBits) != jBits) {//ensure jBits are in j
-                    j |= vs1;//add v back in (v must be the missing bit, because jInc ensures lowbit is in j)
-                    if (j==i) break;
-                }
-                int jComp = i & ~j;//subset of i complementing j
-                while ((j|jComp) != i && j<i) {
-                    int jHighBits = j^jBits;
-                    int jlow = jHighBits & -jHighBits;
-                    j += jlow; // this might knock out the v bit
-                    j |= vs1;
-                    jComp = (i & ~j);
-                }
-                if (j==i) break;
-                partitionCount++;
-                if(iPartitions.length < partitionCount) {
-                    iPartitions = Arrays.copyOf(iPartitions, partitionCount+10);
-                }
-                iPartitions[partitionCount-1] = j;
-            }
-        } 
-        else {
-            //v is one of the lowest 2 bits
-            
-            // we can start at jBits and increment by the 3rd lowest bit
-            int jBits = iLowBit | iLow2Bit;// jBits is the lowest 2 bits, which includes v
-//            if (jBits == i) return null; // no bits left for jComp (**don't need this, because of nPts check above)
-            
-            int iii = ii ^ iLow2Bit;//i with 2 lowest bits off
-            int jInc = (iii & -iii);//3rd lowest bit, also increment for j
-
-            //at this point jBits has (lowest bit + v) or (v + next lowest bit)
-            for (int j=jBits; j<i; j+=jInc) {//sum over partitions of i containing jBits
-                // start=jBits and jInc ensure that every set includes jBits
-                int jComp = i & ~j;//subset of i complementing j
-                while ((j|jComp) != i && j<i) {
-                    int jHighBits = j^jBits;
-                    int jlow = jHighBits & -jHighBits;
-                    j += jlow;
-                    jComp = (i & ~j);
-                }
-                if (j==i) break;
-                partitionCount++;
-                if(iPartitions.length < partitionCount) {
-                    iPartitions = Arrays.copyOf(iPartitions, partitionCount+10);
-                }
-                iPartitions[partitionCount-1] = j;
-            }
+        int jBits;
+        if (iLowBit == vs1) {
+            int ii = i ^ iLowBit;
+            jBits = vs1 | (ii & -ii);
         }
-        
-        if(iPartitions.length > partitionCount) {
-            iPartitions = Arrays.copyOf(iPartitions, partitionCount);
+        else {
+            jBits = iLowBit | vs1;
+        }
+        int rest = i ^ jBits;
+        int[] iPartitions = new int[(1 << Integer.bitCount(rest)) - 1];
+        int k = 0;
+        for (int s = 0; s != rest; s = (s - rest) & rest) {
+            iPartitions[k++] = jBits | s;
         }
         return iPartitions;
     }
@@ -323,16 +401,29 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
         return nPts*(nPts-1)/2;
     }
 
+    /**
+     * Returns a new cluster with the same points, Mayer function and temperature. Note
+     * that the copy tabulates subsets of up to two points, whatever this cluster uses.
+     */
     public ClusterAbstract makeCopy() {
         ClusterWheatleyPartitionScreening c = new ClusterWheatleyPartitionScreening(n, f);
         c.setTemperature(1/beta);
         return c;
     }
 
+    /** Returns the number of points, n. */
     public int pointCount() {
         return n;
     }
 
+    /**
+     * Returns (1 &minus; n) f<sub>B</sub> for the box's current configuration, or 0 if it
+     * is screened out. See the class description for the normalization, which differs
+     * from {@link ClusterWheatleyHS} by a factor of n!.
+     *
+     * @param box the box holding the configuration
+     * @return the integer-valued cluster value
+     */
     public double value(BoxCluster box) {
       CoordinatePairSet cPairs = box.getCPairSet();
       long thisCPairID = cPairs.getID();
@@ -363,21 +454,27 @@ public class ClusterWheatleyPartitionScreening implements ClusterWheatley {
       return value;
     }
 
+    /** {@return the configuration ID of the current cached value} */
     public long getCPairID() {
         return cPairID;
     }
     
+    /** {@return the configuration ID of the previous cached value} */
     public long getLastCPairID() {
         return lastCPairID;
     }
 
+    /** {@return the previous cached value} */
     public double getLastValue() {
         return lastValue;
     }
 
     /**
-     * This calculates all fQ values given that the entries for pairs have
-     * already been populated.
+     * Fills {@link #fQ} for every subset of three or more points, given that the pair
+     * entries have already been set by {@link #updateF(BoxCluster)}, and lists the
+     * e-bond cliques (subsets with no overlapping pair).
+     *
+     * @param box the box holding the configuration (not used)
      */
     protected void calcfQ(BoxCluster box) {
         eCliqueCount = 0;
@@ -404,7 +501,9 @@ loop1:  for (int i=7; i<nf; i++) {
     }
     
     /**
-     * Compute signatures used for lookup tables of fA, fAB, fC
+     * Computes the overlap signature of every subset of at most {@code nPtsTabulated}
+     * points and looks up its tabulated f<sub>A</sub>, f<sub>A</sub> + f<sub>B</sub> and
+     * f<sub>C</sub> values.
      */
     protected void calcSignatures() {
         
@@ -447,6 +546,15 @@ loop1:  for (int i=7; i<nf; i++) {
     }
 
 
+    /**
+     * Evaluates the Mayer function (via {@link #updateF(BoxCluster)}), builds the overlap
+     * graph and applies the screening tests described in the class description. If the
+     * configuration is not screened out, also computes f<sub>Q</sub> and records the
+     * statistics returned by the getters.
+     *
+     * @param box the box holding the configuration
+     * @return false if the value is zero for this configuration; true otherwise
+     */
     public boolean checkConfig(BoxCluster box) {
         if (false && total>0 && total%100000==0) {
             System.out.println("screened: "+((double)screened)/total+"     zero-not-screened: "+((double)(total-screened-notzero))/(total-screened));
@@ -540,8 +648,12 @@ iLoop:  for (int i=1; i<nf-3; i++) {
     }
 
     /**
-     * Checks to see if the set |clique| is a clique separator.  The graph
-     * connectivity is described by the fullBondMask array.
+     * Checks whether a set is a separator: whether removing it leaves the remaining
+     * points disconnected in the overlap graph described by {@link #fullBondMask}.
+     *
+     * @param clique the bitmask of the set to test
+     * @param nfm1   the bitmask of all points, 2<sup>n</sup> &minus; 1
+     * @return true if the set separates the graph
      */
     protected boolean cliqueCheck(int clique, int nfm1) {
         int cComp = nfm1^clique;
@@ -573,16 +685,25 @@ iLoop:  for (int i=1; i<nf-3; i++) {
     }
 
     /**
-     * Returns the cluster value for the given configuration.  You must call
-     * doCheck(BoxCluster) before calling this method.
+     * Runs the recursion and returns the value, without screening.
+     * {@link #checkConfig(BoxCluster)} must have been called first for this
+     * configuration (it computes f<sub>Q</sub>). Most callers should use
+     * {@link #value(BoxCluster)}.
+     *
+     * @param box the box holding the configuration
+     * @return (1 &minus; n) f<sub>B</sub>
      */
     public double calcValue(BoxCluster box) {
         calcValue(box, false);
         return value;
     }
 
-    /*
-     * Computation of sum of biconnected diagrams.
+    /**
+     * Computes the value and stores it in {@link #value}.
+     *
+     * @param box     the box holding the configuration
+     * @param doCheck if true, call {@link #checkConfig(BoxCluster)} first and set the
+     *                value to 0 if the configuration is screened out
      */
     protected void calcValue(BoxCluster box, boolean doCheck) {
         if (doCheck && !checkConfig(box)) {
@@ -660,6 +781,12 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         }
     }
     
+    /**
+     * Computes f<sub>C</sub> for every subset.
+     *
+     * @param useTable if true, skip subsets whose value was looked up by
+     *                 {@link #calcSignatures()}
+     */
     protected final void calcfC(final boolean useTable) {
 
         for(int i=1; i<nf; i++) {
@@ -686,6 +813,14 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         }
     }
     
+    /**
+     * Applies articulation-point level v of the recursion: computes f<sub>A</sub>
+     * (diagrams with an articulation point at v but none below) and removes it from
+     * f<sub>B</sub>, for every subset.
+     *
+     * @param v        the articulation point, 0 &le; v &lt; n
+     * @param useTable if true, use tabulated values where available
+     */
     protected final void calcfAB(int v, final boolean useTable) {
         
         if(v == 0) {
@@ -765,6 +900,11 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         }//end of i-loop
     }
 
+    /**
+     * Applies articulation-point level 0 of the recursion; see {@link #calcfAB(int, boolean)}.
+     *
+     * @param useTable if true, use tabulated values where available
+     */
     protected final void calcfAB0(final boolean useTable) {
 
         for (int i=2; i<nf; i+=2) {// all even sets don't contain 1
@@ -808,46 +948,70 @@ iLoop:  for (int i=1; i<nf-3; i++) {
 
     }
     
-    /**
-     * Returns edgeCount (number of overlaps) of configuration passed to
-     * checkConfig
-     */
+    /** Returns the number of overlapping pairs found by the most recent {@link #checkConfig(BoxCluster)}. */
     public int getEdgeCount() {
         return edgeCount;
     }
     
+    /**
+     * Returns the number of overlap cliques found by the most recent
+     * {@link #checkConfig(BoxCluster)}. When every pair overlaps, this is set to
+     * 2<sup>n</sup> &minus; n &minus; n(n&minus;1)/2 and the list returned by
+     * {@link #getCliques()} is not filled.
+     */
     public int getCliqueCount() {
         return cliqueCount;
     }
     
+    /**
+     * Returns the number of e-bond cliques (subsets of three or more points with no
+     * overlapping pair) found by the most recent {@link #checkConfig(BoxCluster)}.
+     */
     public int getECliqueCount() {
         return eCliqueCount;
     }
     
+    /** Returns {@link #fullBondMask}, an internal array. */
     public int[] getFullBondMask() {
         return fullBondMask;
     }
     
+    /**
+     * Returns the overlap cliques of three or more points as subset bitmasks. Only the
+     * first {@link #getCliqueCount()} entries are valid. This is an internal array.
+     */
     public int[] getCliques() {
         return cliqueList;
     }
     
+    /**
+     * Returns the e-bond cliques as subset bitmasks. Only the first
+     * {@link #getECliqueCount()} entries are valid. This is an internal array.
+     */
     public int[] getECliques() {
         return eCliqueList;
     }
 
     /**
-     * Returns outDegee (number of bonds for each point) of the configuration
-     * passed to checkConfig
+     * Returns the number of overlaps at each point, from the most recent
+     * {@link #checkConfig(BoxCluster)}. This is an internal array.
      */
     public byte[] getOutDegree() {
         return outDegree;
     }
 
+    /** Counts of configurations checked, found non-zero, and screened out. */
     protected long total, notzero, screened;
+    /** Number of overlapping pairs from the most recent {@link #checkConfig(BoxCluster)}. */
     protected int edgeCount;
     HashSet<String> zeroMaps = new HashSet<String>();
 
+    /**
+     * Evaluates the Mayer function for every pair and sets the pair entries of
+     * {@link #fQ} (true for overlap).
+     *
+     * @param box the box holding the configuration
+     */
     protected void updateF(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
         AtomPairSet aPairs = box.getAPairSet();
@@ -861,6 +1025,14 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         }
     }
     
+    /**
+     * Returns a bitmask with one bit per pair (in the order (0,1), (0,2), &hellip;,
+     * (1,2), &hellip;), set if the Mayer function is non-zero for that pair. Used only
+     * for debugging.
+     *
+     * @param box the box holding the configuration
+     * @return the pair bitmask
+     */
     public long calcSignature(BoxCluster box) {
         CoordinatePairSet cPairs = box.getCPairSet();
         AtomPairSet aPairs = box.getAPairSet();
@@ -880,7 +1052,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         return sig;
     }
     
-    //for development purposes.  Configure bonds by hand.
+    /** Development aid: sets a hand-chosen bond pattern instead of evaluating the Mayer function. */
     protected void updateF() {
         for(int i=0; i<n-1; i++) {
             for(int j=i+1; j<n; j++) {
@@ -892,11 +1064,21 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         fQ[(1<<1)|(1<<2)] = false;
     }
 
+    /**
+     * Sets the temperature passed to the Mayer function (hard-sphere results do not
+     * depend on it).
+     *
+     * @param temperature the temperature, in simulation energy units (kT)
+     */
     public void setTemperature(double temperature) {
         beta = 1/temperature;
     }
     
-    //class used to track the frequency of occurrence of graph signatures
+    /**
+     * Development aid that records how often each overlap signature occurs for subsets of
+     * a given size, to judge how much of the work tabulation would save. Used only when
+     * {@code doStatistics} is true.
+     */
     public final class FrequencyCounter {
         final int n;
         final int nfreq;
@@ -971,6 +1153,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
         int[] getSigs() {
             return sigs;
         }
+        /** Prints each signature that occurred more than once, with its frequency. */
         public void print() {
             System.out.println("Signature frequencies for n = "+n);
             double[] fractions = getFractions();
@@ -979,6 +1162,7 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             }
             System.out.println();
         }
+        /** {@return the fraction of recorded occurrences held in the counter's table} */
         public double fractionTabulated() {
             int sum = 0;
             for(int i=0; i<nfreq; i++) {
@@ -986,14 +1170,21 @@ iLoop:  for (int i=1; i<nf-3; i++) {
             }
             return (double)sum/counter;
         }
+        /** {@return the subset size this counter records} */
         public int getn() {
             return n;
         }
+        /** {@return the number of distinct signatures held} */
         public int getEntries() {
             return entries;
         }
     }
     
+    /**
+     * Development aid: evaluates a hand-chosen bond pattern for six points.
+     *
+     * @param args not used
+     */
     public static void main(String[] args) {
         int n = 6;
         BitSet bits = new BitSet(20);
