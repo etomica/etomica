@@ -20,6 +20,8 @@ import etomica.util.ParseArgs;
 import etomica.util.Statefull;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -279,6 +281,15 @@ public class GlassProd {
         return new StructureFactorMobilityStuff2(meter, fork);
     }
 
+    public static void deleteSavedObjects() {
+        try {
+            Files.deleteIfExists(Path.of("glass.state"));
+        }
+        catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public static void main(String[] args) {
         double startTime = System.nanoTime()/1e9;
         SimParams params = new SimParams();
@@ -339,6 +350,7 @@ public class GlassProd {
         int savedStage = 0; // last stage from previous run.  0 means no previous run
         // we need to know how far we got before reading glass.state so that we know what objects to try to read
         boolean haveSavedState = new File("glass.steps").exists();
+        long totalDesiredSteps = params.numSteps;
         if (haveSavedState) {
             try {
                 BufferedReader br = new BufferedReader(new FileReader("glass.steps"));
@@ -356,6 +368,7 @@ public class GlassProd {
             params.numStepsEqIsothermal -= savedSteps.numStepsEqIsothermal;
             params.numStepsIsothermal -= savedSteps.numStepsIsothermal;
             params.numSteps -= savedSteps.numSteps;
+            // stepsState now holds how many steps have finished, params holds how many more steps are needed
         }
         List<Statefull> objects = new ArrayList<>();
         objects.add(sim.box);
@@ -1071,14 +1084,21 @@ public class GlassProd {
         long time0 = System.nanoTime();
         maxTime = params.maxWalltime - (System.nanoTime()/1e9 - startTime);
         sim.getController().runActivityBlocking(new ActivityIntegrate(sim.integrator, params.numSteps, false, maxTime, skipReset));
-        if (System.nanoTime()/1e9 - startTime >= params.maxWalltime) {
+        boolean allDone = sim.integrator.getStepCount() == totalDesiredSteps;
+        if (!allDone) {
             // we've reached our time limit
             // set our production steps to what we were able to actually run
             params.numSteps = sim.integrator.getStepCount();
             System.out.println(params.numSteps+" steps of production finished before time limit");
         }
         if (params.numSteps>0) stepsState.numSteps = sim.integrator.getStepCount();
-        saveObjects(stepsState, objects);
+        if (allDone) {
+            // once we do the steps we wanted to, delete glass.state since we cannot continue anymore
+            deleteSavedObjects();
+        }
+        else {
+            saveObjects(stepsState, objects);
+        }
 
         try {
             FileWriter fwSimJson = new FileWriter("sim.json");
