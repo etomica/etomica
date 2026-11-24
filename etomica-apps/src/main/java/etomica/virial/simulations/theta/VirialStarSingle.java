@@ -49,6 +49,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import etomica.zeno.MeterZENO;
+import etomica.zeno.WalkerExterior;
 
 
 
@@ -60,14 +62,15 @@ public class VirialStarSingle {
        if (args.length > 0) {
             ParseArgs.doParseArgs(params, args);
         } else {
-            params.armLength = 4;
+            params.armLength = 60;
             params.numArms = 4;
-            params.temperature = 3;
-            params.numSteps = 100000;
-            params.coreSigma = 16.0;  //new
+            params.temperature = 10;
+            params.numSteps = 200000;
+            params.coreSigma = 1.0;  //new
             params.epsCore = 1.0;// new
             params.ideal = false;
             params.rc = 2.5;
+            params.zenoWalks=5000;
 
         }
         int numArms = params.numArms;
@@ -249,7 +252,8 @@ public class VirialStarSingle {
 
 
         if (false) {
-    double size = (2*armLength + 5) * 1.5;
+    //double size = (2*armLength + 5) * 1.5;
+    double size = 50;
     sim.box().getBoundary().setBoxSize(Vector.of(new double[]{size, size, size}));
     sim.getController().addActivity(new ActivityIntegrate(integrator), Long.MAX_VALUE, 10);
     SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE, "Star Single", 1);
@@ -358,6 +362,45 @@ public class VirialStarSingle {
         integrator.getEventManager().addListener(pumpcomponentsRg);
         integrator.getEventManager().addListener(pumpComponentsRgCore); //new for core
 
+
+        // Hydrodynamic radius (Rh) using ZENO
+
+        double[] zenoSigma = {params.coreSigma, 1.0};
+        MeterZENO meterZeno =
+                new MeterZENO(sim.box(), sim.getRandom(), zenoSigma, false, WalkerExterior.Shape.SPHERE);
+        meterZeno.setEigenvaluesForPade(true);
+
+        long zenoWalks = params.zenoWalks;
+        int zenoInterval = params.zenoInterval;
+         //long zenoWalks = 5000;
+         //int zenoInterval = 1000;
+
+
+        meterZeno.setNumWalks(zenoWalks);
+// charge distribution: COM weights same as core-aware Rg
+        double[] massByType = new double[2];
+        massByType[typeCore.getIndex()] = coreWeight;
+        massByType[typeMono.getIndex()] = 1.0;
+        meterZeno.setMassByType(massByType);
+        meterZeno.setChargeBinWidth(params.chargeBinWidth);
+/*     MeterZENO.MeterHydrodynamicRadius meterRh =
+                meterZeno.makeMeterHydrodynamicRadius();
+
+        AccumulatorAverageFixed accRh =
+                new AccumulatorAverageFixed(10);
+
+        DataPumpListener pumpRh =
+                new DataPumpListener(meterRh, accRh, zenoInterval);
+
+        integrator.getEventManager().addListener(pumpRh); */
+        AccumulatorAverageFixed accZeno =
+                new AccumulatorAverageFixed(10);
+
+        DataPumpListener pumpZeno =
+                new DataPumpListener(meterZeno, accZeno, zenoInterval);
+
+        integrator.getEventManager().addListener(pumpZeno);
+
         XYZWriter xyzWriter = new XYZWriter(sim.box());
         xyzWriter.setFileName("star.xyz");
         xyzWriter.setIsAppend(true);
@@ -376,30 +419,44 @@ public class VirialStarSingle {
         //if (shuffleMove!=null) System.out.println("Shuffle move acceptance " + shuffleMove.getTracker().acceptanceProbability());
         System.out.println();
 
-        double avgRg = accRg.getData(accRg.AVERAGE).getValue(0);
+         double avgRg = accRg.getData(accRg.AVERAGE).getValue(0);
         double errRg = accRg.getData(accRg.ERROR).getValue(0);
         double corRg = accRg.getData(accRg.BLOCK_CORRELATION).getValue(0);
+        IData zenoAvg = accZeno.getData(accZeno.AVERAGE);
+        IData zenoErr = accZeno.getData(accZeno.ERROR);
+        IData zenoCor = accZeno.getData(accZeno.BLOCK_CORRELATION);
+        // index 0 = Rh, index 5 = intrinsic viscosity (per bead)
+        double avgRh = zenoAvg.getValue(0);
+        double errRh = zenoErr.getValue(0);
+        double corRh = zenoCor.getValue(0);
+        double avgEta = zenoAvg.getValue(5);
+        double errEta = zenoErr.getValue(5);
+        double corEta = zenoCor.getValue(5);
 
         DataVector componentsavgRg = (DataVector) accComponents.getData(accComponents.AVERAGE);
         DataVector componentserrRg = (DataVector) accComponents.getData(accComponents.ERROR);
         DataVector componentscorRg = (DataVector) accComponents.getData(accComponents.BLOCK_CORRELATION);
         //new for core
 
-        DataVector componentsavgRgCore = (DataVector) accComponentsCore.getData(accComponentsCore.AVERAGE);
-        DataVector componentserrRgCore = (DataVector) accComponentsCore.getData(accComponentsCore.ERROR);
-        DataVector componentscorRgCore = (DataVector) accComponentsCore.getData(accComponentsCore.BLOCK_CORRELATION);
+        IData avgCore = accComponentsCore.getData(accComponentsCore.AVERAGE);
+        IData errCore = accComponentsCore.getData(accComponentsCore.ERROR);
+        IData corCore = accComponentsCore.getData(accComponentsCore.BLOCK_CORRELATION);
 
-        double Rg2xCore = componentsavgRgCore.x.getX(0);
-        double Rg2yCore = componentsavgRgCore.x.getX(1);
-        double Rg2zCore = componentsavgRgCore.x.getX(2);
-        double Rg2Core = Rg2xCore + Rg2yCore + Rg2zCore;   // scalar total
-        double Rg2xCore_err = componentserrRgCore.x.getX(0);
-        double Rg2yCore_err = componentserrRgCore.x.getX(1);
-        double Rg2zCore_err = componentserrRgCore.x.getX(2);
+        double Rg2xCore = avgCore.getValue(0);
+        double Rg2yCore = avgCore.getValue(1);
+        double Rg2zCore = avgCore.getValue(2);
+        double Rg2Core  = avgCore.getValue(3);
+        double Rg2xCore_err = errCore.getValue(0);
+        double Rg2yCore_err = errCore.getValue(1);
+        double Rg2zCore_err = errCore.getValue(2);
+        double Rg2Core_err  = errCore.getValue(3);
+        double Rg2xCore_cor = corCore.getValue(0);
+        double Rg2yCore_cor = corCore.getValue(1);
+        double Rg2zCore_cor = corCore.getValue(2);
+        double Rg2Core_cor  = corCore.getValue(3);
+        double RgCore       = Math.sqrt(Rg2Core);
+        double RgCore_err   = Rg2Core_err / (2.0 * RgCore);
 
-        double Rg2xCore_cor = componentscorRgCore.x.getX(0);
-        double Rg2yCore_cor = componentscorRgCore.x.getX(1);
-        double Rg2zCore_cor = componentscorRgCore.x.getX(2);
 
         //System.out.println("componentsRg2: "+componentsavgRg+" componentserr: "+componentserrRg+" componentscor: "+componentscorRg);
         double componentsRg2x= componentsavgRg.x.getX(0);
@@ -426,6 +483,19 @@ public class VirialStarSingle {
         System.out.println("Rg2 (core-aware): " + Rg2Core
                 + "   x: " + Rg2xCore + " y: " + Rg2yCore + " z: " + Rg2zCore);//newcore
 
+        // Hydrodynamic radius results
+
+        /*double avgRh = accRh.getData(accRh.AVERAGE).getValue(0);
+        double errRh = accRh.getData(accRh.ERROR).getValue(0);
+        double corRh = accRh.getData(accRh.BLOCK_CORRELATION).getValue(0);*/
+
+        System.out.println("Rh: " + avgRh
+                + "   err: " + errRh
+                + "   cor: " + corRh);
+        System.out.println("Core type index: " + typeCore.getIndex());
+        System.out.println("Mono type index: " + typeMono.getIndex());
+        System.out.println("eta: " + avgEta + "   err: " + errEta + "   cor: " + corEta);
+
 
         IData avgProfile = accProfile.getData(accProfile.AVERAGE);
         IData errProfile = accProfile.getData(accProfile.ERROR);
@@ -450,18 +520,21 @@ public class VirialStarSingle {
             if (!fileExists) {
                 fw.write("numArms,armLength,coreSigma,epsCore,ideal,temperature,Rg2,Rg2_err,Rg,Rg_err,correlation," +
                         "Rg2x,Rg2x_err,Rg2x_cor,Rg2y,Rg2y_err,Rg2y_cor,Rg2z,Rg2z_err,Rg2z_cor," +
-                        "Rg2xCore,Rg2yCore,Rg2zCore,Rg2Core,\"Rg2xCore,Rg2xCore_err,Rg2xCore_cor,Rg2yCore,Rg2yCore_err,Rg2yCore_cor,Rg2zCore,Rg2zCore_err,Rg2zCore_cor,Rg2Core,numSteps\n");
-
+                        "Rg2xCore,Rg2xCore_err,Rg2xCore_cor,Rg2yCore,Rg2yCore_err,Rg2yCore_cor," +
+                        "Rg2zCore,Rg2zCore_err,Rg2zCore_cor,Rg2Core,Rg2Core_err,Rg2Core_cor,RgCore,RgCore_err,numSteps\n");
             }
 
             String idealStr = params.ideal ? "IDEAL" : String.format("%.2f", params.temperature);
-            fw.write(String.format("%d,%d,%.2f,%.2f,%s,%s,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%d%n",
+            fw.write(String.format("%d,%d,%.2f,%.2f,%s,%s,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%.8f,%d%n",
                     params.numArms, params.armLength, params.coreSigma, params.epsCore, params.ideal, idealStr,
                     avgRg, errRg, Math.sqrt(avgRg), errRg/(2*Math.sqrt(avgRg)), corRg,
                     componentsRg2x, componentserrx, componentscorx,
                     componentsRg2y, componentserry, componentscory,
                     componentsRg2z, componentserrz, componentscorz,
-                    Rg2xCore, Rg2yCore, Rg2zCore, Rg2Core,
+                    Rg2xCore, Rg2xCore_err, Rg2xCore_cor,
+                    Rg2yCore, Rg2yCore_err, Rg2yCore_cor,
+                    Rg2zCore, Rg2zCore_err, Rg2zCore_cor,
+                    Rg2Core, Rg2Core_err, Rg2Core_cor, RgCore, RgCore_err,
                     params.numSteps));
             System.out.println("Results written to: " + outputFile);
         } catch (Exception e) {
@@ -491,6 +564,32 @@ public class VirialStarSingle {
         } catch (Exception e) {
             System.err.println("Warning: Could not write to profile.csv: " + e.getMessage());
         }
+        // --- charge distribution P(r) ---
+        double[] bins = meterZeno.getChargeBins();
+        long nConf = meterZeno.getChargeConfs();
+        double dr = params.chargeBinWidth;
+        double totalCharge = 0;
+        String chargeFile = System.getProperty("user.dir") + "/charge.csv";
+        boolean chargeExists = new java.io.File(chargeFile).exists();
+        try (FileWriter fw = new FileWriter(chargeFile, true)) {
+            if (!chargeExists) {
+                fw.write("numArms,armLength,coreSigma,epsCore,ideal,temperature,Rh,binWidth,nConf,r,r_over_Rh,C3P\n");
+            }
+            for (int k = 0; k < bins.length; k++) {
+                double r = (k + 0.5) * dr;                     // bin center
+                double q = bins[k] / nConf;                    // avg charge in shell
+                totalCharge += q;
+                double rho = q / (4 * Math.PI * r * r * dr);   // charge density
+                double y = avgRh * avgRh * rho;                // = C^3 P(r), P with unit total charge
+                fw.write(String.format("%d,%d,%.2f,%.2f,%s,%.4f,%.8f,%.4f,%d,%.6f,%.8f,%.8f%n",
+                        numArms, armLength, params.coreSigma, params.epsCore, params.ideal, temperature,
+                        avgRh, dr, nConf, r, r / avgRh, y));
+            }
+            System.out.println("Charge distribution written to: " + chargeFile);
+        } catch (Exception e) {
+            System.err.println("Warning: Could not write to charge.csv: " + e.getMessage());
+        }
+        System.out.println("charge check: total charge " + totalCharge + " vs Rh " + avgRh);
         System.out.println("time: "+(t3-t2)/1e9);
     }
 
@@ -503,6 +602,9 @@ public class VirialStarSingle {
         public long numSteps = 1000000;
         public int numArms = 2;
         public boolean ideal = false;
+        public long zenoWalks = 2000;
+        public int zenoInterval = 1000;
+        public double chargeBinWidth = 0.1;   // bin width (sigma units) for charge distribution
         // NEW
         public double coreSigma = 1.0;  // σ_core (also used in LJ)
         public double epsCore   = 1.0;  // ε_core

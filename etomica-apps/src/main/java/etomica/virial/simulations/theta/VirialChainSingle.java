@@ -39,6 +39,9 @@ import etomica.virial.mcmove.MCMoveClusterAngle;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.FileWriter;
+import etomica.zeno.MeterZENO;
+import etomica.zeno.WalkerExterior;
 
 /**
  * Single-molecule calculations for input into theta temperature calculations
@@ -249,6 +252,17 @@ public class VirialChainSingle {
         AccumulatorAverageFixed accRg = new AccumulatorAverageFixed(steps/1000);
         DataPumpListener pumpRg = new DataPumpListener(meterRg, accRg, 10);
         integrator.getEventManager().addListener(pumpRg);
+        // ---- ZENO: Rh, intrinsic viscosity, charge distribution ----
+        double[] zenoSigma = new double[1];
+        zenoSigma[type.getIndex()] = 1.0;                  // the only atom type, diameter 1
+        MeterZENO meterZeno = new MeterZENO(sim.box(), sim.getRandom(), zenoSigma, false, WalkerExterior.Shape.SPHERE);
+        meterZeno.setEigenvaluesForPade(true);
+        meterZeno.setNumWalks(params.zenoWalks);
+        meterZeno.setChargeBinWidth(params.chargeBinWidth);
+        AccumulatorAverageFixed accZeno = new AccumulatorAverageFixed(10);
+        DataPumpListener pumpZeno = new DataPumpListener(meterZeno, accZeno, params.zenoInterval);
+        integrator.getEventManager().addListener(pumpZeno);
+
 
         ai = new ActivityIntegrate(integrator, steps);
         sim.getController().runActivityBlocking(ai);
@@ -277,7 +291,46 @@ public class VirialChainSingle {
 
         System.out.println("Rg2: "+avgRg+"   err: "+errRg+"  cor: "+corRg);
 
+
+        // ---- ZENO results ----
+        IData zenoAvg = accZeno.getData(accZeno.AVERAGE);
+        IData zenoErr = accZeno.getData(accZeno.ERROR);
+        IData zenoCor = accZeno.getData(accZeno.BLOCK_CORRELATION);
+        double avgRh = zenoAvg.getValue(0), errRh = zenoErr.getValue(0), corRh = zenoCor.getValue(0);
+        double avgEta = zenoAvg.getValue(5), errEta = zenoErr.getValue(5), corEta = zenoCor.getValue(5);
+        System.out.println("Rh: " + avgRh + "   err: " + errRh + "   cor: " + corRh);
+        System.out.println("eta: " + avgEta + "   err: " + errEta + "   cor: " + corEta);
+
+        // results_chain.csv: one row per run
+        String outFile = System.getProperty("user.dir") + "/results_chain.csv";
+        boolean outExists = new java.io.File(outFile).exists();
+        try (FileWriter fw = new FileWriter(outFile, true)) {
+            if (!outExists) fw.write("nSpheres,temperature,ideal,rc,Rg2,Rg2_err,Rg2_cor,Rh,Rh_err,Rh_cor,eta,eta_err,eta_cor,numSteps,zenoWalks,zenoInterval\n");
+            fw.write(String.format("%d,%.4f,%b,%.3f,%.8f,%.8f,%.6f,%.8f,%.8f,%.6f,%.8f,%.8f,%.6f,%d,%d,%d%n",
+                    nSpheres, temperature, ideal, rc, avgRg, errRg, corRg,
+                    avgRh, errRh, corRh, avgEta, errEta, corEta,
+                    steps, params.zenoWalks, params.zenoInterval));
+        } catch (Exception e) { System.err.println("Could not write results_chain.csv: " + e.getMessage()); }
+
+        // charge.csv: P(r), same format as the star code
+        double[] bins = meterZeno.getChargeBins();
+        long nConf = meterZeno.getChargeConfs();
+        double dr = params.chargeBinWidth;
+        String chargeFile = System.getProperty("user.dir") + "/charge.csv";
+        boolean chargeExists = new java.io.File(chargeFile).exists();
+        try (FileWriter fw = new FileWriter(chargeFile, true)) {
+            if (!chargeExists) fw.write("nSpheres,temperature,ideal,Rh,binWidth,nConf,r,r_over_Rh,C3P\n");
+            for (int k = 0; k < bins.length; k++) {
+                double r = (k + 0.5) * dr;
+                double rho = (bins[k] / nConf) / (4 * Math.PI * r * r * dr);
+                fw.write(String.format("%d,%.4f,%b,%.8f,%.4f,%d,%.6f,%.8f,%.8f%n",
+                        nSpheres, temperature, ideal, avgRh, dr, nConf, r, r / avgRh, avgRh * avgRh * rho));
+            }
+        } catch (Exception e) { System.err.println("Could not write charge.csv: " + e.getMessage()); }
+
         long t2 = System.nanoTime();
+
+
         System.out.println("time: "+(t2-t1)/1e9);
     }
 
@@ -298,5 +351,9 @@ public class VirialChainSingle {
         public TruncationChoice truncation = TruncationChoice.SHIFT;
         public double kBend = 0;
         public boolean ideal = false;
+        public long zenoWalks = 2000;          // walks per ZENO call
+        public int zenoInterval = 1000;        // MC steps between ZENO calls
+        public double chargeBinWidth = 0.1;    // bin width for P(r); 0 = off
+
     }
 }

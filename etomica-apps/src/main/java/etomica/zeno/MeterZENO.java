@@ -40,6 +40,17 @@ public class MeterZENO implements IAction, IDataSource {
     protected long totalWalks, totalSteps;
     double[] sigmaByType;
     protected boolean eigenvaluesForPade;
+// --- charge distribution P(r) (Mansfield & Douglas 2002) ---
+   // Each hit adds charge R/numWalks to the bin at its distance from the COM,
+          // so each conformation contributes its own Rh, and the total over all bins
+           // (divided by chargeConfs) equals the average Rh.
+           // Bins are NOT cleared in reset(), so they collect over all conformations.
+      protected double chargeBinWidth = 0;          // 0 = off
+      protected double[] chargeBins = new double[0];
+      protected long chargeConfs = 0;
+      protected double[] massByType = null;         // null = all atoms weighted equally
+      protected final Vector com = new Vector3D();
+
 
     protected final DataDoubleArray data;
     protected final DataDoubleArray.DataInfoDoubleArray dataInfo;
@@ -87,7 +98,7 @@ public class MeterZENO implements IAction, IDataSource {
     public void resetBoundingSphere() {
         BoundingSphereGenerator.BoundingSphere bs  = BoundingSphereGenerator.getBoundingSphere(box, sigmaByType, shape);
         walker.setBoundingSphere(bs.center, bs.radius);
-        walker.setBoundingSphere(new Vector3D(), 25);
+        //walker.setBoundingSphere(new Vector3D(), 25);
     }
 
     public void reset() {
@@ -98,6 +109,39 @@ public class MeterZENO implements IAction, IDataSource {
         hits = 0;
         totalWalks = 0;
     }
+    public void setChargeBinWidth(double w) {
+               chargeBinWidth = w;
+           }
+
+           /**
+      * Weights used for the center of mass, indexed by atom type.
+     * Should match the weights used for the radius of gyration.
+      */
+    public void setMassByType(double[] m) {
+
+
+
+               massByType = m;
+           }
+
+    public double[] getChargeBins() {
+               return chargeBins;
+           }
+    public long getChargeConfs() {
+
+                return chargeConfs;
+           }
+
+    protected void computeCOM() {
+                com.E(0);
+               double totalMass = 0;
+                for (IAtom a : box.getLeafList()) {
+                       double m = massByType == null ? 1 : massByType[a.getType().getIndex()];
+                       com.PEa1Tv1(m, a.getPosition());
+                      totalMass += m;
+                   }
+              com.TE(1.0 / totalMass);
+            }
 
     public void setNumWalks(long n) {
         this.numWalks = n;
@@ -134,12 +178,22 @@ public class MeterZENO implements IAction, IDataSource {
         this.KMinus.PE(KMinusData);
         this.VPlus.PE(VPlusData);
         this.VMinus.PE(VMinusData);
-    }
 
+        if (chargeBinWidth > 0) {
+         double r = Math.sqrt(endPoint.Mv1Squared(com));
+         int k = (int) (r / chargeBinWidth);
+         if (k >= chargeBins.length) chargeBins = java.util.Arrays.copyOf(chargeBins, k + 1);
+         chargeBins[k] += boundingSphereRadius / numWalks;
+    }
+}
     protected void recordMiss() {
     }
 
     public void actionPerformed() {
+        if (chargeBinWidth > 0) {
+            computeCOM();
+            chargeConfs++;
+        }
         if (doEq21) {
             reset();
             Vector farthestPoint = BoundingSphereGenerator.findFarthestPoint(box, walker.boundingSphereCenter, sigmaByType, shape);
@@ -289,7 +343,7 @@ public class MeterZENO implements IAction, IDataSource {
         double t = hits / (double)this.totalWalks;
         Vector u = new Vector3D();
         Tensor v = new Tensor3D();
-        if (!includeUV) {
+        if (includeUV) {
             u.Ev1Mv2(KPlus, KMinus);
             u.TE(1.0 / totalWalks);
             v.E(VPlus);

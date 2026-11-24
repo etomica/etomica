@@ -38,6 +38,7 @@ import etomica.potential.compute.PotentialCompute;
 import etomica.potential.compute.PotentialComputePair;
 import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.units.Pixel;
 import etomica.space3d.Space3D;
 import etomica.species.ISpecies;
 import etomica.species.SpeciesBuilder;
@@ -86,13 +87,13 @@ public class VirialjackCell {
         } else {
 
 
-            params.nPoints = 4;
+            params.nPoints = 2;
             params.armLength = 3;
             params.coreSigma = 1;
             params.numArms = 4;
             params.temperature = 5;
             params.numSteps = 100000L;
-            params.boxLength = 50;
+            params.boxLength = 20;
             params.sigmaHSRef = 1.5;
             params.rc = 2.5;
         }
@@ -349,7 +350,7 @@ public class VirialjackCell {
         pTargetInReference.setAtomPotential(typeCore, typeMono, p2CoreMono);
         pTargetInReference.setAtomPotential(typeMono, typeCore, p2CoreMono);
         //to compare
-        pTarget.setAtomPotential(typeCore, typeCore, p2CoreCore);
+        pTarget.setAtomPotential(typeCore, typeCore, p2CoreCore);;;
         pTarget.setAtomPotential(typeMono, typeMono, p2MonoMono);
         pTarget.setAtomPotential(typeCore, typeMono, p2CoreMono);
         pTarget.setAtomPotential(typeMono, typeCore, p2CoreMono);
@@ -578,6 +579,11 @@ public class VirialjackCell {
             SimulationGraphic simGraphic = new SimulationGraphic(sim, SimulationGraphic.TABBED_PANE);
             DisplayBox displayBox0 = simGraphic.getDisplayBox(sim.box[0]);
             DisplayBox displayBox1 = simGraphic.getDisplayBox(sim.box[1]);
+            double size = (2*armLength + 5) * 1.5;
+            displayBox0.setPixelUnit(new Pixel(300.0 / size));
+            displayBox1.setPixelUnit(new Pixel(300.0 / size));
+            displayBox0.setShowBoundary(false);
+            displayBox1.setShowBoundary(false);
             //displayBox0.setPixelUnit(new Pixel(300.0 / size));
             //displayBox1.setPixelUnit(new Pixel(300.0 / size));
             //displayBox0.setShowBoundary(false);
