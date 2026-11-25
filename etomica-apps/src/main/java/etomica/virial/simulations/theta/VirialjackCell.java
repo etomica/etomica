@@ -12,6 +12,8 @@ import etomica.atom.AtomType;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomList;
 import etomica.box.Box;
+import etomica.config.ConfigurationFile;
+import etomica.molecule.CenterOfMass;
 import etomica.data.*;
 import etomica.data.histogram.HistogramExpanding;
 import etomica.data.history.HistoryCollapsingAverage;
@@ -155,8 +157,23 @@ public class VirialjackCell {
 
 
         // Mayer functions
-        MayerGeneral fTargetInTarget = new MayerGeneral(pTargetInTarget);
-        MayerGeneral fTargetInReference = new MayerGeneral(pTargetInReference);
+        // With -incremental, energies come from PotentialMoleculePairStar (incremental updates)
+        // instead of the cell lists.  The cell-list objects are still made, for the test code below.
+        PotentialMoleculePairStar pStarTarget = null, pStarReference = null;
+        if (params.incremental) {
+            pStarTarget = new PotentialMoleculePairStar(sm, typeCore);
+            pStarReference = new PotentialMoleculePairStar(sm, typeCore);
+            for (PotentialMoleculePairStar p : new PotentialMoleculePairStar[]{pStarTarget, pStarReference}) {
+                p.setAtomPotential(typeCore, typeCore, p2CoreCore);
+                p.setAtomPotential(typeMono, typeMono, p2MonoMono);
+                p.setAtomPotential(typeCore, typeMono, p2CoreMono);
+                p.debugCount = params.debugIncremental;
+            }
+        }
+        final PotentialMoleculePairStar pStarT = pStarTarget, pStarR = pStarReference;
+        System.out.println("energies: " + (params.incremental ? "incremental (PotentialMoleculePairStar)" : "cell lists (PotentialMoleculePairCell)"));
+        MayerGeneral fTargetInTarget = new MayerGeneral(params.incremental ? pStarT : pTargetInTarget);
+        MayerGeneral fTargetInReference = new MayerGeneral(params.incremental ? pStarR : pTargetInReference);
         // HS reference diameter: original heuristic plus optional core contribution
         // original: 1.5 + 0.15*(2*armLength)
         /*double sigmaHSRef = params.useCoreInHSRef
@@ -274,6 +291,9 @@ public class VirialjackCell {
         sim.setPotentialComputeFactory(new SimulationVirialOverlap2.PotentialComputeFactory() {
             @Override
             public PotentialCompute makePotentialCompute(SpeciesManager sm, BoxCluster box) {
+                if (pStarT != null) {
+                    return box.getIndex() == 0 ? pStarR.makePotentialComputeIntra() : pStarT.makePotentialComputeIntra();
+                }
                 return box.getIndex() == 0 ? pTargetInReference.makePotentialComputeIntra() : pTargetInTarget.makePotentialComputeIntra();
             }
         });
@@ -285,11 +305,35 @@ public class VirialjackCell {
 
         pTargetInTarget.setBox(sim.box[1]);
         pTargetInReference.setBox(sim.box[0]);
+        if (pStarT != null) {
+            pStarT.setBox(sim.box[1]);
+            pStarR.setBox(sim.box[0]);
+        }
         pTargetInTarget.integrator = sim.integrators[1];
         pTargetInReference.integrator = sim.integrators[0];
 
         sim.box[0].getBoundary().setBoxSize(Vector.of(params.boxLength, params.boxLength, params.boxLength));
         sim.box[1].getBoundary().setBoxSize(Vector.of(params.boxLength, params.boxLength, params.boxLength));
+        if (params.configIn != null) {
+            // start both boxes from a saved (relaxed) configuration; the relaxation below is skipped
+            for (int i = 0; i < 2; i++) {
+                new ConfigurationFile(params.configIn).initializeCoordinates(sim.box[i]);
+                sim.box[i].trialNotify();
+                sim.box[i].acceptNotify();
+            }
+            if (sim.box[0].getSampleCluster().value(sim.box[0]) == 0) {
+                // the reference (hard-sphere chain) cluster needs the molecules within sigmaHSRef;
+                // the reference box samples only that cluster, so overlapping molecules are fine there
+                IMoleculeList ml = sim.box[0].getMoleculeList();
+                Vector shift = space.makeVector();
+                shift.Ev1Mv2(CenterOfMass.position(sim.box[0], ml.get(0)), CenterOfMass.position(sim.box[0], ml.get(1)));
+                for (IAtom a : ml.get(1).getChildList()) a.getPosition().PE(shift);
+                sim.box[0].trialNotify();
+                sim.box[0].acceptNotify();
+                System.out.println("reference cluster was 0: moved molecule 1 onto molecule 0 in the reference box");
+            }
+            System.out.println("configuration from " + params.configIn + ".pos (both boxes)");
+        }
         NeighborCellManagerStar targetCellManager = new NeighborCellManagerStar(sm, sim.box[1], 2, bondingInfo,typeCore);/*{
             public NeighborIterator makeNeighborIterator() {
                 return new NeighborIteratorCellFaster(this,sim.box[1]);
@@ -306,15 +350,18 @@ public class VirialjackCell {
         referenceCellManager.init();
         pTargetInTarget.setNeighborManager(targetCellManager);
         pTargetInReference.setNeighborManager(referenceCellManager);
+        // the moves keep the cell lists up to date only when they are used for the energies
+        NeighborCellManagerStar cmTarget = params.incremental ? null : targetCellManager;
+        NeighborCellManagerStar cmReference = params.incremental ? null : referenceCellManager;
 
         sim.integrators[0].getMoveManager().removeMCMove(sim.mcMoveTranslate[0]);
         MCMoveClusterMoleculeHSChain mcMoveHSC = new MCMoveClusterMoleculeHSChain(sim.getRandom(), sim.box[0], sigmaHSRef);
-        mcMoveHSC.setCellManager(referenceCellManager);
+        mcMoveHSC.setCellManager(cmReference);
         sim.integrators[0].getMoveManager().addMCMove(mcMoveHSC);
         sim.accumulators[0].setBlockSize(1);
-        ((MCMoveClusterMoleculeMulti) sim.mcMoveTranslate[1]).setCellManager(targetCellManager);
-        ((MCMoveClusterRotateMoleculeMulti) sim.mcMoveRotate[1]).setCellManager(targetCellManager);
-        ((MCMoveClusterRotateMoleculeMulti) sim.mcMoveRotate[0]).setCellManager(referenceCellManager);
+        ((MCMoveClusterMoleculeMulti) sim.mcMoveTranslate[1]).setCellManager(cmTarget);
+        ((MCMoveClusterRotateMoleculeMulti) sim.mcMoveRotate[1]).setCellManager(cmTarget);
+        ((MCMoveClusterRotateMoleculeMulti) sim.mcMoveRotate[0]).setCellManager(cmReference);
         //((MCMoveClusterMoleculeMulti)sim.mcMoveTranslate[1]).setDoXAxis(true);
         //((MCMoveClusterRotateMoleculeMulti)sim.mcMoveRotate[1]).setFixedAtom(0);
 
@@ -393,9 +440,9 @@ public class VirialjackCell {
                    new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, 2, (armLength+1)/2));
            angleMoves[1].setBox(sim.box[1]);
            angleMoves[1].setConstraintMap(constraintMap);
-           angleMoves[0].setCellManager(referenceCellManager);
+           angleMoves[0].setCellManager(cmReference);
            angleMoves[1].setFixedCOM(false);
-           angleMoves[1].setCellManager(targetCellManager);
+           angleMoves[1].setCellManager(cmTarget);
            sim.integrators[1].getMoveManager().addMCMove(angleMoves[1], 0.1);
        }
 
@@ -409,9 +456,9 @@ public class VirialjackCell {
                 new MCMoveClusterAngle.AtomChooserStarfl(sim.getRandom(), numArms, armLength, (armLength+1) / 2 + 1, armLength));
         angleMoves[3].setBox(sim.box[1]);
         angleMoves[3].setConstraintMap(constraintMap);
-        angleMoves[2].setCellManager(referenceCellManager);
+        angleMoves[2].setCellManager(cmReference);
         angleMoves[3].setFixedCOM(false);
-        angleMoves[3].setCellManager(targetCellManager);
+        angleMoves[3].setCellManager(cmTarget);
         sim.integrators[1].getMoveManager().addMCMove(angleMoves[3], 0.1);
 
         MCMoveClusterAngleMulti angleMovesMulti1=null;
@@ -424,7 +471,7 @@ public class VirialjackCell {
             angleMovesMulti1.setConstraintMap(constraintMap);
 
             angleMovesMulti1.setFixedCOM(false);
-            angleMovesMulti1.setCellManager(targetCellManager);
+            angleMovesMulti1.setCellManager(cmTarget);
             sim.integrators[1].getMoveManager().addMCMove(angleMovesMulti1, 0.4);
         }
 
@@ -440,7 +487,7 @@ public class VirialjackCell {
           angleMovesMulti0.setBox(sim.box[0]);
           angleMovesMulti0.setConstraintMap(constraintMap);
           angleMovesMulti0.setFixedCOM(false);
-          angleMovesMulti0.setCellManager(referenceCellManager);
+          angleMovesMulti0.setCellManager(cmReference);
           sim.integrators[0].getMoveManager().addMCMove(angleMovesMulti0, 0.4);
       }
 
@@ -449,11 +496,11 @@ public class VirialjackCell {
         angleMovesMulti0outer.setBox(sim.box[0]);
         angleMovesMulti0outer.setConstraintMap(constraintMap);
         angleMovesMulti0outer.setFixedCOM(false);
-        angleMovesMulti0outer.setCellManager(referenceCellManager);
+        angleMovesMulti0outer.setCellManager(cmReference);
         sim.integrators[0].getMoveManager().addMCMove(angleMovesMulti0outer, 0.4);
 
         angleMovesMulti1outer.setFixedCOM(false);
-        angleMovesMulti1outer.setCellManager(targetCellManager);
+        angleMovesMulti1outer.setCellManager(cmTarget);
         sim.integrators[1].getMoveManager().addMCMove(angleMovesMulti1outer, 0.4);
 
         MCMoveClusterShuffle shuffleMove0 = null, shuffleMove1 = null;
@@ -470,8 +517,8 @@ public class VirialjackCell {
             shuffleMove1.setBox(sim.box[1]);
             shuffleMove1.setStepSizeMax(armLength - 2);
             shuffleMove1.setConstraintMap(constraintMap);
-            shuffleMove1.setCellManager(targetCellManager);
-            shuffleMove0.setCellManager(referenceCellManager);
+            shuffleMove1.setCellManager(cmTarget);
+            shuffleMove0.setCellManager(cmReference);
             // sim.integrators[1].getMoveManager().addMCMove(shuffleMove1);
             ((MCMoveStepTracker) shuffleMove1.getTracker()).setAcceptanceTarget(0.3);
         }
@@ -823,10 +870,12 @@ public class VirialjackCell {
             //to compare
 
             long trelax=System.nanoTime();
-        if(params.sigmaHSRef > 0){
-            sim.getController().runActivityBlocking(relaxActivity0);
+        if (params.configIn == null) {
+            if(params.sigmaHSRef > 0){
+                sim.getController().runActivityBlocking(relaxActivity0);
+            }
+            sim.getController().runActivityBlocking(relaxActivity);
         }
-        sim.getController().runActivityBlocking(relaxActivity);
             //sim.getController().runActivityBlocking(relaxActivity0);
             //sim.getController().runActivityBlocking(relaxActivity);
 
@@ -890,7 +939,7 @@ public class VirialjackCell {
             long m=50000;
             Vector r0=sim.box[1].getMoleculeList().get(0).getChildList().get(0).getPosition();
             Vector r1=sim.box[1].getMoleculeList().get(1).getChildList().get(0).getPosition();
-            ((MCMoveClusterRotateMoleculeMulti) sim.mcMoveRotate[1]).setCellManager(targetCellManager);
+            ((MCMoveClusterRotateMoleculeMulti) sim.mcMoveRotate[1]).setCellManager(cmTarget);
             ((MCMoveClusterRotateMoleculeMulti) sim.mcMoveRotate[1]).skipW=false;
             int nextAtom[]=targetCellManager.getCellNextAtom();
             int lastAtom[]=targetCellManager.getCellLastAtom();
@@ -1148,6 +1197,13 @@ public class VirialjackCell {
         public double rc=4;
         public double boxLength = 10;
         public double sigmaHSRef = 0;
+        /** energies from PotentialMoleculePairStar (incremental updates) instead of cell lists */
+        public boolean incremental = false;
+        /** with incremental: compare this many incremental calculations (per box) with full ones */
+        public long debugIncremental = 0;
+        /** start both boxes from name.pos (e.g. a relaxed configuration from VirialjackCellTarget),
+         *  skipping the relaxation of the initial extended-arm configuration */
+        public String configIn = null;
     }
     public static class DataSourceEndDistance implements IDataSource{
         public DataTag tag;
