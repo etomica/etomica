@@ -16,7 +16,7 @@ public interface IPotentialEmbedding {
 
     /**
      * Returns (as out parameters) the embedding energy (f) for the given
-     * electron density rho along with the derivative of the energy with rho.
+     * electron density rho along with the derivatives of the energy with rho.
      */
-    void udu(double rho, double[] f, double[] df);
+    void udud2u(double rho, double[] f, double[] df, double[] d2f);
 }

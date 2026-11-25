@@ -6,7 +6,7 @@ package etomica.virial.simulations.squarewell;
 
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
-import etomica.virial.IntSet;
+import etomica.util.collections.IntSet;
 import etomica.virial.MeterVirialEBinMultiThreaded;
 import etomica.virial.MeterVirialEBinMultiThreaded.MyData;
 import etomica.virial.MeterVirialEBinMultiThreaded.MyDataCov;

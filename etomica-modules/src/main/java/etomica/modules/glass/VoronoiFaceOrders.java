@@ -16,11 +16,11 @@ import etomica.integrator.IntegratorMD;
 import etomica.space.Vector;
 import etomica.units.dimensions.Quantity;
 import etomica.util.collections.IntArrayList;
+import etomica.util.collections.IntSet;
 import etomica.util.voro.CLoopAll;
 import etomica.util.voro.ContainerPoly;
 import etomica.util.voro.PreContainerPoly;
 import etomica.util.voro.VoronoiCell;
-import etomica.virial.IntSet;
 
 import java.util.ArrayList;
 import java.util.Comparator;

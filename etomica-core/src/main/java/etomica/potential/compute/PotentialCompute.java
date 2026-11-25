@@ -20,7 +20,17 @@ public interface PotentialCompute {
 
     Vector[] getForces();
 
+    default Vector[] getdFdeV() {return null;};
+
+    default Vector[][] getdFde() {return null;};
+
     double getLastVirial();
+
+    default double[] getLastVirialXYZ() {return new double[6];};
+
+    default double[] getLastVirial2XYZ() {return new double[9];};
+
+    default double getLastVirial2() {return 0;};
 
     static double computeVirialIntramolecular(Vector[] forces, Box box) {
         double virialIntra = 0;
@@ -72,4 +82,5 @@ public interface PotentialCompute {
     static PotentialCompute aggregate(PotentialCompute... computes) {
         return new PotentialComputeAggregate(computes);
     }
+
 }
