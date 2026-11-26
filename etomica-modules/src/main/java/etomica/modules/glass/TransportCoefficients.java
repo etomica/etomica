@@ -40,6 +40,7 @@ import java.io.IOException;
 public class TransportCoefficients {
 
     public static void main(String[] args) {
+        long time0eq = System.nanoTime();
         double startTime = System.nanoTime()/1e9;
         SimParams params = new SimParams();
         if (args.length > 0) {
@@ -57,6 +58,7 @@ public class TransportCoefficients {
             params.numSteps = 100000;
             params.rcLJ = 2.5;
             params.tStep = 0.01;
+            params.numStepsIsothermal = 0;
         }
         if (params.nB==0) params.doSwap = false;
 
@@ -67,16 +69,21 @@ public class TransportCoefficients {
         }
         SimGlass sim = new SimGlass(params.D, params.nA, params.nB, params.density, params.temperature, params.doSwap, params.potential, params.tStep, params.rcLJ, params.sigmaB);
         System.out.println(params.D + "D " + sim.potentialChoice);
-        System.out.println("nA:nB = " + params.nA + ":" + params.nB);
-        System.out.println("sigmaA: " + 1.0 + " sigmaB: " + sim.sigmaB);
+        System.out.println("L: " + sim.box.getBoundary().getBoxSize().getX(0));
+        System.out.println("nA:nB " + params.nA + ":" + params.nB);
+        if (params.nB > 0 ) {
+            System.out.println("sigmaA: " + 1.0 + " sigmaB: " + sim.sigmaB);
+        }
 
         int numAtoms = params.nA + params.nB;
         System.out.println("T = " + params.temperature);
+        System.out.println("doSwap: " + params.doSwap);
         System.out.println(params.numSteps + " production MD steps after " + params.numStepsEqIsothermal + " NVT equilibration steps, "+params.numStepsIsothermal+" NVT E check using dt = " + sim.integrator.getTimeStep());
         double volume = sim.box.getBoundary().volume();
         if (params.potential == SimGlass.PotentialChoice.HS) {
             double phi;
             double sb = params.sigmaB == 0 ? 1.0/1.4 : params.sigmaB;
+            if (params.nB == 0) sb = 1.0;
             if (params.D == 2) {
                 phi = Math.PI / 4 * (params.nA + params.nB * sb * sb) / volume;
             } else {
@@ -91,7 +98,6 @@ public class TransportCoefficients {
         long blocksize = params.numSteps / 100;
 
         //Equilibration
-        long time0eq = System.nanoTime();
         double temperature0 = Math.max(params.temperatureMelt, params.temperature);
         if (temperature0 > params.temperature) System.out.println("Equilibrating at T=" + temperature0);
         sim.integrator.setIsothermal(true);
@@ -148,7 +154,7 @@ public class TransportCoefficients {
             // only for this sim, swapMove not saved/restored (has no state, only tracker has state)
             System.out.println("swap acceptance: "+sim.swapMove.getTracker().acceptanceProbability());
         }
-        System.out.printf("\nequilibration time: %3.2f s\n", (time2eq-time0eq)/1e9);
+        System.out.printf("equilibration time: %3.2f min\n", (time2eq-time0eq)/1e9/60.);
 
         if (sim.potentialChoice != SimGlass.PotentialChoice.HS) {
             // Try to use the average total energy from the 2nd half of equilibration
@@ -173,8 +179,6 @@ public class TransportCoefficients {
 //            double newNewKE = new MeterKineticEnergy(sim.box).getDataAsScalar();
 //            System.out.println("actual KE => "+newNewKE/numAtoms);
         }
-
-
 
 
         //Production
@@ -206,8 +210,12 @@ public class TransportCoefficients {
         IntegratorListenerAction rdfMeterListener = new IntegratorListenerAction(meterRdf);
         sim.integrator.getEventManager().addListener(rdfMeterListener);
         rdfMeterListener.setInterval(100);
-        meterRdf.setAtomTypes(sim.speciesA.getLeafType(), sim.speciesB.getLeafType());
-        double sigmaAB = (1.0 + sim.sigmaB) / 2;
+        double sigmaAB = 1.0;
+        meterRdf.setAtomType(sim.speciesA.getLeafType());
+        if (params.nB > 0) {
+            meterRdf.setAtomTypes(sim.speciesA.getLeafType(), sim.speciesB.getLeafType());
+            sigmaAB = (1.0 + sim.sigmaB) / 2;
+        }
         meterRdf.getXDataSource().setXMax(sigmaAB * 1.5);
         meterRdf.setBox(sim.box);
 
@@ -227,14 +235,6 @@ public class TransportCoefficients {
         AccumulatorPTensor pTensorAccumVisc = new AccumulatorPTensor(sim.box, dn * sim.integrator.getTimeStep());
         pTensorAccumVisc.setEnabled(true);
         pTensorFork.addDataSink(pTensorAccumVisc);
-
-        //Viscosity (linear)
-        AccumulatorLinearPTensor pTensorLinearAccumVisc = null;
-        if (params.doLinear) {
-            pTensorLinearAccumVisc = new AccumulatorLinearPTensor(sim.box, dn * sim.integrator.getTimeStep(), 1000);
-            pTensorLinearAccumVisc.setEnabled(true);
-            pTensorFork.addDataSink(pTensorLinearAccumVisc);
-        }
 
         DataPumpListener pTensorAccumViscPump = new DataPumpListener(pTensorMeter, pTensorFork, dn);
 
@@ -263,7 +263,6 @@ public class TransportCoefficients {
             tAccumulator = new AccumulatorAverageFixed(blocksize / 5);
             DataPumpListener tPump = new DataPumpListener(tMeter, tAccumulator, 5);
             tAccumulator.addDataSink(pTensorAccumVisc.makeTemperatureSink(), new AccumulatorAverage.StatType[]{tAccumulator.AVERAGE});
-            tAccumulator.addDataSink(pTensorLinearAccumVisc.makeTemperatureSink(), new AccumulatorAverage.StatType[]{tAccumulator.AVERAGE});
             sim.integrator.getEventManager().addListener(tPump);
         }
 
@@ -379,8 +378,8 @@ public class TransportCoefficients {
             System.err.println("Cannot open a file, caught IOException: " + e.getMessage());
         }
         long time1 = System.nanoTime();
-        double sim_time = (time1 - time0) / 1e9;
-        System.out.printf("\ntime: %3.2f s\n", sim_time);
+        double sim_time = (time1 - time0) / 1e9 / 60.0;
+        System.out.printf("\ntime: %3.2f min\n", sim_time);
     }
 
     public static class SimParams extends SimGlass.GlassParams {
