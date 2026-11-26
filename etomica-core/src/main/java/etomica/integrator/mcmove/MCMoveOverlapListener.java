@@ -96,6 +96,7 @@ public class MCMoveOverlapListener implements IListener<MCMoveEvent> {
             ratios[i] = Math.exp(spline.doInterpolation(z)[0]);
 //            System.out.println("ratio: "+Math.log(ratios[i]));
         }
+//        System.out.println(mcMove.species.getIndex()+" "+Arrays.toString(ratios));
         return ratios;
     }
     
@@ -106,6 +107,11 @@ public class MCMoveOverlapListener implements IListener<MCMoveEvent> {
         for (int na=minNumAtoms; na<sumDelete.length; na++) {
             int i = na - minNumAtoms;
             h[i] = numInsert[na] + numDelete[na];
+            if (na == mcMove.minN || na == mcMove.maxN) {
+                // numDelete[minN] = numInsert[maxN] = 0
+                // we don't bother trying to jump of the ends, so double the other
+                h[i] *= 2;
+            }
             tot += h[i];
         }
         for (int i=0; i<h.length; i++) {
@@ -139,29 +145,20 @@ public class MCMoveOverlapListener implements IListener<MCMoveEvent> {
     }
 
     public void actionPerformed(MCMoveEvent event) {
+        if (event.getMCMove() != mcMove) return;
+        Box box = mcMove.getBox();
+        int numAtoms = box.getNMolecules(mcMove.getSpecies());
         if (event instanceof MCMoveTrialFailedEvent) {
-            if (event.getMCMove() != mcMove) return;
             // trial failed, but we were still here.  we need to increment our sums here
             // for the histogram.
-            Box box = mcMove.getBox();
-            int numAtoms = box.getLeafList().size();
             if (sumInsert.length < numAtoms+1) {
                 sumInsert = Arrays.copyOf(sumInsert, numAtoms+1);
                 numInsert = Arrays.copyOf(numInsert, numAtoms+1);
                 sumDelete = Arrays.copyOf(sumDelete, numAtoms+1);
                 numDelete = Arrays.copyOf(numDelete, numAtoms+1);
             }
-            if (mcMove.lastMoveInsert()) {
-                numInsert[numAtoms]++;
-            }
-            else {
-                numDelete[numAtoms]++;
-            }
         }
         else if (event instanceof MCMoveTrialInitiatedEvent) {
-            if (event.getMCMove() != mcMove) return;
-            Box box = mcMove.getBox();
-            int numAtoms = box.getLeafList().size();
             // x = V/N*Math.exp(-beta*deltaU)
             double x = mcMove.getChi(temperature) * Math.exp(-mcMove.getLnBiasDiff());
             if (mcMove.lastMoveInsert()) {

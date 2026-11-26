@@ -27,6 +27,16 @@ public class DisplayBoxCanvas2DGlass extends DisplayBoxCanvas2D implements Displ
         configIndex = 100;
     }
 
+    protected DisplayBoxCanvas2DGlass makeCopy(DisplayBox db) {
+        DisplayBoxCanvas2DGlass canvas = new DisplayBoxCanvas2DGlass(db, controller, configStorage);
+        db.canvas = canvas;
+        canvas.setPixelUnit(pixel);
+        canvas.setDrawDisplacement(drawDisplacement);
+        canvas.setConfigIndex(configIndex);
+        return canvas;
+    }
+
+
     public void setConfigIndex(int idx) {
         configIndex = idx;
         repaint();

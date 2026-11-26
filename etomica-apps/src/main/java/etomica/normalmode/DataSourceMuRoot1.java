@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.data.AccumulatorAverageBlockless;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataDistributer;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.mcmove.MCMoveOverlapListener;
@@ -89,8 +89,8 @@ public class DataSourceMuRoot1 extends DataSourceScalar {
                 p /= Math.exp(daDef + myMu) / (nLatticeAtoms - i) * (i + 1);
             }
             p = 1;
-            AccumulatorAverageBlockless acc0 = (AccumulatorAverageBlockless)pSplitter.getDataSink(0);
-            AccumulatorAverageBlockless acc1 = (AccumulatorAverageBlockless)pSplitter.getDataSink(1);
+            AccumulatorAverageCollapsing acc0 = (AccumulatorAverageCollapsing)pSplitter.getDataSink(0);
+            AccumulatorAverageCollapsing acc1 = (AccumulatorAverageCollapsing)pSplitter.getDataSink(1);
             if (acc0 == null || acc1 == null || acc0.getSampleCount() == 0 || acc1.getSampleCount() == 0) return Double.NaN;
             double p0 = acc0.getData().getValue(acc0.AVERAGE.index);
             double p1 = acc1.getData().getValue(acc1.AVERAGE.index);

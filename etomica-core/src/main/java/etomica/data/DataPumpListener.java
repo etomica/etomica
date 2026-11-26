@@ -38,4 +38,9 @@ public class DataPumpListener extends DataPump implements IntegratorListener {
     public long getInterval() {
         return interval;
     }
+
+    /**
+     * Configures the pump to consider the current intervalCount to be ic.
+     */
+    public void setIntervalCount(long ic) {intervalCount = ic;}
 }

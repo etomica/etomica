@@ -43,6 +43,9 @@ import etomica.units.dimensions.Dimension;
 import etomica.units.dimensions.Null;
 import etomica.util.ParameterBase;
 import etomica.util.ParseArgs;
+import etomica.util.random.RandomMersenneTwister;
+
+import java.util.Arrays;
 
 /**
  * Simple Lennard-Jones molecular dynamics simulation in 3D
@@ -60,8 +63,9 @@ public class SimHSMDVacancy extends Simulation {
     public MCMoveInsertDeleteLatticeVacancy mcMoveID;
 
 
-    public SimHSMDVacancy(final int numAtoms, double density, double tStep, int hybridInterval, final int numV, final double mu) {
+    public SimHSMDVacancy(final int numAtoms, double density, double tStep, int hybridInterval, final int numV, final double mu, int[] seeds) {
         super(Space3D.getInstance());
+        if (seeds != null) setRandom(new RandomMersenneTwister(seeds));
         species = SpeciesGeneral.monatomic(space, AtomType.simpleFromSim(this), true);
         addSpecies(species);
 
@@ -157,7 +161,6 @@ public class SimHSMDVacancy extends Simulation {
         int numV = params.numV;
         double mu = params.mu;
         double Alat = params.Alat;
-        System.out.println("Running N="+params.numAtoms+" at rho="+density);
         if (Double.isNaN(mu)) {
             if (!fluid) {
                 // this should get us pretty close
@@ -192,11 +195,17 @@ public class SimHSMDVacancy extends Simulation {
         }
    
         if (!graphics) {
-    	    System.out.println("Running HS MD with N="+numAtoms+" at density="+density);
+    	    System.out.println("N: "+numAtoms);
+            System.out.println("density: "+density);
     	    System.out.println("time step: "+tStep);
     	    System.out.println(steps+" steps ("+(steps*tStep)+" time units)");
     	    System.out.println("hybrid MC interval: "+hybridInterval);
     	}
+        else {
+            System.out.println("Running HS MD with N="+numAtoms+" at density="+density);
+            System.out.println("time step: "+tStep);
+            System.out.println("hybrid MC interval: "+hybridInterval);
+        }
 
         int fac = 1;
         // tStep needs to be less than 0.01 for happy neighbor updating 
@@ -216,9 +225,9 @@ public class SimHSMDVacancy extends Simulation {
             System.out.println(" => "+steps+" x "+tStep);
         }
 
-        final SimHSMDVacancy sim = new SimHSMDVacancy(numAtoms, density, tStep, hybridInterval, numV, mu);
+        final SimHSMDVacancy sim = new SimHSMDVacancy(numAtoms, density, tStep, hybridInterval, numV, mu, params.seeds);
 
-
+        System.out.println("seeds: "+ Arrays.toString(((RandomMersenneTwister) sim.getRandom()).getSeedArray()));
         final int biasInterval = 1000;
 
         final MCMoveOverlapListener mcMoveOverlapMeter = new MCMoveOverlapListener(sim.mcMoveID, 11, daDef, numAtoms, 2);
@@ -233,7 +242,7 @@ public class SimHSMDVacancy extends Simulation {
         };
         final DataDistributer pSplitter = new DataDistributer(indexer, new IDataSinkFactory() {
             public IDataSink makeDataSink(int i) {
-                return new AccumulatorAverageBlockless();
+                return new AccumulatorAverageCollapsing(200);
             }
         });
         pSplitter.putDataInfo(meterP.getDataInfo());
@@ -493,7 +502,7 @@ public class SimHSMDVacancy extends Simulation {
                         }
                         dsmrvcHistory.reset();
                         for (int i=0; i<pSplitter.getNumDataSinks(); i++) {
-                            AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
+                            AccumulatorAverageCollapsing avg = (AccumulatorAverageCollapsing) pSplitter.getDataSink(i);
                             if (avg != null) avg.reset();
                         }
                         sim.integratorMC.getEventManager().removeListener(mcMoveBiasListener);
@@ -530,7 +539,7 @@ public class SimHSMDVacancy extends Simulation {
         mcMoveOverlapMeter.reset();
         sim.integrator.resetStepCount();
         for (int i=0; i<pSplitter.getNumDataSinks(); i++) {
-            AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
+            AccumulatorAverageCollapsing avg = (AccumulatorAverageCollapsing) pSplitter.getDataSink(i);
             if (avg != null) avg.reset();
         }
         sim.integrator.resetStepCount();
@@ -573,7 +582,7 @@ public class SimHSMDVacancy extends Simulation {
         // and throw away data again
         mcMoveOverlapMeter.reset();
         for (int i=0; i<pSplitter.getNumDataSinks(); i++) {
-            AccumulatorAverageBlockless avg = (AccumulatorAverageBlockless)pSplitter.getDataSink(i);
+            AccumulatorAverageCollapsing avg = (AccumulatorAverageCollapsing) pSplitter.getDataSink(i);
             if (avg != null) avg.reset();
         }
         sim.integrator.resetStepCount();
@@ -606,7 +615,7 @@ public class SimHSMDVacancy extends Simulation {
             int n = (int)Math.round(nData.getValue(i));
             double pAvg = Double.NaN;
             if (numAtoms-n < pSplitter.getNumDataSinks()) {
-                AccumulatorAverageBlockless pAcc = (AccumulatorAverageBlockless)pSplitter.getDataSink(numAtoms-n);
+                AccumulatorAverageCollapsing pAcc = (AccumulatorAverageCollapsing) pSplitter.getDataSink(numAtoms-n);
                 pAvg = pAcc == null ? Double.NaN : pAcc.getData().getValue(pAcc.AVERAGE.index);
             }
             if (Math.round(nData.getValue(i)) < numAtoms) {
@@ -641,5 +650,6 @@ public class SimHSMDVacancy extends Simulation {
         public boolean doReweight = true;
         public double daDef = Double.NaN;
         public boolean fluid = false;
+        public int[] seeds = null;
     }
 }

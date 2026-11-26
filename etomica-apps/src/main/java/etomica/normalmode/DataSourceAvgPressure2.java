@@ -4,7 +4,7 @@
 
 package etomica.normalmode;
 
-import etomica.data.AccumulatorAverageBlockless;
+import etomica.data.AccumulatorAverageCollapsing;
 import etomica.data.DataDistributer;
 import etomica.data.DataSourceScalar;
 import etomica.integrator.mcmove.MCMoveOverlapListener;
@@ -47,7 +47,7 @@ public class DataSourceAvgPressure2 extends DataSourceScalar {
             sum += q;
         }
         double lastDMu = dsmr.getLastDMu();
-        AccumulatorAverageBlockless acc = (AccumulatorAverageBlockless)pSplitter.getDataSink(0);
+        AccumulatorAverageCollapsing acc = (AccumulatorAverageCollapsing)pSplitter.getDataSink(0);
         if (acc == null || acc.getSampleCount() == 0) {
             return Double.NaN;
         }
